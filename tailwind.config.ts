@@ -14,7 +14,8 @@ const config: Config = {
           "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
       colors:{
-        "primary":"rgba(254, 114, 0, 1)"
+        "primary":"rgba(254, 114, 0, 1)",
+        "background": "rgba(245, 246, 252, 1)"
       },
       screens: {
         'small-laptop' : "900px" // => @media (min-width: 900px) { ... }

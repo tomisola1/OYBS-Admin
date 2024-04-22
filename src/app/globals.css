@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --primary-color: rgba(254, 114, 0, 1)
 }
 
 @media (prefers-color-scheme: dark) {
@@ -16,12 +14,30 @@
   }
 }
 
-body {
+/* body {
  
-}
-
+} */
+/* 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+} */
+
+.active-link {
+
+    background-image: linear-gradient(to right, white, #ffffff1e);
+    color: var(--primary-color);
+    border-radius: 0.75rem;
+}
+
+.active-link >svg > rect {
+  stroke: var(--primary-color);
+}
+.active-link >svg > line {
+  stroke: var(--primary-color);
+}
+.active-link >svg > path {
+  fill: var(--primary-color);
+  stroke: var(--primary-color);
 }

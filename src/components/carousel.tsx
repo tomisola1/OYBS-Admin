@@ -29,12 +29,12 @@ const Carousel = () => {
         return () => {};
       }, [index]);
   return (
-    <div className="my-0 mx-auto w-full relative overflow-scroll">
-      <div className="whitespace-nowrap transition ease-in duration-1000"  style={{ transform: `translate3d(${-index * 100}%, 0, 0)` }}>
-        <div className="w-full">
+    <div className="my-0 mx-auto overflow-hidden w-full h-auto relative">
+      <div className="h-auto whitespace-nowrap transition ease-in duration-1000 relative"  style={{ transform: `translate3d(${-index * 100}%, 0, 0)` }}>
+        <div className="w-full ">
         {
             images.map((image, index) =>(
-                <Image src={image} alt='' key={index} className='w-full h-screen rounded-tr-3xl rounded-br-3xl inline-block'/>
+                <Image src={image} alt='' key={index} className='w-full min-h-screen h-auto rounded-tr-3xl rounded-br-3xl inline-block'/>
             ))
         }
         </div>

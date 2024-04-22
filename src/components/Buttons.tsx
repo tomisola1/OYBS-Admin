@@ -28,7 +28,7 @@ export const BtnPrimary: React.FC<Props> = ({ className, ...props }) => {
 export const Btn: React.FC<Props> = ({ className, ...props }) => {
   return (
     <button
-      className={`bg-white flex items-center justify-center rounded-[100px] px-[1.13rem] py-[0.63rem] border border-solid border-[#d0d5dd] shadow-sm hover:bg-primary hover:text-white hover:border-primary ${className} `}
+      className={`bg-white flex items-center justify-center rounded-[100px] px-[1.13rem] py-[0.63rem] border border-solid border-primary text-primary shadow-sm hover:bg-primary hover:text-white hover:border-primary ${className} `}
       {...props}
     >
       {props?.children}
