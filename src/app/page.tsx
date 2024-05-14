@@ -6,13 +6,35 @@ import image from "../../public/image";
 import InputField from "@/components/Inputfield";
 import { Btn, BtnPrimary } from "@/components/Buttons";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
+import { adminLogin } from "@/services/authService";
 
 export default function Home() {
   const router = useRouter()
+  const [loginData, setLoginData] = useState({
+    email:'',
+    password:''
+  })
 
-  const handleSubmit = () => {
-    router.push("/dashboard")
+  const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const {name, value} = e.target
+    setLoginData({...loginData, [name]:value})
+  }
+
+  const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    try {
+      const response = await adminLogin(loginData)
+      console.log(response);
+      localStorage.setItem('token', response.result.access_token)
+      if (response.success === true) {
+        router.push("/dashboard") 
+      }
+    } catch (error) {
+      console.log(error);
+      
+    }
   }
 
   return (
@@ -29,14 +51,14 @@ export default function Home() {
             <h3 className="font-bold sm:text-[32px] text-3xl leading-[4rem] tracking-wide ">Welcome back</h3>
             <p className="font-normal m-0 text-base">Sign in by entering your account here.</p>
           </div>
-          <form>
-            <InputField placeholder="Enter your email address"/>
-            <InputField placeholder="Password" type="password"/>
+          <form onSubmit={handleSubmit}>
+            <InputField placeholder="Enter your email address" type="email" name="email" change={handleChange} required/>
+            <InputField placeholder="Password" type="password" name="password" change={handleChange} required/>
             <Link href={"/forgot-password"} className="flex justify-end mt-2">
               <span className="text-primary font-medium text-xs">Forgot Password?</span>
             </Link>
+           <BtnPrimary className="font-semibold text-base w-full mt-10" type="submit">Login</BtnPrimary>
           </form>
-          <BtnPrimary className="font-semibold text-base" type="submit" onClick={handleSubmit}>Login</BtnPrimary>
         </div>
         <div className="absolute bottom-0">
           <span className="text-primary font-medium text-xs">...by BHM Inc.</span>

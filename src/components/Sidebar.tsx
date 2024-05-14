@@ -10,6 +10,11 @@ import { usePathname, useRouter } from 'next/navigation'
 
 const Sidebar = () => {
 	const pathname = usePathname()
+	const router = useRouter()
+	const handleLogout = () => {
+		localStorage.removeItem('token')
+		router.replace('/')
+	}
   return (
     <>
         <aside className='box-border h-auto'>
@@ -73,10 +78,10 @@ const Sidebar = () => {
 					</li>
 					<li className="transition-colors duration-700 ease-in-out">
 						<Link
-							href={'/dashboard/incident'}
-							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/incident/gi) ? 'active-link' : ''}`}>
+							href={'/dashboard/insight-management'}
+							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/insight/gi) ? 'active-link' : ''}`}>
 							<ChartIcon />
-							<span className='font-medium text-sm'>Incident Management</span>
+							<span className='font-medium text-sm'>Insight Management</span>
 						</Link>
 					</li>
 					<li className="transition-colors duration-700 ease-in-out">
@@ -97,7 +102,7 @@ const Sidebar = () => {
 					</li>
 				</ul>
 				<div className=" transition-colors duration-700 ease-in-out hover:bg-gradient-to-r from-[#ffffff] to-[#ffffff1e] mt-[30px] pt-3.5 pb-4 rounded-xl pl-3.5 ml-8">
-					<button className={"flex gap-3 items-center"}>
+					<button className={"flex gap-3 items-center"} onClick={handleLogout}>
                         <PowerIcon className="h-5 w-5 flex-shrink-0" aria-hidden='true'/>
 						<span className='text-[#515266] font-medium text-sm'>Logout</span>
 					</button>

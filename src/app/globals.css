@@ -34,10 +34,9 @@
 .active-link >svg > rect {
   stroke: var(--primary-color);
 }
-.active-link >svg > line {
+.active-link >svg  line {
   stroke: var(--primary-color);
 }
-.active-link >svg > path {
-  fill: var(--primary-color);
+.active-link >svg  path {
   stroke: var(--primary-color);
 }

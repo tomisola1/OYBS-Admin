@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 
 interface PillProps {
 	text?: ReactNode;
-	children?: React.ReactNode[];
+	children?: React.ReactNode;
 }
 function Pill(props: PillProps) {
 	const { text, children } = props;

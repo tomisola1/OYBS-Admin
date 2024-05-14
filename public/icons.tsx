@@ -17,6 +17,15 @@ export const UserIcon = () => {
     )
 }
 
+export const UserIcon2 = () => {
+    return (
+        <svg width="16" height="16" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10.799 9.31543C12.7319 9.31543 14.299 7.74843 14.299 5.81543C14.299 3.88243 12.7319 2.31543 10.799 2.31543C8.86595 2.31543 7.29895 3.88243 7.29895 5.81543C7.29895 7.74843 8.86595 9.31543 10.799 9.31543Z" stroke="#ffffff" stroke-width="1.3125"/>
+            <path d="M13.424 18.6036C12.6283 18.8196 11.7384 18.9404 10.799 18.9404C7.41621 18.9404 4.67395 17.3734 4.67395 15.4404C4.67395 13.5075 7.41621 11.9404 10.799 11.9404C14.1817 11.9404 16.924 13.5075 16.924 15.4404C16.924 15.7426 16.8569 16.0358 16.731 16.3154" stroke="#ffffff" stroke-width="1.3125" stroke-linecap="round"/>
+        </svg>
+    )
+}
+
 export const PrayerIcon = () => {
     return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

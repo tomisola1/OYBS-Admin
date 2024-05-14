@@ -1,9 +1,32 @@
+"use client"
+
 import Head from '@/components/Head'
 import Table from '@/components/Table'
+import { fetchSingleUser } from '@/services/userService'
+import { UserDetailProps } from '@/types'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
-const SingleUser = () => {
+
+// export function generateStaticParams() {
+//     return 
+//   }
+
+const SingleUser = ({ params }: { params: { id: string } }) => {
+    const [user, setUser] = useState<UserDetailProps>()
+    
+    useEffect(() =>{
+        const fetchAllUsers = async() =>{
+            try {
+                const response = await fetchSingleUser(params.id)
+                console.log(response);
+                setUser(response?.result)
+            } catch (error) {
+                console.log(error);    
+            }
+        }
+        fetchAllUsers()
+    },[params])
   return (
     <div>  
         <Head title='User Details' navigate={true}/>
@@ -14,27 +37,23 @@ const SingleUser = () => {
                  <tbody className='font-normal text-sm'>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Name</td>
-                        <td className='py-3'>Mike Bolanle</td>
+                        <td className='py-3'>{user?.firstName}{user?.lastName}</td>
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Email</td>
-                        <td className='py-3'>Mikebola@gmail.com</td>
+                        <td className='py-3'>{user?.email}</td>
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Birth Date</td>
-                        <td className='py-3'>02/10/2004</td>
+                        <td className='py-3'>{user?.birthDate ? user?.birthDate :"None"}</td>
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Phone Number</td>
-                        <td className='py-3'>+234 651-406-5337</td>
+                        <td className='py-3'>{user?.phoneNumber ? user.phoneNumber : "None"}</td>
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Gender</td>
-                        <td className='py-3'>Male</td>
-                    </tr>
-                    <tr>
-                        <td className='py-3'>Country</td>
-                        <td className='py-3'>Nigeria</td>
+                        <td className='py-3'>{user?.gender ? user?.gender : "None"}</td>
                     </tr>
                  </tbody>
                 </table>
@@ -45,27 +64,19 @@ const SingleUser = () => {
                  <tbody className='font-normal text-sm'>
                     <tr className='border-b border-b-white'>
                         <td className='py-3 w-40'>Current Streak</td>
-                        <td className='py-3'>30</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Highest Streak</td>
-                        <td className='py-3'>100</td>
+                        <td className='py-3'>{user?.streak}</td>
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Quiz Taken</td>
-                        <td className='py-3'>10</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Highest Score</td>
-                        <td className='py-3'>12</td>
+                        <td className='py-3'>{user?.quizzesTaken}</td>
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Insights Shared</td>
-                        <td className='py-3'>50</td>
+                        <td className='py-3'>{user?.insightsShared}</td>
                     </tr>
                     <tr>
                         <td className='py-3'>Donations</td>
-                        <td className='py-3'>0</td>
+                        <td className='py-3'>{user?.donations}</td>
                     </tr>
                  </tbody>
                 </table>

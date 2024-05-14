@@ -13,8 +13,10 @@ interface TableProps {
    itemsPerPage?: number;
    showFilter?: boolean
    BtnItem?: string
+   handleNextPage?: () => void;
+   handlePreviousPage?: () => void
 }
-function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, BtnItem }: TableProps) {
+function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, BtnItem, handleNextPage, handlePreviousPage }: TableProps) {
 
    const [currentPage, setCurrentPage] = useState(1);
    const [searchText, setSearchText] = useState('')
@@ -42,19 +44,6 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
       setCurrentPage(page);
    };
 
-   // Handle previous page
-   const handlePreviousPage = () => {
-      if (currentPage > 1) {
-         setCurrentPage(currentPage - 1);
-      }
-   };
-
-   // Handle next page
-   const handleNextPage = () => {
-      if (currentPage < totalPages) {
-         setCurrentPage(currentPage + 1);
-      }
-   };
 
    // Generate an array of page numbers to display
    const getPageNumbers = () => {
@@ -121,7 +110,7 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
             }
          </table>
          {/* Pagination */}
-         <div className='flex gap-7 justify-end mt-6'>
+         <div className='flex gap-7 justify-end my-8'>
           <div>
             {currentPage}{' '}
             of{' '}
@@ -130,12 +119,12 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
          {
              currentPageData?.length <= itemsPerPage &&
              <div className="flex gap-4">
-               <button onClick={handlePreviousPage} disabled={currentPage === 1} className=''>
+               <button onClick={handlePreviousPage} className=''>
                     <ArrowLeftIcon className="h-5 w-5 flex-shrink-0 text-gray-700 mr-1" aria-hidden="true" />
                </button>
                <div>
                </div>
-               <button onClick={handleNextPage} disabled={currentPage === totalPages} className=''>
+               <button onClick={handleNextPage} className=''>
                 <ArrowRightIcon className="h-5 w-5 flex-shrink-0 text-gray-700 ml-1" aria-hidden="true"/>
                </button>
             </div>

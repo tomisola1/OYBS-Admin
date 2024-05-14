@@ -8,8 +8,10 @@ import React, { LegacyRef, useEffect, useRef, useState } from 'react'
 type props = {
     numberOfDigits: number;
     oTP: string
+    value: string
+    name: string
 }
-const OtpInput = ({numberOfDigits, oTP}:props) => {
+const OtpInput = ({numberOfDigits, oTP, name}:props) => {
     const [otp, setOtp] = useState(new Array(numberOfDigits).fill(""));
   const [otpError, setOtpError] = useState<null| string>(null);
   const otpBoxReference = useRef<HTMLInputElement[]>([]);
@@ -70,6 +72,7 @@ const OtpInput = ({numberOfDigits, oTP}:props) => {
         <input key={index} value={digit} maxLength={1}  
         onChange={(e)=> handleChange(e.target.value, index)}
         onKeyUp={(e)=> handleBackspaceAndEnter(e, index)}
+        name={name}
         ref={(reference:any) => (otpBoxReference.current[index] = reference)}
         className={`border-b w-20 h-auto py-2 px-3 font-semibold text-xl rounded-md block focus:outline-none appearance-none text-center`}
         />

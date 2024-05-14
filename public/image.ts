@@ -5,7 +5,8 @@ import image4 from "./carousel-img4.png"
 import logo from "./OYBS-logo.png"
 import profile from "./profile.png"
 import prayerImage from "./Background.png"
+import user from "./user-img.png"
 
 export default {
-    image1, image2, image3, image4, logo, profile, prayerImage
+    image1, image2, image3, image4, logo, profile, prayerImage, user
 }

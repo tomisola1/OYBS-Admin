@@ -1,8 +1,11 @@
+"use client"
+
+import ProtectedRoute from "@/components/ProtectedRoute"
 import Sidebar from "@/components/Sidebar"
 
 
 
-export default function DashboardLayout({
+function DashboardLayout({
     children,
   }: {
     children: React.ReactNode
@@ -20,3 +23,5 @@ export default function DashboardLayout({
     </section>
     )
   }
+
+  export default ProtectedRoute(DashboardLayout)

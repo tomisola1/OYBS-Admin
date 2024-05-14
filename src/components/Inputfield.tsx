@@ -11,6 +11,8 @@ interface InputProps extends React.InputHTMLAttributes<any> {
 	| React.ChangeEventHandler<HTMLInputElement>
 	| any;
 	required?: boolean;
+	as?: string;
+	rows?: number
 }
 export const InputField: React.FC<InputProps> = ({ ...props }) => {
 	const {
@@ -23,6 +25,8 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
 		minLength,
 		defaultValue,
 		id,
+		as,
+		rows,
 		change,
 		...rest
 	} = props;
@@ -44,7 +48,21 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
 				</label>
 			)}
             <div className='relative'>
-                <input
+			{as || type == "textarea" ? (
+					<textarea
+						name={name}
+						className={`border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 placeholder-[#75838D]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm ${className}`}
+						placeholder={placeholder}
+						onChange={change}
+						required={required}
+						minLength={minLength}
+						defaultValue={defaultValue}
+						rows={rows}
+						id={id}
+						{...rest}
+					/>
+				) : (
+				<input
                     name={name}
                     className={`border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 placeholder-[#75838D]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm ${className}`}
                     placeholder={placeholder}
@@ -55,6 +73,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
                     minLength={minLength}
                     defaultValue={defaultValue}
                 />
+				)}
                 {type === "password" && (
                         <button type="button" onClick={tooglePaswword}>
                             {isPasswordVisible ? (
