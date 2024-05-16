@@ -15,15 +15,18 @@ interface TableProps {
    BtnItem?: string
    handleNextPage?: () => void;
    handlePreviousPage?: () => void
+   totalPages?: number
 }
-function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, BtnItem, handleNextPage, handlePreviousPage }: TableProps) {
+function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, BtnItem, handleNextPage, handlePreviousPage, totalPages }: TableProps) {
 
    const [currentPage, setCurrentPage] = useState(1);
    const [searchText, setSearchText] = useState('')
    const [showModal, setShowModal] = useState(false)
-
-   // Calculate total number of pages
-   const totalPages = Math.ceil(body?.length / itemsPerPage);
+   const [formData, setFormData] = useState({
+      email:'',
+      reason:'',
+      daysSuspended:0
+   })
 
    // Calculate index of the first and last item of the current page
    const startIndex = (currentPage - 1) * itemsPerPage;
@@ -46,23 +49,28 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
 
 
    // Generate an array of page numbers to display
-   const getPageNumbers = () => {
-      const pageNumbers = [];
-      for (let i = 1; i <= totalPages; i++) {
-         console.log(i, totalPages);
+   // const getPageNumbers = () => {
+   //    const pageNumbers = [];
+   //    for (let i = 1; i <= totalPages; i++) {
+   //       console.log(i, totalPages);
 
-         if (i <= 3 || i > totalPages - 3 || (i >= currentPage - 1 && i <= currentPage + 1) || +i == +totalPages) {
-            pageNumbers.push(i);
-         }
-      }
-      console.log(pageNumbers);
+   //       if (i <= 3 || i > totalPages - 3 || (i >= currentPage - 1 && i <= currentPage + 1) || +i == +totalPages) {
+   //          pageNumbers.push(i);
+   //       }
+   //    }
+   //    console.log(pageNumbers);
       
-      return pageNumbers;
-   };
+   //    return pageNumbers;
+   // };
 
    const handleSearch = (e: any) => {
       setSearchText(e.target.value)
       setCurrentPage(1)
+   }
+
+   const handleChange = (e: any) => {
+     const {name, value} = e.target
+      setFormData({...formData, [name]: value})
    }
 
    const handleSubmit = () => {}
@@ -139,8 +147,8 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
         duration of the suspension "
       >
         <form className='mb-12'>
-            <InputField placeholder="User Email"/>
-            <InputField placeholder="Reason for Suspension"/>
+            <InputField placeholder="User Email" type='email' change={handleChange}/>
+            <InputField placeholder="Reason for Suspension" change={handleChange}/>
             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
             <option>Select number of days</option>
                 {options.map((option, index) => {

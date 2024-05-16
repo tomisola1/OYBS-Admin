@@ -4,7 +4,7 @@ import Head from '@/components/Head'
 import Table from '@/components/Table'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import image from '../../../../public/image'
 import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
@@ -12,10 +12,42 @@ import { EditIcon } from '../../../../public/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
+import { fetchQuizzes } from '@/services/quizService'
+import { QuizProps } from '@/types'
 
 const Quiz = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
+    const [responseData, setResponseData] = useState<any>()
+    const [pageNumber, setPageNumber] = useState(1)
+
+
+    useEffect(() =>{
+        const fetchAllQuizzes = async() =>{
+            try {
+                const response = await fetchQuizzes({pageNumber: pageNumber, pageSize: 8})
+                console.log(response.result);
+                setResponseData(response?.result)
+            } catch (error) {
+                console.log(error);    
+            }
+        }
+        fetchAllQuizzes()
+    },[pageNumber])
+    
+    
+   // Handle previous page
+   const handlePreviousPage = () => {
+    if (pageNumber > 1){
+        setPageNumber(pageNumber - 1)
+    }
+   };
+
+   // Handle next page
+   const handleNextPage = () => {
+      setPageNumber(pageNumber + 1)
+   };
+
 
     const handleSubmit = () => {}
 
@@ -27,32 +59,39 @@ const Quiz = () => {
             <BtnPrimary onClick={()=>setShowModal(true)}>Create Quiz</BtnPrimary>
         </div>
         <div className='w-full'>
-            <Table
-            head={['Quiz Title', 'Type', 'Number of Questions', 'Quiz Date', 'Action']}
-            body={Array.from({length: 50},(index: number) =>
-                <>
-                    <tr className='border border-white' key={index}>
-                        <td className='p-4 font-normal tracking-wide'>
-                        January Week 1 Quiz
-                        </td>
-                        <td className='p-4 font-light'>Weekly Quiz</td>
-                        <td className='p-4 font-light'>10</td>
-                        <td className='p-4 font-light'>
-                            <p>08:00 AM</p>
-                            <p>24/04/2024</p>
-                        </td>
-                        <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                            <div>
-                                <EditIcon />
-                            </div>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true"/>
-                        </td>
-                    </tr>
-                </>
-                )}
-            itemsPerPage={8}
-            showFilter={false}
-            />
+            {
+                responseData?.total === 0 ? 
+                <h3 className='text-center text-2xl font-semibold mt-20'>No Quiz Available</h3>:
+                <Table
+                head={['Quiz Title', 'Type', 'Number of Questions', 'Quiz Date', 'Action']}
+                body={responseData?.quizzes.map((quiz:QuizProps, index: number) =>
+                    <>
+                        <tr className='border border-white' key={index}>
+                            <td className='p-4 font-normal tracking-wide'>
+                            {quiz.title}
+                            </td>
+                            <td className='p-4 font-light'>{quiz.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</td>
+                            <td className='p-4 font-light'>{quiz.questionCount}</td>
+                            <td className='p-4 font-light'>
+                                <p>{new Date(quiz.startDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })}</p>
+                                <p>{new Date(quiz.endDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })}</p>
+                            </td>
+                            <td className='pl-4 font-light flex gap-2 items-center h-14'>
+                                <div>
+                                    <EditIcon />
+                                </div>
+                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true"/>
+                            </td>
+                        </tr>
+                    </>
+                    )}
+                itemsPerPage={8}
+                showFilter={false}
+                handleNextPage={handleNextPage}
+                handlePreviousPage={handlePreviousPage}
+                totalPages={responseData?.totalPages}
+                />
+            }
         </div>
 
         <Modal

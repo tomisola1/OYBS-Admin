@@ -4,7 +4,7 @@ import Head from '@/components/Head'
 import Table from '@/components/Table'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import image from '../../../../public/image'
 import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
@@ -12,10 +12,41 @@ import { EditIcon } from '../../../../public/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
+import { fetchPrayers } from '@/services/prayerService'
+import { PrayerProps } from '@/types'
 
 const Prayer = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState({form:false, delete:false, edit:false})
+    const [responseData, setResponseData] = useState<any>()
+    const [pageNumber, setPageNumber] = useState(1)
+
+
+    useEffect(() =>{
+        const fetchAllPrayers = async() =>{
+            try {
+                const response = await fetchPrayers({pageNumber: pageNumber, pageSize: 8})
+                console.log(response.result);
+                setResponseData(response?.result)
+            } catch (error) {
+                console.log(error);    
+            }
+        }
+        fetchAllPrayers()
+    },[pageNumber])
+    
+    
+   // Handle previous page
+   const handlePreviousPage = () => {
+    if (pageNumber > 1){
+        setPageNumber(pageNumber - 1)
+    }
+   };
+
+   // Handle next page
+   const handleNextPage = () => {
+      setPageNumber(pageNumber + 1)
+   };
 
     const handleSubmit = () => {}
 
@@ -27,33 +58,40 @@ const Prayer = () => {
             <BtnPrimary onClick={()=>setShowModal({form:true, delete:false, edit:false})}>Add Prayer Session</BtnPrimary>
         </div>
         <div className='w-full'>
-            <Table
-            head={['Title', 'Meeting Link', 'Status', 'Meeting Date', 'Action']}
-            body={Array.from({length: 50},(index: number) =>
-                <>
-                    <tr className='border border-white' key={index}>
-                        <td className='p-4 font-normal tracking-wide flex items-center'>
-                         <Image src={image.prayerImage} alt='prayer image' width={55}/> 
-                         Prayer for Married Women Across Nigeria  
-                        </td>
-                        <td className='p-4 font-light'>https://meet.google.com/cqg-xgof-nzh</td>
-                        <td className='p-4 font-light w-48'><Pill text="In 2 Days" /></td>
-                        <td className='p-4 font-light'>
-                            <p>08:00 AM</p>
-                            <p>24/04/2024</p>
-                        </td>
-                        <td className='pr-4 font-light flex gap-2 justify-end items-start'>
-                            <div onClick={()=>setShowModal({form:false, delete:false, edit:true})}>
-                                <EditIcon />
-                            </div>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setShowModal({form:false, delete:true, edit:false})} />
-                        </td>
-                    </tr>
-                </>
-                )}
-            itemsPerPage={8}
-            showFilter={false}
-            />
+            {
+                responseData?.total === 0 ? 
+                <h3 className='text-center text-2xl font-semibold mt-20'>No Prayer Available</h3>:
+                <Table
+                head={['Title', 'Meeting Link', 'Status', 'Meeting Date', 'Action']}
+                body={responseData?.prayers.map((prayer:PrayerProps,index: number) =>
+                    <>
+                        <tr className='border border-white' key={index}>
+                            <td className='p-4 font-normal tracking-wide flex items-center'>
+                            <Image src={prayer.picture} alt='prayer image' width={55}/> 
+                            Prayer for Married Women Across Nigeria  
+                            </td>
+                            <td className='p-4 font-light'>{prayer.meetingLink}</td>
+                            <td className='p-4 font-light w-48'><Pill text={prayer.text} /></td>
+                            <td className='p-4 font-light'>
+                                <p>{new Date(prayer.updatedAt).toLocaleTimeString('en-US')}</p>
+                                <p>{new Date(prayer.updatedAt).toLocaleDateString()}</p>
+                            </td>
+                            <td className='pr-4 font-light flex gap-2 justify-end items-start'>
+                                <div onClick={()=>setShowModal({form:false, delete:false, edit:true})}>
+                                    <EditIcon />
+                                </div>
+                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setShowModal({form:false, delete:true, edit:false})} />
+                            </td>
+                        </tr>
+                    </>
+                    )}
+                itemsPerPage={8}
+                showFilter={false}
+                handleNextPage={handleNextPage}
+                handlePreviousPage={handlePreviousPage}
+                totalPages={responseData?.totalPages}
+                />
+            }
         </div>
 
         <Modal

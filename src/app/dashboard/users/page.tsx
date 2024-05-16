@@ -9,14 +9,14 @@ import React, { useEffect, useState } from 'react'
 
 const Users = () => {
     const router = useRouter()
-    const [responseData, setResponseData] = useState<UserProps[]>([])
+    const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
     useEffect(() =>{
         const fetchAllUsers = async() =>{
             try {
                 const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8})
                 console.log(response.result.users);
-                setResponseData(response?.result?.users)
+                setResponseData(response.result)
             } catch (error) {
                 console.log(error);    
             }
@@ -40,26 +40,31 @@ const Users = () => {
     <div>
         <Head title='Users'/>
         <div className='w-full mt-10'>
-            <Table
-            head={['Name', 'Email', 'Phone Number', 'Streak', 'Insights Shared', 'Date joined']}
-            body={ responseData?.map((data:UserProps, index: number) =>
-                <>
-                    <tr className='border border-white' key={index} onClick={()=>router.push(`/dashboard/users/${data._id}`)}>
-                        <td className='p-6 font-medium tracking-wide'>{data?.fullName}</td>
-                        <td className='p-6 font-light'>{data?.email}</td>
-                        <td className='p-6 font-light w-48'>{data?.phoneNumber ? data?.phoneNumber : "None"}</td>
-                        <td className='p-6 font-light'>{data?.streak}</td>
-                        <td className='p-6 font-light w-36'>{data?.insightsShared}</td>
-                        <td className='p-6 font-light w-36'>{new Date(data?.dateJoined)?.toLocaleDateString()}</td>
-                    </tr>
-                </>
-                )}
-            itemsPerPage={8}
-            showFilter={true}
-            BtnItem='Suspend User'
-            handleNextPage={handleNextPage}
-            handlePreviousPage={handlePreviousPage}
-            />
+            {
+                responseData?.total === 0 ? 
+                <h3 className='text-center text-2xl font-semibold mt-20'>No User Available</h3>:
+                <Table
+                head={['Name', 'Email', 'Phone Number', 'Streak', 'Insights Shared', 'Date joined']}
+                body={ responseData?.users.map((data:UserProps, index: number) =>
+                    <>
+                        <tr className='border border-white' key={index} onClick={()=>router.push(`/dashboard/users/${data._id}`)}>
+                            <td className='p-6 font-medium tracking-wide'>{data?.fullName}</td>
+                            <td className='p-6 font-light'>{data?.email}</td>
+                            <td className='p-6 font-light w-48'>{data?.phoneNumber ? data?.phoneNumber : "None"}</td>
+                            <td className='p-6 font-light'>{data?.streak}</td>
+                            <td className='p-6 font-light w-36'>{data?.insightsShared}</td>
+                            <td className='p-6 font-light w-36'>{new Date(data?.dateJoined)?.toLocaleDateString()}</td>
+                        </tr>
+                    </>
+                    )}
+                itemsPerPage={8}
+                showFilter={true}
+                BtnItem='Suspend User'
+                handleNextPage={handleNextPage}
+                handlePreviousPage={handlePreviousPage}
+                totalPages={responseData?.totalPages}
+                />
+            }
         </div>
     </div>
   )

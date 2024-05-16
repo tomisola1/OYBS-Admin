@@ -23,3 +23,13 @@ export const fetchSingleUser = (userId:string | null) => {
     )
     return request
 };
+
+export const fetchAdminUsers = (params:params) => {
+  const request = axios.get(
+    baseUrl + `/admin/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`,
+    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  ).then((response)=>
+   response.data
+  )
+  return request
+};
