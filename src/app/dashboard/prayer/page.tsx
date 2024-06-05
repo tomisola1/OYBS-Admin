@@ -10,16 +10,28 @@ import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { EditIcon } from '../../../../public/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
-import Modal from '@/components/Modal'
+import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { fetchPrayers } from '@/services/prayerService'
+import { createPrayer, deletePrayer, fetchPrayers, updatePrayer } from '@/services/prayerService'
 import { PrayerProps } from '@/types'
+import { isToday, toDate } from "date-fns";
+import EmptyState from '@/components/emptyState'
 
 const Prayer = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState({form:false, delete:false, edit:false})
+    const [image, setImage] = useState<File | null>();
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
+    const [prayerId, setPrayerId] = useState('')
+    const [prayer, setPrayer] = useState<PrayerProps>()
+    const [formData, setFormData] = useState({
+        text:'',
+        meetingLink:'',
+        picture:{},
+        startDate:'',
+        time:''
+     })
 
 
     useEffect(() =>{
@@ -33,7 +45,7 @@ const Prayer = () => {
             }
         }
         fetchAllPrayers()
-    },[pageNumber])
+    },[])
     
     
    // Handle previous page
@@ -48,9 +60,55 @@ const Prayer = () => {
       setPageNumber(pageNumber + 1)
    };
 
-    const handleSubmit = () => {}
+   const handleChange = (e:any) => {
+      const {name, value} = e.target
+      setFormData((prevState)=> ({...prevState, [name]: value}))
+   }
 
-    const options = [1,5,10,20]
+   const handleImageSelect = (e: any) => {
+    const file = e.target.files?.[0]; // Get the first selected file
+    if (file) {
+      setImage(file);
+      console.log('Selected file:', file);
+    }
+   };
+
+   const setPrayerAndModal: any= (data:PrayerProps) => {
+       setShowModal({form:false, delete:false, edit:true}) 
+        setPrayer(data)
+   }
+
+   const setIdAndModal: any= (id:string) => {
+       setShowModal({form:false, delete:true, edit:false}) 
+        setPrayerId(id)
+   }
+
+    const handleSubmit = async(e:any) => {
+        e.preventDefault();
+        try {
+            const { startDate, time, text, meetingLink } = formData;
+            const [year, month, day] = startDate.split('-').map(Number);
+            const [hours, minutes] = time.split(':').map(Number);
+      
+            const combinedDateTime = new Date(year, month - 1, day, hours, minutes);
+      
+            const payload = {
+                text,
+                meetingLink,
+                startDate: toDate(combinedDateTime) ,
+                picture: image
+            }
+            const response = await createPrayer(payload)
+            console.log(response);
+            if(response.success) {
+                setShowModal({form:false, delete:false, edit:false})
+                location.reload();
+            }
+        } catch (error) {
+            console.log(error);      
+        }
+    }
+   
   return (
     <div>
         <Head title='Prayer'/>
@@ -60,27 +118,32 @@ const Prayer = () => {
         <div className='w-full'>
             {
                 responseData?.total === 0 ? 
-                <h3 className='text-center text-2xl font-semibold mt-20'>No Prayer Available</h3>:
+                <EmptyState text='No prayers available'/>
+                :
                 <Table
                 head={['Title', 'Meeting Link', 'Status', 'Meeting Date', 'Action']}
                 body={responseData?.prayers.map((prayer:PrayerProps,index: number) =>
                     <>
                         <tr className='border border-white' key={index}>
-                            <td className='p-4 font-normal tracking-wide flex items-center'>
-                            <Image src={prayer.picture} alt='prayer image' width={55}/> 
-                            Prayer for Married Women Across Nigeria  
+                            <td className='p-4 font-normal capitalize tracking-wide flex items-center gap-3'>
+                            <Image src={prayer.picture} alt='prayer image' width={55} height={55}/> 
+                            {prayer.text} 
                             </td>
                             <td className='p-4 font-light'>{prayer.meetingLink}</td>
-                            <td className='p-4 font-light w-48'><Pill text={prayer.text} /></td>
+                            {
+                                isToday(new Date(prayer.startDate)) ?
+                                <td className='pl-4'><Pill text='Today'/></td> :
+                                <td className='pl-4'><Pill text='Happening Soon'/></td>
+                            }
                             <td className='p-4 font-light'>
-                                <p>{new Date(prayer.updatedAt).toLocaleTimeString('en-US')}</p>
-                                <p>{new Date(prayer.updatedAt).toLocaleDateString()}</p>
+                                <p>{new Date(prayer.startDate).toLocaleTimeString('en-US')}</p>
+                                <p>{new Date(prayer.startDate).toLocaleDateString()}</p>
                             </td>
-                            <td className='pr-4 font-light flex gap-2 justify-end items-start'>
-                                <div onClick={()=>setShowModal({form:false, delete:false, edit:true})}>
+                            <td className='pr-4 font-light flex gap-2 justify-center items-center h-full'>
+                                <div onClick={()=>setPrayerAndModal(prayer)}>
                                     <EditIcon />
                                 </div>
-                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setShowModal({form:false, delete:true, edit:false})} />
+                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setIdAndModal(prayer._id)} />
                             </td>
                         </tr>
                     </>
@@ -100,80 +163,130 @@ const Prayer = () => {
         heading="Add Prayer Session"
         sub="This will be updated on the OYBS mobile app"
       >
-        <form className='mb-12'>
-            <InputField placeholder="Title of Prayer Session"/>
-            <InputField placeholder="Meeting Link"/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
-            <option>Time of Prayer Session</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
-            <option>Date of Prayer Session</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-            <input type='file' className='border'/>
+        <form onSubmit={handleSubmit}>
+            <InputField placeholder="Title of Prayer Session" name='text' change={handleChange}/>
+            <InputField placeholder="Meeting Link" name='meetingLink' change={handleChange}/>
+            <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange}/>
+            <InputField placeholder="Date of Prayer Session" name='startDate' type='date' change={handleChange}/>
+            <InputField type='file' className='border' name='picture' change={handleImageSelect}/>
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">Add Prayer Session</BtnPrimary>
          </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Add Prayer Session</BtnPrimary>
       </Modal>
-        <Modal
-        show={showModal.edit}
-        hide={() => setShowModal({form:false, delete:false, edit:false})}
-        heading="Edit Prayer Session"
-        sub="This will be updated on the OYBS mobile app"
-      >
-        <form className='mb-12'>
-            <InputField placeholder="Title of Prayer Session"/>
-            <InputField placeholder="Meeting Link"/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
-            <option>Time of Prayer Session</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
-            <option>Date of Prayer Session</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-            <input type='file' className='border'/>
-         </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Update Prayer Session</BtnPrimary>
-      </Modal>
-        <Modal
-        show={showModal.delete}
-        hide={() => setShowModal({form:false, delete:false, edit:false})}
-        heading="Delete Prayer"
-        sub="Are you sure you want to delete this Prayer Session?"
-      >
-        <div className='flex justify-center gap-6'>
-            <Btn className="px-10 text-sm">No, Cancel</Btn>
-            <Btn className="px-10 text-sm">Yes, Confirm</Btn>
-        </div>
-      </Modal>
+       
+      <UpdatePrayer 
+         show={showModal.edit}
+         hide={() => setShowModal({form:false, delete:false, edit:false})}
+         data={prayer}
+      />
+      <DeletePrayer 
+         show={showModal.delete}
+         hide={() => setShowModal({form:false, delete:false, edit:false})}
+         id={prayerId}
+      />
          
     </div>
   )
 }
 
 export default Prayer
+
+interface Props extends ModalProps {
+    id?: string | undefined;
+    data?: PrayerProps;
+  }
+const DeletePrayer = (props: Props) => {
+    const router = useRouter()
+    const { id, show, hide} = props;
+    const handleDelete = async() => {
+        try {
+            const response = await deletePrayer(id)
+            console.log(response);
+            if(response.success){
+                hide()
+                location.reload();
+
+            }
+        } catch (error) {
+            console.log(error)        
+        }
+    }
+    return (
+        <Modal
+        show={show}
+        hide={hide}
+        heading="Delete Prayer"
+        sub="Are you sure you want to delete this Prayer Session?"
+      >
+        <div className='flex justify-center gap-6'>
+            <Btn className="px-10 text-sm" onClick={hide}>No, Cancel</Btn>
+            <Btn className="px-10 text-sm" onClick={handleDelete}>Yes, Confirm</Btn>
+        </div>
+      </Modal>
+    )
+}
+
+
+const UpdatePrayer = (props: Props) => {
+    const router = useRouter()
+    const { show, hide, data} = props;
+    const [image, setImage] = useState<File | null>();
+    const [formData, setFormData] = useState({
+        text:'',
+        meetingLink:'',
+        picture:{},
+        startDate:''
+     })
+
+    const handleChange = (e:any) => {
+        const {name, value} = e.target
+        setFormData((prevState)=> ({...prevState, [name]: value}))
+    }
+  
+     const handleImageSelect = (e: any) => {
+      const file = e.target.files?.[0]; // Get the first selected file
+      if (file) {
+        setImage(file);
+        console.log('Selected file:', file);
+      }
+      const reader = new FileReader();
+     };
+
+     const handleSubmit = async(e:any) => {
+        e.preventDefault();
+        try {
+            console.log(formData);
+            
+            const payload = {
+                text:formData.text,
+                meetingLink: formData?.meetingLink,
+                picture:formData?.picture,
+                startDate:formData?.startDate
+            }
+            const response = await updatePrayer(payload, data?._id)
+            console.log(response);
+            if(response.success) {
+                hide()
+                location.reload();
+            }
+        } catch (error) {
+            console.log(error);      
+        }
+    }
+    return (
+        <Modal
+        show={show}
+        hide={hide}
+        heading="Edit Prayer Session"
+        sub="This will be updated on the OYBS mobile app"
+      >
+       <form className='mb-12'  onSubmit={handleSubmit}>
+            <InputField placeholder="Title of Prayer Session" name='text' defaultValue={data?.text} value={formData.text} change={handleChange}/>
+            <InputField placeholder="Meeting Link" name='meetingLink' defaultValue={data?.meetingLink} value={formData.meetingLink} change={handleChange}/>
+            <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange}/>
+            <InputField placeholder="Date of Prayer Session" name='startDate' defaultValue={data?.startDate} value={formData.startDate} type='date' change={handleChange}/>
+            <InputField type='file' className='border' name='picture' change={handleImageSelect}/>
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">Add Prayer Session</BtnPrimary>
+         </form>
+      </Modal>
+    )
+}

@@ -32,17 +32,17 @@ export interface PrayerProps {
 }
 
 export interface QuizProps {
-    _id: string,
-    title: string,
-    description: string,
-    monthlyQuiz: boolean,
+    _id?: string,
+    title?: string,
+    description?: string,
+    monthlyQuiz?: boolean,
     startDateTime: string,
     endDateTime: string,
-    duration: number,
-    questionCount: number,
-    canReview: boolean,
-    createdAt: string,
-    updatedAt: string,
+    duration?: number,
+    questionCount?: number,
+    canReview?: boolean,
+    createdAt?: string,
+    updatedAt?: string,
 }
 
 export interface InsightProps {
@@ -70,4 +70,21 @@ export interface DonationsProps {
     paymentGateway: string,
     createdAt: string,
     updatedAt: string,
+}
+
+export interface QuestionsProps {
+    quiz?: string,
+    question: string,
+    answer: string,
+    answerDescription: string,
+    choice: string[],
+}
+
+export interface AdminProps {
+    _id: string,
+    firstName: string,
+    lastName: string,
+    email: string,
+    userType: string,
+    createdAt: string,
 }

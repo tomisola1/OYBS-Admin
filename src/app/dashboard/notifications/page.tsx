@@ -3,15 +3,44 @@
 import Head from '@/components/Head'
 import Table from '@/components/Table'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { Btn, BtnPrimary} from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
+import { fetchNotifications } from '@/services/notificationService'
 
 const Notifications = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
+    const [pageNumber, setPageNumber] = useState(1)
+    const [responseData, setResponseData] = useState<any>()
+
+    useEffect(() =>{
+        const fetchAllNotifications = async() =>{
+            try {
+                const response = await fetchNotifications({pageNumber: pageNumber, pageSize: 8})
+                console.log(response.result);
+                setResponseData(response.result)
+            } catch (error) {
+                console.log(error);    
+            }
+        }
+        fetchAllNotifications()
+    },[pageNumber])
+    
+    
+   // Handle previous page
+   const handlePreviousPage = () => {
+    if (pageNumber > 1){
+        setPageNumber(pageNumber - 1)
+    }
+   };
+
+   // Handle next page
+   const handleNextPage = () => {
+      setPageNumber(pageNumber + 1)
+   };
 
     const handleSubmit = () => {}
 
@@ -45,6 +74,9 @@ Study App is available to everyone</td>
                 )}
             itemsPerPage={8}
             showFilter={false}
+            handleNextPage={handleNextPage}
+            handlePreviousPage={handlePreviousPage}
+            totalPages={responseData?.totalPages}
             />
         </div>
         <Modal

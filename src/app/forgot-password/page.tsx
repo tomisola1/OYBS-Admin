@@ -9,6 +9,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { otpRequest, resetPasssword } from "@/services/authService";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function ForgotPassword() {
   const router = useRouter()
@@ -22,6 +23,7 @@ export default function ForgotPassword() {
       const response = await otpRequest({email: email})
       console.log(response);
       if(response.success) {
+        toast.success(response.result)
         localStorage.setItem('email',email)
         router.replace("/otp-verification")
       }
@@ -42,7 +44,7 @@ export default function ForgotPassword() {
         <div className="small-laptop:w-[403px] md:w-[303px] sm:w-3/4 w-full">
           <div className="text-center text-[#222222] mb-12">
             <h3 className="font-bold sm:text-[32px] text-3xl leading-[4rem] tracking-normal ">Forgot Password</h3>
-            <p className="font-normal m-0 text-base">Please enter your email below and we will send you the OTP Code.</p>
+            <p className="font-normal m-0 text-base">Please enter your email below.</p>
           </div>
           <form action="" onSubmit={handleSubmit}>
             <div className="mb-12">

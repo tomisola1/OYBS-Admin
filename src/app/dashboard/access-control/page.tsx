@@ -10,22 +10,32 @@ import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { EditIcon } from '../../../../public/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
-import Modal from '@/components/Modal'
+import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { fetchAdminUsers } from '@/services/userService'
+import { createUser, deleteUser, editUser, fetchAdminUsers } from '@/services/userService'
+import EmptyState from '@/components/emptyState'
+import { Roles } from '@/utils/utils'
+import { AdminProps } from '@/types'
 
 const AccessControl = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState({form:false, delete:false, edit:false})
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
+    const [user, setUser] = useState<AdminProps>()
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        userType: ""
+    })
 
 
     useEffect(() =>{
         const fetchAllUsers = async() =>{
             try {
                 const response = await fetchAdminUsers({pageNumber: pageNumber, pageSize: 8})
-                console.log(response.result.users);
+                console.log(response.result);
                 setResponseData(response.result)
             } catch (error) {
                 console.log(error);    
@@ -34,6 +44,19 @@ const AccessControl = () => {
         fetchAllUsers()
     },[pageNumber])
     
+    const setUserAndModal: any= (data:any) => {
+        setShowModal({form:false, edit:true,  delete:false})
+        console.log(data);
+        
+         setUser(data)
+    }
+
+    const setIdAndModal: any= (data:any) => {
+        setShowModal({form:false, edit:false,  delete:true})
+        console.log(data);
+        
+         setUser(data)
+    }
     
    // Handle previous page
    const handlePreviousPage = () => {
@@ -47,43 +70,64 @@ const AccessControl = () => {
       setPageNumber(pageNumber + 1)
    };
 
-    const handleSubmit = () => {}
+   const handleChange = (e:any) => {
+    const {name, value} = e.target
+    setFormData((prevState)=> ({...prevState, [name]: value}))
+    console.log(formData);
+    
+ }
 
-    const options = [1,5,10,20]
+    const handleSubmit = async(e:any) => {
+        e.preventDefault();
+        try {
+            const result = await createUser(formData)
+            if(result.success) {
+                setShowModal({form:false, delete:false, edit:false})
+                location.reload();
+            }
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
   return (
     <div>
         <Head title='Access Control'/>
-        <div className='w-full mt-10'>
+        <div className='mt-8'>
+            <BtnPrimary onClick={()=>setShowModal({form:true, delete:false, edit:false})}>Add User</BtnPrimary>
+        </div>
+        <div className='w-full mt-4'>
             {
                  responseData?.total === 0 ? 
-                 <h3 className='text-center text-2xl font-semibold mt-20'>No User Available</h3>:
+                 <EmptyState text='No User Available'/>:
                 <Table
                 head={['Name', 'Email', 'Role', 'Date Added', 'Action']}
-                body={Array.from({length: 50},(index: number) =>
+                body={responseData?.users.map((user: AdminProps, index: number) =>
                     <>
                         <tr className='border border-white' key={index}>
                             <td className='p-4 font-normal tracking-wide'>
-                            David Wagner
+                            {user.firstName}{' '}{user.lastName}
                             </td>
-                            <td className='p-4 font-light'>david_wagner@example.com</td>
-                            <td className='p-4 font-medium'>Super Admin</td>
+                            <td className='p-4 font-light'>{user.email}</td>
+                            <td className='p-4 font-medium'>{user.userType}</td>
                             <td className='p-4 font-light'>
-                                <p>24/04/2024</p>
+                                <p>{new Date(user.createdAt).toLocaleDateString()}</p>
                             </td>
                             <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                                <div onClick={()=>setShowModal({form:false, delete:false, edit:true})}>
+                                <div onClick={()=>setUserAndModal(user)}>
                                     <EditIcon />
                                 </div>
-                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setShowModal({form:false, delete:true, edit:false})}/>
+                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setIdAndModal(user)}/>
                             </td>
                         </tr>
                     </>
                     )}
                 itemsPerPage={8}
-                showFilter={true}
-                BtnItem='Add User'
+                showFilter={false}
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
+                totalPages={responseData?.totalPages}
                 />
             }
         </div>
@@ -96,11 +140,13 @@ const AccessControl = () => {
         credentials"
       >
         <form className='mb-12'> 
-            <InputField placeholder='Full Name'/>
-            <InputField placeholder='Email'/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
+            <InputField placeholder='First Name' name='firstName' change={handleChange}/>
+            <InputField placeholder='Last Name' name='lastName' change={handleChange}/>
+            <InputField placeholder='Email' name='email' change={handleChange }/>
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm' name='userType' value={formData.userType}
+            onChange={handleChange}>
             <option>Select Role</option>
-                {options.map((option, index) => {
+                {Roles.map((option, index) => {
                     return (
                         <option key={index}>
                             {option}
@@ -108,44 +154,117 @@ const AccessControl = () => {
                     );
                 })}
             </select>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>Add User</BtnPrimary>
          </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Add User</BtnPrimary>
       </Modal>
-      <Modal
+      <UpdateUser
         show={showModal.edit}
-        hide={() => setShowModal({form:false, delete:false, edit:false})}
-        heading="Edit User"
-        sub="This will be updated on the OYBS mobile app"
-      >
-        <form className='mb-12'>
-            <InputField placeholder="Title of Prayer Session"/>
-            <InputField placeholder="Meeting Link"/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
-            <option>Select Role</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-         </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Edit User</BtnPrimary>
-      </Modal>
-        <Modal
-        show={showModal.delete}
-        hide={() => setShowModal({form:false, delete:false, edit:false})}
-        heading="Delete User"
-        sub="Are you sure you want to delete this user?"
-      >
-        <div className='flex justify-center gap-6'>
-            <Btn className="px-10 text-sm">No, Cancel</Btn>
-            <Btn className="px-10 text-sm">Yes, Confirm</Btn>
-        </div>
-      </Modal>        
+        hide={()=> setShowModal({form:false, delete:false, edit:false})}
+        data={user}
+        id={user?._id}
+      />
+      <DeleteUser
+         show={showModal.delete}
+         hide={()=> setShowModal({form:false, delete:false, edit:false})}
+         id={user?._id}
+      />
+              
     </div>
   )
 }
 
 export default AccessControl
+
+interface Props extends ModalProps {
+    id?: string | undefined;
+    data?: AdminProps;
+  }
+const DeleteUser = (props: Props) => {
+    const router = useRouter()
+    const { id, show, hide} = props;
+    console.log(id);
+    
+    const handleDelete = async() => {
+        try {
+            const response = await deleteUser(id)
+            console.log(response);
+            if(response.success){
+                hide()
+                // location.reload();
+
+            }
+        } catch (error) {
+            console.log(error)        
+        }
+    }
+    return (
+        <Modal
+        show={show}
+        hide={hide}
+        heading="Delete User"
+        sub="Are you sure you want to delete this user?"
+      >
+        <div className='flex justify-center gap-6'>
+            <Btn className="px-10 text-sm">No, Cancel</Btn>
+            <Btn className="px-10 text-sm" onClick={handleDelete}>Yes, Confirm</Btn>
+        </div>
+      </Modal>  
+    )
+}
+
+
+const UpdateUser = (props: Props) => {
+    const router = useRouter()
+    const { show, hide, data, id} = props;
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        userType: ""
+    })
+
+    const handleChange = (e:any) => {
+        const {name, value} = e.target
+        setFormData((prevState)=> ({...prevState, [name]: value}))
+    }
+
+     const handleSubmit = async(e:any) => {
+        e.preventDefault();
+        try {
+            const response = await editUser(formData, id)
+            console.log(response);
+            if(response.success) {
+                hide()
+                location.reload();
+            }
+        } catch (error) {
+            console.log(error);      
+        }
+    }
+    return (
+        <Modal
+        show={show}
+        hide={hide}
+        heading="Edit User"
+        sub="This will be updated on the OYBS mobile app"
+      >
+        <form className='mb-12'> 
+            <InputField placeholder='First Name' name='firstName' change={handleChange} defaultValue={data?.firstName}/>
+            <InputField placeholder='Last Name' name='lastName' change={handleChange} defaultValue={data?.lastName}/>
+            <InputField placeholder='Email' name='email' change={handleChange } defaultValue={data?.email}/>
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm' name='userType' value={formData.userType}
+            onChange={handleChange} defaultValue={data?.userType}>
+            <option>Select Role</option>
+                {Roles.map((option, index) => {
+                    return (
+                        <option key={index}>
+                            {option}
+                        </option>
+                    );
+                })}
+            </select>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>Edit User</BtnPrimary>
+         </form>
+      </Modal>
+    )
+}

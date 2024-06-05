@@ -41,7 +41,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
 		<div className="">
 			{label && (
 				<label
-					className={'text-base font-medium text-[#344054]'}
+					className={'text-sm text-[#818181] mb-8'}
 					htmlFor={name}>
 					{label}
 					&nbsp;
@@ -51,7 +51,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
 			{as || type == "textarea" ? (
 					<textarea
 						name={name}
-						className={`border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 placeholder-[#75838D]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm ${className}`}
+						className={`border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 placeholder-[#75838D]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm ${className}`}
 						placeholder={placeholder}
 						onChange={change}
 						required={required}
@@ -64,7 +64,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
 				) : (
 				<input
                     name={name}
-                    className={`border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 placeholder-[#75838D]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm ${className}`}
+                    className={`border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 placeholder-[#75838D]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm ${className}`}
                     placeholder={placeholder}
                     type={type === "password" ? passwordType : type}
                     onChange={change}
@@ -77,9 +77,9 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
                 {type === "password" && (
                         <button type="button" onClick={tooglePaswword}>
                             {isPasswordVisible ? (
-                                <EyeSlashIcon className="h-5 w-5 text-[#75838D] absolute right-3 bottom-3.5" aria-hidden="true"/>
+                                <EyeSlashIcon className="h-5 w-5 text-[#75838D] absolute right-3 top-4" aria-hidden="true"/>
                             ) : (
-                                <EyeIcon className="h-5 w-5 text-[#75838D] absolute right-3 bottom-3.5" aria-hidden="true"/>
+                                <EyeIcon className="h-5 w-5 text-[#75838D] absolute right-3 top-4" aria-hidden="true"/>
                             )}
                         </button>
                     )}

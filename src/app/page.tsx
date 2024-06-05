@@ -9,6 +9,7 @@ import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { adminLogin } from "@/services/authService";
+import { toast } from "react-toastify";
 
 export default function Home() {
   const router = useRouter()
@@ -29,6 +30,7 @@ export default function Home() {
       console.log(response);
       localStorage.setItem('token', response.result.access_token)
       if (response.success === true) {
+        toast.success('Login successful')
         router.push("/dashboard") 
       }
     } catch (error) {

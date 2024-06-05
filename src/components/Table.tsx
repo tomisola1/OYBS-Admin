@@ -5,6 +5,7 @@ import React, { Fragment, useState } from 'react'
 import { BtnPrimary } from './Buttons';
 import Modal from './Modal';
 import InputField from './Inputfield';
+import { suspendUsers } from '@/services/userService';
 // import './index.scss'
 interface TableProps {
    head?: React.ReactNode[];
@@ -73,7 +74,24 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
       setFormData({...formData, [name]: value})
    }
 
-   const handleSubmit = () => {}
+   const handleSubmit = async(e:any) => {
+      e.preventDefault()
+      try {
+         if (formData.daysSuspended < 0){
+            console.log('days cannot be less than 0');           
+            return
+         }
+         const response = await suspendUsers(formData)
+         console.log(response);
+         if(response.success){
+            setShowModal(false)
+         }
+         
+      } catch (error) {
+         console.log(error);
+         
+      }
+   }
    
    
    return (
@@ -146,10 +164,11 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
         sub="The user will no longer have access to OYBS for the 
         duration of the suspension "
       >
-        <form className='mb-12'>
-            <InputField placeholder="User Email" type='email' change={handleChange}/>
-            <InputField placeholder="Reason for Suspension" change={handleChange}/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
+        <form className='w-full' onSubmit={handleSubmit}>
+            <InputField placeholder="User Email" type='email' name='email'  change={handleChange} required/>
+            <InputField placeholder="Reason for Suspension" name='reason' change={handleChange} required/>
+            <InputField placeholder="Select number of days" type='number' name='daysSuspended' change={handleChange} required/>
+            {/* <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
             <option>Select number of days</option>
                 {options.map((option, index) => {
                     return (
@@ -158,9 +177,9 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
                         </option>
                     );
                 })}
-            </select>
+            </select> */}
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" >Suspend User</BtnPrimary>
          </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Suspend User</BtnPrimary>
       </Modal>
 
       </div>

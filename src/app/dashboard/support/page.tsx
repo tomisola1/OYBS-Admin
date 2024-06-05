@@ -3,24 +3,65 @@
 import Head from '@/components/Head'
 import Table from '@/components/Table'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { Btn, BtnPrimary} from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
 import Pill from '@/components/Pill'
 import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
+import { fetchSupport, updateSupport } from '@/services/supportService'
+import { transformPhoneNumber } from '@/utils/utils'
 
 const Support = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
+    const [responseData, setResponseData] = useState<any>()
+    const [pageNumber, setPageNumber] = useState(1)
+    const [formData, setFormData] = useState({
+        supportPhoneNumber: "",
+        supportEmail: ""
+    })
 
-    const handleSubmit = () => {}
+    useEffect(() =>{
+      const getSupport = async() =>{
+          try {
+              const response = await fetchSupport()
+              console.log(response);
+              setResponseData(response.result)
+          } catch (error) {
+              console.log(error);    
+          }
+      }
+      getSupport()
+  },[])
 
-    const options = [1,5,10,20]
+  const handleChange = (e: any) => {
+      const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
+
+  const handleSubmit = async(e:any) => {
+    e.preventDefault()
+    try { 
+        let whatsappNumber = transformPhoneNumber(formData.supportPhoneNumber) 
+        console.log({...formData, supportPhoneNumber: whatsappNumber});
+        
+        const result = await updateSupport({...formData, supportPhoneNumber: whatsappNumber})
+        console.log(result);
+        if(result.success) {
+            setShowModal(false)
+            // location.reload();
+        }
+        
+    } catch (error) {
+        console.log(error);  
+    }
+  }
+
   return (
     <div>
-        <Head title='Notifications'/>
+        <Head title='Support'/>
         <div className='mt-8'>
             <BtnPrimary onClick={()=>setShowModal(true)}>Update support information</BtnPrimary>
         </div>
@@ -31,7 +72,7 @@ const Support = () => {
             </div>
             <div>
                 <h3 className='font-semibold text-base'>Support Email</h3>
-                <p className='font-medium text-base'>support@oybs.app</p>
+                <p className='font-medium text-base'>{responseData?.email}</p>
             </div>
            </div>
            <div className='bg-background p-5 flex gap-5 w-1/2 rounded-lg'>
@@ -39,8 +80,8 @@ const Support = () => {
                 <PhoneIcon className="h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true"/>
             </div>
             <div>
-                <h3 className='font-semibold text-base'>Support Phone Number</h3>
-                <p className='font-medium text-base'>+234 156 890 7890</p>
+                <h3 className='font-semibold text-base'>Support Whatsapp Number</h3>
+                <p className='font-medium text-base'>{responseData?.phoneNumber}</p>
             </div>
            </div>
         </div>
@@ -49,11 +90,11 @@ const Support = () => {
         hide={() => setShowModal(false)}
         heading="Support"
       >
-        <form className='mb-12'> 
-            <InputField placeholder='Email'/>
-            <InputField placeholder='Phone Number'/>
+        <form className='mb-12' onSubmit={handleSubmit}> 
+            <InputField placeholder='Email' name='supportEmail' type='email' change={handleChange} defaultValue={responseData?.email} value={responseData?.email}/>
+            <InputField placeholder='Phone Number' name='supportPhoneNumber' type='tel' pattern="[0-9]{3} [0-9]{4} [0-9]{4}" change={handleChange} defaultValue={responseData?.phoneNumber} value={responseData?.phoneNumber}/>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit">Update Information</BtnPrimary>
          </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Update Information</BtnPrimary>
       </Modal>        
     </div>
   )

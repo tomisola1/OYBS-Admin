@@ -4,19 +4,9 @@ const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
 const headerToken = localStorage?.getItem('token')
 
 
-export const fetchQuizzes = (params:params) => {
+export const fetchNotifications = (params:params) => {
     const request = axios.get(
-      baseUrl + `/admin/quizzes?limit=${params.pageSize}&page=${params.pageNumber}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
-    ).then((response)=>
-     response.data
-    )
-    return request
-};
-export const createQuizzes = (data:any) => {
-    const request = axios.post(
-      baseUrl + `/admin/quizzes`,
-      data,
+      baseUrl + `/admin/push-notifications?limit=${params.pageSize}&page=${params.pageNumber}`,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>
      response.data
@@ -24,9 +14,9 @@ export const createQuizzes = (data:any) => {
     return request
 };
 
-export const addQuestion = (data:any) => {
+export const createNotifications = (data:any) => {
     const request = axios.post(
-      baseUrl + `/admin/quizzes/questions`,
+      baseUrl + `/admin/push-notifications`,
       data,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>

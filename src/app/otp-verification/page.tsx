@@ -10,6 +10,7 @@ import OtpInput from "@/components/otpInput";
 import { otpVerification, resendOtpRequest } from "@/services/authService";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 export default function OtpVerification() {
   const router = useRouter()
@@ -83,7 +84,7 @@ export default function OtpVerification() {
     const response = await resendOtpRequest({
       email: localStorage.getItem("email"),
     })
-    setMinutes(2);
+    setMinutes(1);
     setSeconds(59);
   };
 
@@ -99,6 +100,7 @@ export default function OtpVerification() {
       })
       console.log(response);
       if(response.success) {
+        toast.success(response.result)
         localStorage.setItem("token",response.result)
         router.replace("/new-password")
       }
