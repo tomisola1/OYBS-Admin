@@ -16,6 +16,7 @@ import { createPrayer, deletePrayer, fetchPrayers, updatePrayer } from '@/servic
 import { PrayerProps } from '@/types'
 import { isToday, toDate } from "date-fns";
 import EmptyState from '@/components/emptyState'
+import { Loader, SkeletonLoader } from '@/components/Loaders'
 
 const Prayer = () => {
     const router = useRouter()
@@ -24,6 +25,7 @@ const Prayer = () => {
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
     const [prayerId, setPrayerId] = useState('')
+    const [loading, setLoading] = useState(false)
     const [prayer, setPrayer] = useState<PrayerProps>()
     const [formData, setFormData] = useState({
         text:'',
@@ -36,10 +38,12 @@ const Prayer = () => {
 
     useEffect(() =>{
         const fetchAllPrayers = async() =>{
+            setLoading(true)
             try {
                 const response = await fetchPrayers({pageNumber: pageNumber, pageSize: 8})
                 console.log(response.result);
                 setResponseData(response?.result)
+                setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
@@ -85,6 +89,7 @@ const Prayer = () => {
 
     const handleSubmit = async(e:any) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const { startDate, time, text, meetingLink } = formData;
             const [year, month, day] = startDate.split('-').map(Number);
@@ -101,10 +106,12 @@ const Prayer = () => {
             const response = await createPrayer(payload)
             console.log(response);
             if(response.success) {
+                setLoading(false)
                 setShowModal({form:false, delete:false, edit:false})
                 location.reload();
             }
         } catch (error) {
+            setLoading(false)
             console.log(error);      
         }
     }
@@ -116,6 +123,7 @@ const Prayer = () => {
             <BtnPrimary onClick={()=>setShowModal({form:true, delete:false, edit:false})}>Add Prayer Session</BtnPrimary>
         </div>
         <div className='w-full'>
+            {loading && <SkeletonLoader/>}
             {
                 responseData?.total === 0 ? 
                 <EmptyState text='No prayers available'/>
@@ -169,7 +177,9 @@ const Prayer = () => {
             <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange}/>
             <InputField placeholder="Date of Prayer Session" name='startDate' type='date' change={handleChange}/>
             <InputField type='file' className='border' name='picture' change={handleImageSelect}/>
-          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">Add Prayer Session</BtnPrimary>
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">
+            {loading ? <Loader/> : "Add Prayer Session"}
+          </BtnPrimary>
          </form>
       </Modal>
        
@@ -230,6 +240,7 @@ const UpdatePrayer = (props: Props) => {
     const router = useRouter()
     const { show, hide, data} = props;
     const [image, setImage] = useState<File | null>();
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         text:'',
         meetingLink:'',
@@ -253,6 +264,7 @@ const UpdatePrayer = (props: Props) => {
 
      const handleSubmit = async(e:any) => {
         e.preventDefault();
+        setLoading(true);
         try {
             console.log(formData);
             
@@ -265,10 +277,12 @@ const UpdatePrayer = (props: Props) => {
             const response = await updatePrayer(payload, data?._id)
             console.log(response);
             if(response.success) {
+                setLoading(false)
                 hide()
                 location.reload();
             }
         } catch (error) {
+            setLoading(false)
             console.log(error);      
         }
     }
@@ -285,7 +299,7 @@ const UpdatePrayer = (props: Props) => {
             <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange}/>
             <InputField placeholder="Date of Prayer Session" name='startDate' defaultValue={data?.startDate} value={formData.startDate} type='date' change={handleChange}/>
             <InputField type='file' className='border' name='picture' change={handleImageSelect}/>
-          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">Add Prayer Session</BtnPrimary>
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">{loading ? <Loader/> : "Add Prayer Session"}</BtnPrimary>
          </form>
       </Modal>
     )

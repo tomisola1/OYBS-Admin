@@ -16,6 +16,8 @@ import { createUser, deleteUser, editUser, fetchAdminUsers } from '@/services/us
 import EmptyState from '@/components/emptyState'
 import { Roles } from '@/utils/utils'
 import { AdminProps } from '@/types'
+import { Loader, SkeletonLoader } from '@/components/Loaders'
+import { toast } from 'react-toastify'
 
 const AccessControl = () => {
     const router = useRouter()
@@ -23,6 +25,7 @@ const AccessControl = () => {
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
     const [user, setUser] = useState<AdminProps>()
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -33,10 +36,12 @@ const AccessControl = () => {
 
     useEffect(() =>{
         const fetchAllUsers = async() =>{
+            setLoading(true)
             try {
                 const response = await fetchAdminUsers({pageNumber: pageNumber, pageSize: 8})
                 console.log(response.result);
                 setResponseData(response.result)
+                setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
@@ -79,13 +84,17 @@ const AccessControl = () => {
 
     const handleSubmit = async(e:any) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const result = await createUser(formData)
             if(result.success) {
+                setLoading(false);
                 setShowModal({form:false, delete:false, edit:false})
                 location.reload();
             }
         } catch (error) {
+            setLoading(false)
+            toast.error("Something went wrong")
             console.log(error);
             
         }
@@ -98,7 +107,8 @@ const AccessControl = () => {
             <BtnPrimary onClick={()=>setShowModal({form:true, delete:false, edit:false})}>Add User</BtnPrimary>
         </div>
         <div className='w-full mt-4'>
-            {
+            {loading && <SkeletonLoader/>}
+            {            
                  responseData?.total === 0 ? 
                  <EmptyState text='No User Available'/>:
                 <Table
@@ -154,7 +164,9 @@ const AccessControl = () => {
                     );
                 })}
             </select>
-          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>Add User</BtnPrimary>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>
+          {loading ? <Loader/>: "Add user"}
+          </BtnPrimary>
          </form>
       </Modal>
       <UpdateUser
@@ -216,6 +228,7 @@ const DeleteUser = (props: Props) => {
 const UpdateUser = (props: Props) => {
     const router = useRouter()
     const { show, hide, data, id} = props;
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -230,14 +243,17 @@ const UpdateUser = (props: Props) => {
 
      const handleSubmit = async(e:any) => {
         e.preventDefault();
+        setLoading(true)
         try {
             const response = await editUser(formData, id)
             console.log(response);
             if(response.success) {
+                setLoading(false)
                 hide()
                 location.reload();
             }
         } catch (error) {
+            setLoading(false)
             console.log(error);      
         }
     }
@@ -263,7 +279,9 @@ const UpdateUser = (props: Props) => {
                     );
                 })}
             </select>
-          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>Edit User</BtnPrimary>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>
+            {loading ? <Loader/> : "Edit User"}
+          </BtnPrimary>
          </form>
       </Modal>
     )

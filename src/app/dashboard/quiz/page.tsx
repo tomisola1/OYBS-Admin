@@ -15,6 +15,7 @@ import InputField from '@/components/Inputfield'
 import { addQuestion, createQuizzes, fetchQuizzes } from '@/services/quizService'
 import { QuestionsProps, QuizProps } from '@/types'
 import { toDate } from 'date-fns'
+import { Loader, SkeletonLoader } from '@/components/Loaders'
 
 const Quiz = () => {
     const router = useRouter()
@@ -23,6 +24,7 @@ const Quiz = () => {
     const [pageNumber, setPageNumber] = useState(1)
     const [quiz, setQuiz] = useState<QuizProps>()
     const [quizType, setQuizType] = useState(false)
+    const [loading, setLoading] = useState(false)
     const [quizData, setQuizData] = useState({
         title: '',
         description: '',
@@ -35,10 +37,12 @@ const Quiz = () => {
 
     useEffect(() =>{
         const fetchAllQuizzes = async() =>{
+            setLoading(true)
             try {
                 const response = await fetchQuizzes({pageNumber: pageNumber, pageSize: 8})
                 console.log(response.result);
                 setResponseData(response?.result)
+                setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
@@ -93,6 +97,7 @@ const Quiz = () => {
 
     const handleSubmit = async(e:any) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const { title, description, startDate, startTime, endDate, endTime } = quizData;
 
@@ -109,10 +114,12 @@ const Quiz = () => {
             const response = await createQuizzes(payload)
             console.log(response);
             if(response.success) {
+                setLoading(false)
                 setShowModal({create:false, edit:false, add:false, delete:false, update:false});
                 location.reload();
             }
         } catch (error) {
+            setLoading(false)
             console.log(error);      
         }
     }
@@ -126,6 +133,7 @@ const Quiz = () => {
             <BtnPrimary onClick={()=>setShowModal({create:true, edit:false, add:false, delete:false, update:false})}>Create Quiz</BtnPrimary>
         </div>
         <div className='w-full'>
+            {loading && <SkeletonLoader/>}
             {
                 responseData?.total === 0 ? 
                 <h3 className='text-center text-2xl font-semibold mt-20'>No Quiz Available</h3>:
@@ -178,7 +186,7 @@ const Quiz = () => {
         sub="This will be updated on the OYBS mobile app"
         className='h-4/5'
       >
-        <form className=''>
+        <form className='' onSubmit={handleSubmit}>
             <InputField name='title' placeholder="Quiz Title" change={handleChange}/>   
             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' onChange={handleSelectChange}>
             <option>Quiz Type</option>
@@ -203,7 +211,9 @@ const Quiz = () => {
             <InputField type='time' name='endTime' change={handleChange}/>
 
             </div>
-          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>Create Quiz</BtnPrimary>
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">
+            {loading ? <Loader/> : "Create Quiz"}
+          </BtnPrimary>
          </form>
       </Modal>  
       <AddQuestion
@@ -227,6 +237,7 @@ const AddQuestion = (props:Props) =>{
     console.log(id);
     
     const [options, setOptions] = useState([''])
+    const [loading, setLoading] = useState(false)
     const [questions, setQuestions] = useState<QuestionsProps>(
         {
         quiz: '',
@@ -251,11 +262,15 @@ const AddQuestion = (props:Props) =>{
 
     const handleSubmit = async(e:any) => {
         e.preventDefault()
+        setLoading(true)
         try {
-            console.log(questions);
-            
             const response  = await addQuestion({...questions, quiz: id})
             console.log(response);  
+            if(response.success) {
+                setLoading(false)
+                hide()
+                location.reload();
+            }
         } catch (error) {
             console.log(error);
         }
@@ -269,29 +284,24 @@ const AddQuestion = (props:Props) =>{
         className='h-4/5'
       >
         <form className='mb-12' onSubmit={handleSubmit}>
-        {/* {
-            questions.map((question:QuestionsProps, index:number) => ( */}
-                <div>
-                     <InputField placeholder={`Question 1`} name='question' change={handleChange}/>
-                     {questions.choice.map((choice:string, choiceIndex:number) => (
-                        <InputField
-                            key={choiceIndex}
-                            placeholder={`Option ${choiceIndex + 1}`}
-                            name={`choice-${choiceIndex}`}
-                            value={choice}
-                            change={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, choiceIndex)}
-                        />
-                    ))}
-                    <InputField placeholder='Answer' name='answer' change={handleChange}/>
-                    <InputField placeholder="Answer Explanation" name='answerDescription' change={handleChange}/>
-                </div>
-               
-            {/* ))
-        } */}
-                {/* <div className='text-primary font-semibold text-[15px] mt-3' onClick={addQuestions}>
-                    <p>Click to Add More Questions</p>
-                </div> */}
-              <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" >Add Questions</BtnPrimary>
+            <div>
+                <InputField placeholder={`Question 1`} name='question' change={handleChange}/>
+                {questions.choice.map((choice:string, choiceIndex:number) => (
+                <InputField
+                    key={choiceIndex}
+                    placeholder={`Option ${choiceIndex + 1}`}
+                    name={`choice-${choiceIndex}`}
+                    value={choice}
+                    change={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, choiceIndex)}
+                />
+                ))}
+                <InputField placeholder='Answer' name='answer' change={handleChange}/>
+                <InputField placeholder="Answer Explanation" name='answerDescription' change={handleChange}/>
+            </div>
+            
+              <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" >
+                {loading ? <Loader/> : "Add Questions"}
+              </BtnPrimary>
         </form>
        
       </Modal>  

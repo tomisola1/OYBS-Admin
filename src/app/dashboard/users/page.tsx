@@ -1,6 +1,7 @@
 "use client"
 
 import Head from '@/components/Head'
+import { SkeletonLoader } from '@/components/Loaders'
 import Table from '@/components/Table'
 import { fetchUsers } from '@/services/userService'
 import { UserProps } from '@/types'
@@ -10,13 +11,16 @@ import React, { useEffect, useState } from 'react'
 const Users = () => {
     const router = useRouter()
     const [responseData, setResponseData] = useState<any>()
+    const [loading, setLoading] = useState(false)
     const [pageNumber, setPageNumber] = useState(1)
     useEffect(() =>{
         const fetchAllUsers = async() =>{
+            setLoading(true)
             try {
                 const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8})
                 console.log(response.result.users);
                 setResponseData(response.result)
+                setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
@@ -40,6 +44,7 @@ const Users = () => {
     <div>
         <Head title='Users'/>
         <div className='w-full mt-10'>
+            {loading && <SkeletonLoader/>}
             {
                 responseData?.total === 0 ? 
                 <h3 className='text-center text-2xl font-semibold mt-20'>No User Available</h3>:

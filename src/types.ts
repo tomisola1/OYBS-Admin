@@ -1,90 +1,128 @@
 export interface UserProps {
-    _id?: string,
-    email?: string,
-    streak?: number,
-    dateJoined: string,
-    fullName?: string,
-    insightsShared?: number
-    phoneNumber?: string | number
+  _id?: string;
+  email?: string;
+  streak?: number;
+  dateJoined: string;
+  fullName?: string;
+  insightsShared?: number;
+  phoneNumber?: string | number;
 }
 
 export interface UserDetailProps {
-    donations: number,
-    firstName: string,
-    lastName: string,
-    email: string,
-    birthDate: string,
-    gender: string,
-    streak: number,
-    quizzesTaken: number,
-    insightsShared: number,
-    phoneNumber: string | number,
+  donations: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  birthDate: string;
+  gender: string;
+  streak: number;
+  quizzesTaken: number;
+  insightsShared: number;
+  phoneNumber: string | number;
 }
 
 export interface PrayerProps {
-    _id: string,
-    picture: string,
-    startDate: string,
-    text: string,
-    meetingLink: string,
-    createdAt: string,
-    updatedAt: string,
+  _id: string;
+  picture: string;
+  startDate: string;
+  text: string;
+  meetingLink: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface QuizProps {
-    _id?: string,
-    title?: string,
-    description?: string,
-    monthlyQuiz?: boolean,
-    startDateTime: string,
-    endDateTime: string,
-    duration?: number,
-    questionCount?: number,
-    canReview?: boolean,
-    createdAt?: string,
-    updatedAt?: string,
+  _id?: string;
+  title?: string;
+  description?: string;
+  monthlyQuiz?: boolean;
+  startDateTime: string;
+  endDateTime: string;
+  duration?: number;
+  questionCount?: number;
+  canReview?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface InsightProps {
-    _id: string,
-    day: 65,
-    content: string,
-    likes: number,
-    bookTitles: [string],
-    userId: string,
-    createdAt:string,
-    updatedAt: string
+  _id: string;
+  day: 65;
+  content: string;
+  likes: number;
+  bookTitles: [string];
+  userId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface DonationsProps {
+  _id: string;
+  userId: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture: string;
+  };
+  amount: number;
+  currency: string;
+  transactionStatus: string;
+  paymentGateway: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuestionsProps {
+  quiz?: string;
+  question: string;
+  answer: string;
+  answerDescription: string;
+  choice: string[];
+}
+
+export interface AdminProps {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  userType: string;
+  createdAt: string;
+}
+
+export interface NotificationProps {
+  body: string;
+  createdAt: string;
+  title: string;
+  updatedAt: string;
+  _id: string;
+}
+
+export interface ScriptureProps {
     _id: string,
-    userId: {
-        _id: string,
-        firstName: string,
-        lastName: string,
-        profilePicture: string
+    day: string,
+    oldTestament: {
+        schedule: [ScheduleProps],
+        title: string,
+        _id: string
     },
-    amount: number,
-    currency: string,
-    transactionStatus: string,
-    paymentGateway: string,
+    newTestament: {
+        schedule: [ScheduleProps],
+        title: string,
+        _id: string
+    },
     createdAt: string,
     updatedAt: string,
 }
 
-export interface QuestionsProps {
-    quiz?: string,
-    question: string,
-    answer: string,
-    answerDescription: string,
-    choice: string[],
-}
-
-export interface AdminProps {
-    _id: string,
-    firstName: string,
-    lastName: string,
-    email: string,
-    userType: string,
-    createdAt: string,
+interface ScheduleProps {
+    bookId: string,
+    chapter: number,
+    startVerse: null,
+    endVerse: null,
+    _id: string
 }

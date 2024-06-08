@@ -6,7 +6,7 @@ const headerToken = localStorage?.getItem('token')
 
 export const fetchScriptures = (params:params) => {
     const request = axios.get(
-      baseUrl + `/admin/prayers?limit=${params.pageSize}&page=${params.pageNumber}`,
+      baseUrl + `/admin/sotd?limit=${params.pageSize}&page=${params.pageNumber}`,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>
      response.data

@@ -12,12 +12,13 @@ import Pill from '@/components/Pill'
 import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
 import { fetchSupport, updateSupport } from '@/services/supportService'
 import { transformPhoneNumber } from '@/utils/utils'
+import { Loader } from '@/components/Loaders'
 
 const Support = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
-    const [pageNumber, setPageNumber] = useState(1)
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         supportPhoneNumber: "",
         supportEmail: ""
@@ -43,6 +44,7 @@ const Support = () => {
 
   const handleSubmit = async(e:any) => {
     e.preventDefault()
+    setLoading(true)
     try { 
         let whatsappNumber = transformPhoneNumber(formData.supportPhoneNumber) 
         console.log({...formData, supportPhoneNumber: whatsappNumber});
@@ -50,11 +52,13 @@ const Support = () => {
         const result = await updateSupport({...formData, supportPhoneNumber: whatsappNumber})
         console.log(result);
         if(result.success) {
-            setShowModal(false)
-            // location.reload();
+            setLoading(false)
+            setShowModal(false) 
+            location.reload();
         }
         
     } catch (error) {
+        setLoading(false)
         console.log(error);  
     }
   }
@@ -93,7 +97,9 @@ const Support = () => {
         <form className='mb-12' onSubmit={handleSubmit}> 
             <InputField placeholder='Email' name='supportEmail' type='email' change={handleChange} defaultValue={responseData?.email} value={responseData?.email}/>
             <InputField placeholder='Phone Number' name='supportPhoneNumber' type='tel' pattern="[0-9]{3} [0-9]{4} [0-9]{4}" change={handleChange} defaultValue={responseData?.phoneNumber} value={responseData?.phoneNumber}/>
-          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit">Update Information</BtnPrimary>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit">
+            {loading ? <Loader/> : "Update Information"}
+          </BtnPrimary>
          </form>
       </Modal>        
     </div>

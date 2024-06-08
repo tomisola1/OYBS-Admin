@@ -88,19 +88,17 @@ export default function OtpVerification() {
     setSeconds(59);
   };
 
- console.log(otp);
  
   const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    try {
-      
+    try {   
       const response = await otpVerification({
         email: localStorage.getItem("email"),
         otp:otp.join("")
       })
-      console.log(response);
+
       if(response.success) {
-        toast.success(response.result)
+        toast.success('OTP verified')
         localStorage.setItem("token",response.result)
         router.replace("/new-password")
       }

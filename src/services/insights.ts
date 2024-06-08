@@ -13,3 +13,13 @@ export const fetchInsights = (params:params) => {
     )
     return request
 };
+
+export const deleteInsights = (id:String|undefined) => {
+    const request = axios.delete(
+      baseUrl + `/admin/insights/${id}`,
+      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    ).then((response)=>
+     response.data
+    )
+    return request
+};

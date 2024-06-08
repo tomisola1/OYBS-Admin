@@ -16,8 +16,18 @@ export const fetchNotifications = (params:params) => {
 
 export const createNotifications = (data:any) => {
     const request = axios.post(
-      baseUrl + `/admin/push-notifications`,
+      baseUrl + `/admin/push-notifications/send`,
       data,
+      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    ).then((response)=>
+     response.data
+    )
+    return request
+};
+
+export const resendNotifications = (id:string|undefined) => {
+    const request = axios.post(
+      baseUrl + `/admin/push-notifications/resend/${id}`,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>
      response.data

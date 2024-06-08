@@ -4,7 +4,7 @@ import Head from '@/components/Head'
 import Table from '@/components/Table'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import image from '../../../../public/image'
 import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
@@ -12,10 +12,48 @@ import { EditIcon } from '../../../../public/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
+import { fetchScriptures } from '@/services/scriptureService'
+import { ScriptureProps } from '@/types'
 
 const Scripture = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
+    const [pageNumber, setPageNumber] = useState(1)
+    const [responseData, setResponseData] = useState<any>()
+
+    useEffect(() =>{
+        const fetchAllScriptures = async() =>{
+            try {
+                const response = await fetchScriptures({pageNumber: pageNumber, pageSize: 8})
+                console.log(response);
+                setResponseData(response.result)
+            } catch (error) {
+                console.log(error);    
+            }
+        }
+        fetchAllScriptures()
+    },[pageNumber])
+    
+    
+   // Handle previous page
+   const handlePreviousPage = () => {
+    if (pageNumber > 1){
+        setPageNumber(pageNumber - 1)
+    }
+   };
+
+   // Handle next page
+   const handleNextPage = () => {
+      setPageNumber(pageNumber + 1)
+   };
+
+   const addOldTestament = () => {
+    
+   }
+
+   const addNewTestament = () => {
+
+   }
 
     const handleSubmit = () => {}
 
@@ -29,15 +67,15 @@ const Scripture = () => {
         <div className='w-full'>
             <Table
             head={['Old Testatment', 'New Testament', 'Date', 'Action']}
-            body={Array.from({length: 50},(index: number) =>
+            body={responseData?.schedules.map((schedule:ScriptureProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
                         <td className='p-4 font-normal tracking-wide'>
-                        Judges 5-6
+                        {schedule?.oldTestament?.title}
                         </td>
-                        <td className='p-4 font-light'>Luke 11:37-54</td>
+                        <td className='p-4 font-light'>{schedule?.newTestament.title}</td>
                         <td className='p-4 font-light'>
-                            <p>24/04/2024</p>
+                            <p>{new Date(schedule.createdAt).toLocaleDateString()}</p>
                         </td>
                         <td className='pl-4 font-light flex gap-2 items-center h-14'>
                             <div>
@@ -50,17 +88,20 @@ const Scripture = () => {
                 )}
             itemsPerPage={8}
             showFilter={false}
+            handleNextPage={handleNextPage}
+            handlePreviousPage={handlePreviousPage}
+            totalPages={responseData?.totalPages}
             />
         </div>
 
         <Modal
         show={showModal}
         hide={() => setShowModal(false)}
-        heading="Create Quiz"
-        sub="This will be updated on the OYBS mobile app"
+        heading="Scripture of the Day"
       >
         <form className='mb-12'> 
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
+            <InputField placeholder='Title'/>
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm'>
             <option>Old Testament</option>
                 {options.map((option, index) => {
                     return (
@@ -70,7 +111,9 @@ const Scripture = () => {
                     );
                 })}
             </select>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
+            <p className='text-primary font-semibold text-xs capitalize mb-3'>Add More books from the Old Testament</p>
+            <InputField placeholder='Title'/>
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm'>
             <option>New Testament</option>
                 {options.map((option, index) => {
                     return (
@@ -80,16 +123,8 @@ const Scripture = () => {
                     );
                 })}
             </select>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mt-4 font-light text-sm'>
-            <option>Date</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
+            <p className='text-primary font-semibold text-xs capitalize mb-3'>Add More books from the New Testament</p>
+            <InputField type='date'/>
          </form>
           <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Update SOD</BtnPrimary>
       </Modal>         

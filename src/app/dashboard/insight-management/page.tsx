@@ -7,22 +7,26 @@ import React, { useEffect, useState } from 'react'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { Btn} from '@/components/Buttons'
 import Modal from '@/components/Modal'
-import { fetchInsights } from '@/services/insights'
+import { deleteInsights, fetchInsights } from '@/services/insights'
 import { InsightProps } from '@/types'
+import EmptyState from '@/components/emptyState'
+import { SkeletonLoader } from '@/components/Loaders'
 
 const InsightManagement = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
-
+    const [loading, setLoading] = useState(false)
 
     useEffect(() =>{
         const fetchAllInsights = async() =>{
+             setLoading(true)
             try {
                 const response = await fetchInsights({pageNumber: pageNumber, pageSize: 8})
                 console.log(response);
                 setResponseData(response)
+                setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
@@ -44,33 +48,44 @@ const InsightManagement = () => {
    };
 
 
-    const handleSubmit = () => {}
+    const handleDelete = async(id:string|undefined) => {
+      try {
+        setShowModal(true)
+        const result = await deleteInsights(id)
+        if (result.success){
+          setShowModal(false)
+          location.reload()
+        }
+      } catch (error) {
+        console.log(error);    
+      }
+    }
 
-    const options = [1,5,10,20]
   return (
     <div>
         <Head title='Insight Management'/>
         <div className='w-full mt-10'>
+          {loading && <SkeletonLoader/>}
           {
             responseData?.result?.length === 0 ? 
-            <h3 className='text-center text-2xl font-semibold mt-20'>No Insights Available</h3>:
+            <EmptyState text='No insignts reported'/>:
             <Table
-            head={['UserName', 'Insight Reported', 'Reason for Report', 'Date Reported', 'Action']}
+            head={['UserName', 'Insight Reported', 'Likes', 'Date Reported', 'Action']}
             body={responseData?.result?.map((insight: InsightProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
                         <td className='p-4 font-normal tracking-wide pl-6'>
-                        David Wagner
+                        {insight?.userId?.firstName}{' '}{insight?.userId?.lastName}
                         </td>
                         <td className='p-4 font-light w-1/3'>{insight.content}</td>
-                        <td className='p-4 font-light'>Inappropriate Language</td>
+                        <td className='p-4 font-light'>{insight.likes}</td>
                         <td className='p-4 font-light'>
                             <p>
                               {new Date(insight.createdAt).toLocaleDateString()}
                             </p>
                         </td>
                         <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>setShowModal(true)}/>
+                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>handleDelete(insight._id)}/>
                         </td>
                     </tr>
                 </>

@@ -10,9 +10,11 @@ import { redirect, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { adminLogin } from "@/services/authService";
 import { toast } from "react-toastify";
+import { Loader } from "@/components/Loaders";
 
 export default function Home() {
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const [loginData, setLoginData] = useState({
     email:'',
     password:''
@@ -25,15 +27,18 @@ export default function Home() {
 
   const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setLoading(true)
     try {
       const response = await adminLogin(loginData)
       console.log(response);
       localStorage.setItem('token', response.result.access_token)
       if (response.success === true) {
+        setLoading(false)
         toast.success('Login successful')
         router.push("/dashboard") 
       }
     } catch (error) {
+      setLoading(false)
       console.log(error);
       
     }
@@ -59,7 +64,9 @@ export default function Home() {
             <Link href={"/forgot-password"} className="flex justify-end mt-2">
               <span className="text-primary font-medium text-xs">Forgot Password?</span>
             </Link>
-           <BtnPrimary className="font-semibold text-base w-full mt-10" type="submit">Login</BtnPrimary>
+           <BtnPrimary className="font-semibold text-base w-full mt-10" type="submit">
+            {loading ? <Loader/> : "Login"}
+           </BtnPrimary>
           </form>
         </div>
         <div className="absolute bottom-0">

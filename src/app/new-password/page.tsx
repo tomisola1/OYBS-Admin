@@ -9,23 +9,45 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { resetPasssword } from "@/services/authService";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { Loader } from "@/components/Loaders";
 
 export default function NewPassword() {
   const router = useRouter()
-  const [password, setPasword] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+ 
+
+  const handleChange = (e:any) => {
+    if (e.target.name === "password1"){
+      setPassword(e.target.value)   
+    }
+    if (e.target.name === "password2"){
+      setConfirmPassword(e.target.value)  
+    }
+  }
 
   const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setLoading(true)
     try {
-      
+      if (password !== confirmPassword) {
+        toast.error("Passwords do not match")
+        return
+     }
       const response = await resetPasssword({
-        password: password
+        password: confirmPassword
       })
-      console.log(response);
+
       if(response.success) {
+        setLoading(false)
+        toast.success('Password changed successfully')
         router.replace("/")
       }
     } catch (error) {
+      setLoading(false)
+      toast.error("Something went wrong")
       console.log(error);
       
     }
@@ -45,9 +67,11 @@ export default function NewPassword() {
             <p className="font-normal m-0 text-base">Create a new password to access your account.</p>
           </div>
           <form onSubmit={handleSubmit}>
-            <InputField placeholder="Create Password" type="password" required/>
-            <InputField placeholder="Confirm Password" type="password" change={(e:any) => setPasword(e.target.value)} required/>
-            <BtnPrimary className="font-semibold text-base w-full" type="submit">Continue</BtnPrimary>
+            <InputField placeholder="Create Password" type="password" name="password1" change={handleChange} required/>
+            <InputField placeholder="Confirm Password" type="password" name="password2" change={handleChange} required/>
+            <BtnPrimary className="font-semibold text-base w-full" type="submit">
+              {loading ? <Loader/> : "Submit"}
+            </BtnPrimary>
           </form>
         </div>
         <div className="absolute bottom-0">

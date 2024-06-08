@@ -15,7 +15,6 @@ export default function ForgotPassword() {
   const router = useRouter()
   const  [email, setEmail] = useState('')
 
-  console.log(email);
   const handleSubmit = async(e:FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
