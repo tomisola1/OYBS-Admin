@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from 'react'
-import image from '../../public/image'
+import image from '../../public/assets/image'
 import Image from 'next/image'
 
 const delay = 10000;

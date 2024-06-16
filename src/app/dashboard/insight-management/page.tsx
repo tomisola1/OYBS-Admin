@@ -65,7 +65,6 @@ const InsightManagement = () => {
     <div>
         <Head title='Insight Management'/>
         <div className='w-full mt-10'>
-          {loading && <SkeletonLoader/>}
           {
             responseData?.result?.length === 0 ? 
             <EmptyState text='No insignts reported'/>:
@@ -95,6 +94,8 @@ const InsightManagement = () => {
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
             totalPages={responseData?.result?.length}
+            isLoading={loading}
+            currentPageNumber={pageNumber}
             />
           }
         </div>

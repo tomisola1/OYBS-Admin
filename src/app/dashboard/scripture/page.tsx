@@ -4,35 +4,114 @@ import Head from '@/components/Head'
 import Table from '@/components/Table'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
-import image from '../../../../public/image'
+import React, { FormEvent, useEffect, useState } from 'react'
+import image from '../../../../public/assets/image'
 import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
-import { EditIcon } from '../../../../public/icons'
+import { EditIcon } from '../../../../public/assets/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { fetchScriptures } from '@/services/scriptureService'
-import { ScriptureProps } from '@/types'
+import { createScripture, fetchNewTestamentBooks, fetchOldTestamentBooks, fetchScriptures, getBookInfo } from '@/services/scriptureService'
+import { BookInfoProps, BooksProps, ScheduleProps, ScriptureProps } from '@/types'
+import { getDayOfYear } from 'date-fns'
+import EditScripture from './EditScripture'
+import { Loader } from '@/components/Loaders'
 
 const Scripture = () => {
     const router = useRouter()
-    const [showModal, setShowModal] = useState(false)
+    const [showModal, setShowModal] = useState({create: false, edit: false})
     const [pageNumber, setPageNumber] = useState(1)
+    const [loading, setLoading] = useState(false)
     const [responseData, setResponseData] = useState<any>()
+    const [scripture, setScripture] = useState<ScriptureProps>()
+    const [books, setBooks] = useState({
+        oldtestaments: [],
+        newtestaments: [],
+    })
+    const [oldSchedules, setOldSchedules] = useState<ScheduleProps[] | any>([{
+        bookId: '',
+        chapter: 0,
+        startVerse: '',
+        endVerse: '',
+    }])
+    const [newSchedules, setNewSchedules] = useState<ScheduleProps[] | any>([{
+        bookId: '',
+        chapter: 0,
+        startVerse: '',
+        endVerse: '',
+    }])
+    const [bookId, setBookId] = useState('')
+    const [bookInfo, setBookInfo] = useState<BookInfoProps[]>()
+    const [formData, setFormData] = useState<any>(
+        {
+        day: '',
+        oldTestament: {
+            schedule: [],
+            title: ''
+        },
+        newTestament: {
+            schedule:[],
+            title: ''
+        }})
 
     useEffect(() =>{
         const fetchAllScriptures = async() =>{
+            setLoading(true)
             try {
                 const response = await fetchScriptures({pageNumber: pageNumber, pageSize: 8})
                 console.log(response);
                 setResponseData(response.result)
+                setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
         }
         fetchAllScriptures()
+        
     },[pageNumber])
+
+    useEffect(() =>{
+        const fetchBooks = async() =>{
+            setLoading(true)
+            try {
+               const oldBooks = await fetchOldTestamentBooks()
+               const newBooks = await fetchNewTestamentBooks()
+               if (oldBooks && newBooks){
+                    books.oldtestaments = oldBooks.result ?? []
+                    books.newtestaments = newBooks.result ?? []
+               }else {
+                console.log('One or more responses are null');
+               }
+               setLoading(false)
+               console.log(books.oldtestaments);
+               
+            } catch (error) {
+                console.log(error);    
+            }
+        }
+        fetchBooks()
+   
+    },[])
+
+    useEffect(() => {
+        const fetchBooksInfo = async() =>{
+            try {
+                setLoading(true);
+                if(bookId){
+                    const response = await getBookInfo(bookId)
+                    setBookInfo(response.result.verses)
+                    setLoading(false)
+                    console.log(bookInfo);
+                }
+               
+            } catch (error) {
+                console.log(error);
+                
+            }
+        }
+        fetchBooksInfo()
+    },[bookId])
     
     
    // Handle previous page
@@ -47,22 +126,101 @@ const Scripture = () => {
       setPageNumber(pageNumber + 1)
    };
 
-   const addOldTestament = () => {
+   const addSchedules = (name:string) => {
+    if (name === "oldTestament"){
+        setOldSchedules([...oldSchedules, {}])
+    }
+    if (name === "newTestament"){
+        setNewSchedules([...newSchedules, {}])
+    }
+   }
+
+
+   const handleChange = (e: any, parentObject?: "oldTestament" | "newTestament") => {
+    const { name, value } = e.target
+    if (parentObject) {
+       setFormData({ ...formData, [parentObject]: { ...formData[parentObject], [name]: value } })
+    } else {
+       setFormData({ ...formData, [name]: value })
+    }
+    console.log(formData);
+
+ }
+
+
+
+ const extractBookId = (books:any)=>{
+    books?.forEach((book:BooksProps) =>{
+        console.log(book.bookId);
+        setBookId(book.bookId) 
+            console.log(bookId);
+    })
+ }
+
+   const handleSchedulesChange = (e: any, index: number, title:string) => {
+    const { name, value } = e.target;
+    if(title === 'oldTestament'){
+        const updatedSchedules = [...oldSchedules];
+        updatedSchedules[index][name as keyof ScheduleProps] = value;
     
-   }
+        setOldSchedules(updatedSchedules);
+        
+        extractBookId(oldSchedules)
+        // setNewID(oldSchedule)
+    }
+    if(title === 'newTestament'){
+        const updatedSchedules = [...newSchedules];
+        updatedSchedules[index][name as keyof ScheduleProps] = value;
+    
+        setNewSchedules(updatedSchedules);
+    }
+    console.log(oldSchedules, newSchedules);
 
-   const addNewTestament = () => {
+   
+    
+  };
 
-   }
+    const handleSubmit = async(e:any) => {
+        e.preventDefault()  
+        try{
+            setLoading(true)
+            const dayOfYear = getDayOfYear(new Date(formData.day))
+          
+            const payload = {
+                day: dayOfYear,
+                oldTestament: {
+                    schedule: oldSchedules,
+                    title: formData.oldTestament.title
+                },
+                newTestament: {
+                    schedule: newSchedules,
+                    title: formData.newTestament.title
+                }
+            }
+            
+            const response = await createScripture(payload)
+            if(response) {
+                setShowModal({create:false, edit:false})
+                setLoading(false)
+                location.reload()
+            }
 
-    const handleSubmit = () => {}
+        } catch(error){
+            console.log();           
+        }
+       
+    }
 
-    const options = [1,5,10,20]
+    const setScriptureAndModal: any= (data:ScriptureProps) => {
+        setShowModal({create:false, edit:true}) 
+         setScripture(data)
+    }
+
   return (
     <div>
         <Head title='Scripture of the Day'/>
         <div className='mt-8'>
-            <BtnPrimary onClick={()=>setShowModal(true)}>Add the scripture of the day</BtnPrimary>
+            <BtnPrimary onClick={()=>setShowModal({create:true, edit:false})}>Add the scripture of the day</BtnPrimary>
         </div>
         <div className='w-full'>
             <Table
@@ -75,13 +233,12 @@ const Scripture = () => {
                         </td>
                         <td className='p-4 font-light'>{schedule?.newTestament.title}</td>
                         <td className='p-4 font-light'>
-                            <p>{new Date(schedule.createdAt).toLocaleDateString()}</p>
+                            <p>{new Date(schedule?.createdAt).toLocaleDateString()}</p>
                         </td>
                         <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                            <div>
+                            <div onClick={()=>setScriptureAndModal(schedule)}>
                                 <EditIcon />
                             </div>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true"/>
                         </td>
                     </tr>
                 </>
@@ -91,42 +248,93 @@ const Scripture = () => {
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
             totalPages={responseData?.totalPages}
+            isLoading={loading}
+            currentPageNumber={pageNumber}
             />
         </div>
-
+        <EditScripture
+            show={showModal.edit}
+            hide={() => setShowModal({edit:false, create:false})}
+            data={scripture}
+            // books={books}
+        />
         <Modal
-        show={showModal}
-        hide={() => setShowModal(false)}
+        show={showModal.create}
+        hide={() => setShowModal({create:false, edit:false})}
         heading="Scripture of the Day"
+        className='overflow-auto h-3/4'
       >
-        <form className='mb-12'> 
-            <InputField placeholder='Title'/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm'>
-            <option>Old Testament</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-            <p className='text-primary font-semibold text-xs capitalize mb-3'>Add More books from the Old Testament</p>
-            <InputField placeholder='Title'/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm'>
-            <option>New Testament</option>
-                {options.map((option, index) => {
-                    return (
-                        <option key={index}>
-                            {option}
-                        </option>
-                    );
-                })}
-            </select>
-            <p className='text-primary font-semibold text-xs capitalize mb-3'>Add More books from the New Testament</p>
-            <InputField type='date'/>
+        <form className='mb-12' onSubmit={handleSubmit}> 
+            <InputField placeholder='Title' name='title' value={formData.oldTestament.title} change={(e: any) => handleChange(e, 'oldTestament')} required/>
+            {
+                oldSchedules.map((schedule:ScheduleProps, index:number)=>(
+                <>
+                    <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="bookId" value={schedule.bookId} onChange={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')} required>
+                    <option>Old Testament</option>
+                        {books && books?.oldtestaments?.map((oldtestament:BooksProps, index) => {
+                            return (
+                                <option key={index} value={oldtestament.bookId}>
+                                    {`${oldtestament.name} - ${oldtestament.chapterSize} Chapters`}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    <div className='flex justify-between gap-2'>  
+                        <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')} required>
+                        <option>Chapters</option>
+                            {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
+                                return (
+                                    <option key={index} value={info.chapter}>
+                                        {`Chapter ${info.chapter} - ${info.verses} Verses`}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        <InputField placeholder='Verses' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
+                        <InputField placeholder='Verses' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
+                    </div>
+                </>
+                
+                ))
+            }
+            <p className='text-primary font-semibold text-xs capitalize mb-3 cursor-pointer' onClick={()=>addSchedules("oldTestament")}>Add More books from the Old Testament</p>
+            <InputField placeholder='Title' name='title' value={formData.newTestament.title} change={(e: any) => handleChange(e, 'newTestament')}/>
+            {
+                newSchedules.map((schedule:ScheduleProps, index:number)=>(
+                    <>
+                        <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="bookId" value={schedule.bookId} onChange={(e:any)=>handleSchedulesChange(e, index, 'newTestament')} required>
+                        <option>New Testament</option>
+                            {books && books?.newtestaments?.map((newtestament:BooksProps, index) => {
+                                return (
+                                    <option key={index} value={newtestament.bookId}>
+                                        {`${newtestament.name} - ${newtestament.chapterSize} Chapters`}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                        <div className='flex gap-3'>
+                       
+                            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'newTestament')} required>
+                            <option>Chapters</option>
+                                {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
+                                    return (
+                                        <option key={index} value={info.chapter}>
+                                            {`${info.chapter} - ${info.verses} Verser`}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                            <InputField placeholder='Verses' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
+                            <InputField placeholder='Verses' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
+                        </div>
+                    </>
+
+                ))
+            }
+            <p className='text-primary font-semibold text-xs capitalize mb-3 cursor-pointer' onClick={()=>addSchedules("newTestament")}>Add More books from the New Testament</p>
+            <InputField type='date' name='day' change={(e: any) => handleChange(e)} required/>
+          <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit">{loading ? <Loader/> :"Update SOD"}</BtnPrimary>
          </form>
-          <BtnPrimary className="font-semibold text-base mb-6 tracking-wide" type="submit" onClick={handleSubmit}>Update SOD</BtnPrimary>
       </Modal>         
     </div>
   )

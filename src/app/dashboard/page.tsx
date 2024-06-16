@@ -4,18 +4,19 @@ import Head from '@/components/Head'
 import Sidebar from '@/components/Sidebar'
 import StatCard from '@/components/statCard'
 import React, { useEffect, useRef, useState } from 'react'
-import { DonationIcon, RoundArrow, UserIcon, UserIcon2 } from '../../../public/icons'
+import { DonationIcon, RoundArrow, UserIcon, UserIcon2 } from '../../../public/assets/icons'
 import { CalendarIcon } from '@heroicons/react/24/outline'
 import Pill from '@/components/Pill'
 import { BtnPrimary } from '@/components/Buttons'
 import Image from 'next/image'
-import image from '../../../public/image'
-import { fetchDonations, fetchTotalDonations, fetchTotalInsights, fetchTotalUsers, fetchUpcomingPrayers } from '@/services/dashboard'
+import image from '../../../public/assets/image'
+import { fetchBibleTracker, fetchDonations, fetchQuizTakers, fetchTotalDonations, fetchTotalInsights, fetchTotalUsers, fetchUpcomingPrayers } from '@/services/dashboard'
 import dynamic from 'next/dynamic';
 import 'chart.js/auto';
-import { DonationsProps, PrayerProps } from '@/types'
+import { DonationsProps, PrayerProps, QuizTakersProps } from '@/types'
 import { useRouter } from 'next/navigation'
 import { isToday } from 'date-fns'
+import { monthNames } from '@/utils/utils'
 
 const Line = dynamic(() => import('react-chartjs-2').then((mod) => mod.Line), {
   ssr: false,
@@ -36,49 +37,8 @@ const Dashboard = () => {
         prayers: [],
         fetchedDonations: []
     })
-    const [prayers, setPrayers] = useState({});
-
-    const bibleTracker = {
-      labels: ['Jan', 'Feb', 'Mar', 'April', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      datasets: [
-        {
-          label: 'Completion Rate',
-          data: [65, 59, 80, 81, 56, 65, 59, 80, 81, 56,],
-          fill: false,
-          borderColor: '#29BB89',
-          tension: 0.2,
-        },
-        {
-          label: 'Reading Progress',
-          data: [65, 59, 65, 59, 80, 81, 56, 80, 81, 56],
-          fill: false,
-          borderColor: '#5372E7',
-          tension: 0.2,
-        },
-      ],
-    };
-
-   
-      const data = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [
-          {
-            label: 'Monthly Quiz Takers',
-            data: [12, 19, 3, 5, 2, 3],
-            backgroundColor: [
-              '#29BB89',
-              '#5372E7'
-            ],
-            borderColor: [
-              '#29BB89',
-              '#5372E7'
-            ],
-            borderRadius: 8,
-            barThickness: 28
-          },
-        ],
-      };
-
+    const [quizTakers, setQuizTakers] = useState<any>();
+    const [bibleTrackers, setBibleTrackers] = useState([])
   
     useEffect(()=>{
         const fetchTotals = async () => {
@@ -108,13 +68,90 @@ const Dashboard = () => {
             }
         }
         fetchTotals()
-       
+
+        const quizTakers = async() => {
+            try {
+                const takers = await fetchQuizTakers()
+                setQuizTakers(takers.result);
+            } catch (error) {
+                console.log(error);
+                
+            }
+         }
+         quizTakers()
+        const bibleTracking = async() => {
+            try {
+                const tracker = await fetchBibleTracker()
+                setBibleTrackers(tracker.result);
+            } catch (error) {
+                console.log(error);
+                
+            }
+         }
+         bibleTracking()
     },[])
+
+    const totalUsersTakingQuiz = quizTakers?.map((takers:any) =>{
+        return takers?.totalUsers
+    })
+    const completed = bibleTrackers?.map((item:any) =>{
+        return item?.completed
+    })
+    
+    const inProgress = bibleTrackers?.map((item:any) =>{
+        return item?.uncompleted
+    })
+         
+    const monthNamesArray = quizTakers?.map((item:QuizTakersProps) => monthNames[item?._id?.month]);
+    const bibleTrackerMonthArray = bibleTrackers?.map((item:any) => monthNames[item?.month]);
+
+    const BarChartData = {
+        labels: monthNamesArray,
+        datasets: [
+          {
+            label: 'Monthly Quiz Takers',
+            data: totalUsersTakingQuiz,
+            backgroundColor: [
+              '#29BB89',
+              '#5372E7'
+            ],
+            borderColor: [
+              '#29BB89',
+              '#5372E7'
+            ],
+            borderRadius: 8,
+            barThickness: 28
+          },
+        ],
+      };
+
+
+    const bibleTracker = {
+        labels: bibleTrackerMonthArray,
+        datasets: [
+          {
+            label: 'Completion Rate',
+            data: completed,
+            fill: false,
+            borderColor: '#29BB89',
+            tension: 0.2,
+          },
+          {
+            label: 'Reading Progress',
+            data: inProgress,
+            fill: false,
+            borderColor: '#5372E7',
+            tension: 0.2,
+          },
+        ],
+      };
+  
+
   return (
     <>
         <div>
             <Head title='Dashboard'/>
-            <div className='flex gap-5 my-8 overflow-y-scroll'>
+            <div className='lg:flex lg:gap-5 my-8'>
                 <div className='w-8/12 '>
                     <div className='flex justify-between'>
                         <StatCard Icon={<DonationIcon/>} Title='Total Donations' total={`₦${totals.donations}`} detail='2024' className='bg-[#5372E7]'/>
@@ -155,7 +192,7 @@ const Dashboard = () => {
                 </div>
                 <div className='w-2/6'>
                     <div className='h-[268px]'>
-                        <Bar data={data} height={268} width={422}/>
+                        <Bar data={BarChartData} height={268} width={422}/>
                     </div>
                     <div className='bg-background p-4 rounded-lg'>
                         <h3 className='text-base font-medium mb-6'>Top Donations</h3>

@@ -2,19 +2,21 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
-import image from '../../public/image'
-import { ChartIcon, DashboardIcon, LockIcon, NotificationIcon, PrayerIcon, QuizIcon, ReminderIcon, SupportIcon, UserIcon } from '../../public/icons'
+import React, { useState } from 'react'
+import image from '../../public/assets/image'
+import { ChartIcon, DashboardIcon, LockIcon, NotificationIcon, PrayerIcon, QuizIcon, ReminderIcon, SupportIcon, UserIcon } from '../../public/assets/icons'
 import { PowerIcon } from '@heroicons/react/24/outline'
 import { usePathname, useRouter } from 'next/navigation'
 
 const Sidebar = () => {
 	const pathname = usePathname()
 	const router = useRouter()
+
 	const handleLogout = () => {
 		localStorage.removeItem('token')
 		router.replace('/')
 	}
+	
   return (
     <>
         <aside className='box-border h-auto'>

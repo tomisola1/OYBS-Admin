@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import React from 'react'
-import image from '../../public/image'
+import image from '../../public/assets/image'
 
 interface props {
     text: string;

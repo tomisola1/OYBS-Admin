@@ -44,7 +44,6 @@ const Users = () => {
     <div>
         <Head title='Users'/>
         <div className='w-full mt-10'>
-            {loading && <SkeletonLoader/>}
             {
                 responseData?.total === 0 ? 
                 <h3 className='text-center text-2xl font-semibold mt-20'>No User Available</h3>:
@@ -52,6 +51,15 @@ const Users = () => {
                 head={['Name', 'Email', 'Phone Number', 'Streak', 'Insights Shared', 'Date joined']}
                 body={ responseData?.users.map((data:UserProps, index: number) =>
                     <>
+                    {data.isSuspended ? (
+                        <tr className='border border-white !text-red-600' key={index} onClick={()=>router.push(`/dashboard/users/${data._id}`)}>
+                            <td className='p-6 font-medium tracking-wide'>{data?.fullName}</td>
+                            <td className='p-6 font-light'>{data?.email}</td>
+                            <td className='p-6 font-light w-48'>{data?.phoneNumber ? data?.phoneNumber : "None"}</td>
+                            <td className='p-6 font-light'>{data?.streak}</td>
+                            <td className='p-6 font-light w-36'>{data?.insightsShared}</td>
+                            <td className='p-6 font-light w-36'>{new Date(data?.dateJoined)?.toLocaleDateString()}</td>
+                        </tr>):(
                         <tr className='border border-white' key={index} onClick={()=>router.push(`/dashboard/users/${data._id}`)}>
                             <td className='p-6 font-medium tracking-wide'>{data?.fullName}</td>
                             <td className='p-6 font-light'>{data?.email}</td>
@@ -59,7 +67,8 @@ const Users = () => {
                             <td className='p-6 font-light'>{data?.streak}</td>
                             <td className='p-6 font-light w-36'>{data?.insightsShared}</td>
                             <td className='p-6 font-light w-36'>{new Date(data?.dateJoined)?.toLocaleDateString()}</td>
-                        </tr>
+                        </tr>)
+                    }
                     </>
                     )}
                 itemsPerPage={8}
@@ -68,6 +77,8 @@ const Users = () => {
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
                 totalPages={responseData?.totalPages}
+                isLoading={loading}
+                currentPageNumber={pageNumber}
                 />
             }
         </div>

@@ -2,7 +2,7 @@
 
 import Carousel from "@/components/carousel";
 import Image from "next/image";
-import image from "../../public/image";
+import image from "../../public/assets/image";
 import InputField from "@/components/Inputfield";
 import { Btn, BtnPrimary } from "@/components/Buttons";
 import Link from "next/link";

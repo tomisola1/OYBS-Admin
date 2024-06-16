@@ -24,6 +24,16 @@ export const fetchSingleUser = (userId:string | null) => {
     return request
 };
 
+export const getAdminUser = () => {
+  const request = axios.get(
+    baseUrl + `/admin/me`,
+    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  ).then((response)=>
+   response.data
+  )
+  return request
+};
+
 export const fetchAdminUsers = (params:params) => {
   const request = axios.get(
     baseUrl + `/admin/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`,
@@ -37,6 +47,17 @@ export const fetchAdminUsers = (params:params) => {
 export const suspendUsers = (data:any) => {
   const request = axios.post(
     baseUrl + `/admin/users/suspend`,
+    data,
+    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  ).then((response)=>
+   response.data
+  )
+  return request
+};
+
+export const unsuspendUsers = (data:any) => {
+  const request = axios.post(
+    baseUrl + `/admin/users/unsuspend`,
     data,
     {headers: {"Authorization":`Bearer ${headerToken}`}}
   ).then((response)=>

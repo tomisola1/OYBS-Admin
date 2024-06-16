@@ -97,7 +97,6 @@ const Notifications = () => {
             <BtnPrimary onClick={()=>setShowModal(true)}>Send a push notification</BtnPrimary>
         </div>
         <div className='w-full mt-10'>
-            {loading && <SkeletonLoader/>}
         {
             responseData?.result?.length === 0 ? 
             <EmptyState text='No Notifications Created'/>:
@@ -126,6 +125,8 @@ const Notifications = () => {
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
             totalPages={responseData?.totalPages}
+            isLoading={loading}
+            currentPageNumber={pageNumber}
             />
         }
         </div>

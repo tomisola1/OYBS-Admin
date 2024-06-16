@@ -1,11 +1,13 @@
 "use client"
 
-import React from 'react'
-import { NotificationFill } from '../../public/icons'
+import React, { useEffect, useState } from 'react'
+import { NotificationFill } from '../../public/assets/icons'
 import Image from 'next/image'
-import image from '../../public/image'
+import image from '../../public/assets/image'
 import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
+import { AdminProps, UserProps } from '@/types'
+import { getAdminUser } from '@/services/userService'
 
 type props ={
     title: string;
@@ -14,6 +16,23 @@ type props ={
 
 const Head = ({title, navigate}:props) => {
     const router = useRouter()
+    const [admin, setAdmin] = useState<AdminProps>()
+
+    useEffect(()=>{
+        const getUser = async() => {
+            try {
+                const response = await getAdminUser()
+                console.log(response);
+                
+                setAdmin(response.result)
+            } catch (error) {
+                console.log(error);
+                
+            }
+        }
+        getUser()
+    },[])
+
   return (
     <div className='flex justify-between'>
         <div className='flex items-center gap-2'>
@@ -26,11 +45,15 @@ const Head = ({title, navigate}:props) => {
         <div className='flex gap-2 items-center'>
             <NotificationFill/>
             <div className='leading-5'>
-                <h3 className='text-neutral-950 font-medium text-sm'>Billy Alexander</h3>
-                <p className='font-light text-xs text-gray-600 text-right'>Administrator</p>
+                <h3 className='text-neutral-950 font-medium text-sm'>{admin?.firstName} {admin?.lastName}</h3>
+                <p className='font-light text-xs text-gray-600 text-right'>{admin?.userType}</p>
             </div>
             <div>
-                <Image src={image.profile} alt='user image'/>
+                {
+                    admin?.profilePicture ?
+                <Image src={admin?.profilePicture} alt='user image' width={32} height={32}/> : 
+                <Image src={"/assets/defaultImage.svg"} alt='user image' width={32} height={32}/>
+                }
             </div>
         </div>
     </div>

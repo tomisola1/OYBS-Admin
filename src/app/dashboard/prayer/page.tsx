@@ -5,10 +5,10 @@ import Table from '@/components/Table'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import image from '../../../../public/image'
+import image from '../../../../public/assets/image'
 import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
-import { EditIcon } from '../../../../public/icons'
+import { EditIcon } from '../../../../public/assets/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
@@ -123,7 +123,6 @@ const Prayer = () => {
             <BtnPrimary onClick={()=>setShowModal({form:true, delete:false, edit:false})}>Add Prayer Session</BtnPrimary>
         </div>
         <div className='w-full'>
-            {loading && <SkeletonLoader/>}
             {
                 responseData?.total === 0 ? 
                 <EmptyState text='No prayers available'/>
@@ -161,6 +160,8 @@ const Prayer = () => {
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
                 totalPages={responseData?.totalPages}
+                isLoading={loading}
+                currentPageNumber={pageNumber}
                 />
             }
         </div>

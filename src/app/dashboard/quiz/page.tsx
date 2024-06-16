@@ -5,21 +5,21 @@ import Table from '@/components/Table'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import image from '../../../../public/image'
+import image from '../../../../public/assets/image'
 import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
-import { EditIcon } from '../../../../public/icons'
+import { EditIcon } from '../../../../public/assets/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { addQuestion, createQuizzes, fetchQuizzes } from '@/services/quizService'
+import { addQuestion, createQuizzes, fetchQuizzes, updateQuiz } from '@/services/quizService'
 import { QuestionsProps, QuizProps } from '@/types'
 import { toDate } from 'date-fns'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
 
 const Quiz = () => {
     const router = useRouter()
-    const [showModal, setShowModal] = useState({create:false, edit:false, add:false, delete:false, update:false})
+    const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
     const [quiz, setQuiz] = useState<QuizProps>()
@@ -87,13 +87,6 @@ const Quiz = () => {
         return toDate(combinedDateTime)
     }
 
-    const setQuizAndModal: any= (data:QuizProps) => {
-        setShowModal({create:false, edit:true, add:false, delete:false, update:false})
-        console.log(data);
-        
-         setQuiz(data)
-    }
-
 
     const handleSubmit = async(e:any) => {
         e.preventDefault();
@@ -115,7 +108,7 @@ const Quiz = () => {
             console.log(response);
             if(response.success) {
                 setLoading(false)
-                setShowModal({create:false, edit:false, add:false, delete:false, update:false});
+                setShowModal(false);
                 location.reload();
             }
         } catch (error) {
@@ -130,10 +123,9 @@ const Quiz = () => {
     <div>
         <Head title='Quiz'/>
         <div className='mt-8'>
-            <BtnPrimary onClick={()=>setShowModal({create:true, edit:false, add:false, delete:false, update:false})}>Create Quiz</BtnPrimary>
+            <BtnPrimary onClick={()=>setShowModal(true)}>Create Quiz</BtnPrimary>
         </div>
         <div className='w-full'>
-            {loading && <SkeletonLoader/>}
             {
                 responseData?.total === 0 ? 
                 <h3 className='text-center text-2xl font-semibold mt-20'>No Quiz Available</h3>:
@@ -152,10 +144,11 @@ const Quiz = () => {
                                 <p>{new Date(quiz.endDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })}</p>
                             </td>
                             <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                                <div onClick={()=>setQuizAndModal(quiz)}>
+                                <BtnPrimary className={"!h-10 font-medium text-sm"} onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>Open</BtnPrimary>
+                                {/* <div onClick={()=>setQuizAndModal(quiz)}>
                                     <EditIcon />
                                 </div>
-                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true"/>
+                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true"/> */}
                             </td>
                         </tr>
                     </>
@@ -165,23 +158,14 @@ const Quiz = () => {
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
                 totalPages={responseData?.totalPages}
+                isLoading={loading}
+                currentPageNumber={pageNumber}
                 />
             }
-        </div>
+        </div>       
         <Modal
-        show={showModal.edit}
-        hide={() => setShowModal({create:false, edit:false, add:false, delete:false, update:false})}
-        heading="Edit Quiz"
-        sub="Kindly select which action you would like to proceed with."
-        >
-         <div className='flex justify-center gap-6'>
-            <Btn className="px-10 text-sm">Edit Quiz Information</Btn>
-            <Btn className="px-10 text-sm" onClick={() => setShowModal({create:false, edit:false, add:true, delete:false, update:false})}>Add Quiz Questions</Btn>
-          </div>
-        </Modal>
-        <Modal
-        show={showModal.create}
-        hide={() => setShowModal({create:false, edit:false, add:false, delete:false,update:false})}
+        show={showModal}
+        hide={() => setShowModal(false)}
         heading="Create Quiz"
         sub="This will be updated on the OYBS mobile app"
         className='h-4/5'
@@ -216,94 +200,10 @@ const Quiz = () => {
           </BtnPrimary>
          </form>
       </Modal>  
-      <AddQuestion
-         show={showModal.add}
-         hide={() => setShowModal({create:false, edit:false, add:false, delete:false, update:false})}
-         data={quiz}
-         id={quiz?._id}
-      />       
+            
     </div>
   )
 }
 
 export default Quiz
 
-interface Props extends ModalProps {
-    id: string | undefined;
-    data?: QuizProps;
-  }
-const AddQuestion = (props:Props) =>{
-    const { id, show, hide} = props;
-    console.log(id);
-    
-    const [options, setOptions] = useState([''])
-    const [loading, setLoading] = useState(false)
-    const [questions, setQuestions] = useState<QuestionsProps>(
-        {
-        quiz: '',
-        question: '',
-        answer: '',
-        answerDescription: '',
-        choice: ['', '', '', ''],
-        }
-    )
-  
-    const handleChange = (e:any, choiceIndex?: number) => {
-        console.log({...questions});
-        const {name, value} = e.target
-        const updatedQuestions = {...questions};
-        if (choiceIndex !== undefined) {
-            updatedQuestions.choice[choiceIndex] = value;
-        } else {
-            updatedQuestions[name as keyof QuestionsProps] = value;
-        }
-          setQuestions(updatedQuestions);
-    }
-
-    const handleSubmit = async(e:any) => {
-        e.preventDefault()
-        setLoading(true)
-        try {
-            const response  = await addQuestion({...questions, quiz: id})
-            console.log(response);  
-            if(response.success) {
-                setLoading(false)
-                hide()
-                location.reload();
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    return (
-        <Modal
-        show={show}
-        hide={hide}
-        heading="Add Questions"
-        className='h-4/5'
-      >
-        <form className='mb-12' onSubmit={handleSubmit}>
-            <div>
-                <InputField placeholder={`Question 1`} name='question' change={handleChange}/>
-                {questions.choice.map((choice:string, choiceIndex:number) => (
-                <InputField
-                    key={choiceIndex}
-                    placeholder={`Option ${choiceIndex + 1}`}
-                    name={`choice-${choiceIndex}`}
-                    value={choice}
-                    change={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, choiceIndex)}
-                />
-                ))}
-                <InputField placeholder='Answer' name='answer' change={handleChange}/>
-                <InputField placeholder="Answer Explanation" name='answerDescription' change={handleChange}/>
-            </div>
-            
-              <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" >
-                {loading ? <Loader/> : "Add Questions"}
-              </BtnPrimary>
-        </form>
-       
-      </Modal>  
-    )
-}

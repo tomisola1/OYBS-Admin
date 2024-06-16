@@ -34,3 +34,24 @@ export const addQuestion = (data:any) => {
     )
     return request
 };
+
+export const updateQuiz = (data:any, id:string|undefined) => {
+    const request = axios.patch(
+      baseUrl + `/admin/quizzes/${id}`,
+      data,
+      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    ).then((response)=>
+     response.data
+    )
+    return request
+};
+
+export const getQuizInfo = (id:string|undefined) => {
+    const request = axios.get(
+      baseUrl + `/admin/quizzes/${id}`,
+      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    ).then((response)=>
+     response.data
+    )
+    return request
+};

@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { DonationIcon } from '../../public/icons'
+import { DonationIcon } from '../../public/assets/icons'
 
 interface statProps {
     Icon: ReactNode;

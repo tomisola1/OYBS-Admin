@@ -6,6 +6,15 @@ export interface UserProps {
   fullName?: string;
   insightsShared?: number;
   phoneNumber?: string | number;
+  isSuspended: boolean;
+}
+
+export interface AdminProps {
+    firstName: string;
+  lastName: string;
+  email: string;
+  userType: string;
+  profilePicture: string;
 }
 
 export interface UserDetailProps {
@@ -19,6 +28,13 @@ export interface UserDetailProps {
   quizzesTaken: number;
   insightsShared: number;
   phoneNumber: string | number;
+  userSuspension:{
+    _id: string,
+    userId: string,
+    reason: string,
+    daysSuspended: number,
+    suspensionEndsAt: string,
+  }
 }
 
 export interface PrayerProps {
@@ -43,6 +59,7 @@ export interface QuizProps {
   canReview?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  questions?:[QuestionsProps]
 }
 
 export interface InsightProps {
@@ -103,26 +120,49 @@ export interface NotificationProps {
 }
 
 export interface ScriptureProps {
-    _id: string,
+    _id?: string,
     day: string,
     oldTestament: {
         schedule: [ScheduleProps],
         title: string,
-        _id: string
     },
     newTestament: {
         schedule: [ScheduleProps],
         title: string,
-        _id: string
     },
     createdAt: string,
-    updatedAt: string,
+    updatedAt?: string,
 }
 
-interface ScheduleProps {
+export interface ScheduleProps {
     bookId: string,
     chapter: number,
-    startVerse: null,
-    endVerse: null,
-    _id: string
+    startVerse: string,
+    endVerse: string,
+    _id?: string
+}
+
+export interface QuizTakersProps {
+    _id: {
+        month: number;
+        year: number;
+    };
+    totalUsers: number;
+}
+
+export interface MonthMap {
+    [key: number]: string;
+}
+
+export interface BooksProps {
+    bookId: string,
+    testament: string,
+    name: string,
+    shortName: string,
+    chapterSize: number
+}
+
+export interface BookInfoProps {
+    chapter: number,
+    verses: number
 }

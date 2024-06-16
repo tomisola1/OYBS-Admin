@@ -63,3 +63,13 @@ export const fetchQuizTakers = () => {
   )
   return request
 };
+
+export const fetchBibleTracker= () => {
+  const request = axios.get(
+    baseUrl + `/admin/stats/oybs-progress`,
+    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  ).then((response)=>
+   response.data
+  )
+  return request
+};
