@@ -5,6 +5,7 @@ import { SkeletonLoader } from '@/components/Loaders'
 import Table from '@/components/Table'
 import { fetchUsers } from '@/services/userService'
 import { UserProps } from '@/types'
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
@@ -13,11 +14,16 @@ const Users = () => {
     const [responseData, setResponseData] = useState<any>()
     const [loading, setLoading] = useState(false)
     const [pageNumber, setPageNumber] = useState(1)
+    const [searchText, setSearchText] = useState('')
+    const [dateJoined, setDateJoined] = useState('')
+    const [streak, setStreak] = useState('')
+    const [insightsShared, setInsightsShared] = useState('')
+
     useEffect(() =>{
         const fetchAllUsers = async() =>{
             setLoading(true)
             try {
-                const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8})
+                const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8, emailAddress: searchText, dateJoined: dateJoined, streak: streak, insightsShared: insightsShared})
                 console.log(response.result.users);
                 setResponseData(response.result)
                 setLoading(false)
@@ -26,7 +32,7 @@ const Users = () => {
             }
         }
         fetchAllUsers()
-    },[pageNumber])
+    },[searchText, pageNumber, dateJoined, streak, insightsShared])
     
     
    // Handle previous page
@@ -40,10 +46,59 @@ const Users = () => {
    const handleNextPage = () => {
       setPageNumber(pageNumber + 1)
    };
+
+   const handleSearch = (e: any) => {
+    setSearchText(e.target.value)
+    setPageNumber(1)
+  }
+
+  const handleChange = (e: any) => {
+    const { value } = e.target;
+    const [type, order] = value.split('-');
+
+    if (type === 'dateJoined') {
+      setDateJoined(order);
+    } else if (type === 'streak') {
+      setStreak(order);
+    } else if (type === 'insightsShared') {
+      setInsightsShared(order);
+    }
+    setPageNumber(1); // Reset to first page when filter changes
+  };
+
+  const filters = [
+    { name: 'Date joined(asc)', value: 'dateJoined-ASC' },
+    { name: 'Date joined(desc)', value: 'dateJoined-DESC' },
+    { name: 'Insights Shared(asc)', value: 'insightsShared-ASC' },
+    { name: 'Insights Shared(desc)', value: 'insightsShared-DESC' },
+    { name: 'Streak(asc)', value: 'streak-ASC' },
+    { name: 'Streak(desc)', value: 'streak-DESC' },
+  ];
+
+
   return (
     <div>
         <Head title='Users'/>
-        <div className='w-full mt-10'>
+        <div className='flex flex-col sm:flex-row gap-5 items-center mt-10 justify-between'>
+            <div className='relative'>
+                    <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-gray-500 ml-1 absolute top-3 left-2"
+                aria-hidden="true" />
+                    <input placeholder='Search by email' onChange={handleSearch} className='pr-3.5 pl-10 py-2.5 rounded-lg placeholder:text-gray-500 placeholder:text-sm w-80 focus:outline-none focus:border-orange-200 bg-[#F5F6FC]'/>
+            </div>
+            <div>
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm' onChange={handleChange}>
+            <option>Sort by</option>
+                {filters.map((option, index) => {
+                    return (
+                        <option key={index} value={option.value}>
+                            {option.name}
+                        </option>
+                    );
+                })}
+            </select>
+            </div>
+        </div>
+        <div className='w-full mt-4'>
             {
                 responseData?.total === 0 ? 
                 <h3 className='text-center text-2xl font-semibold mt-20'>No User Available</h3>:
@@ -72,8 +127,6 @@ const Users = () => {
                     </>
                     )}
                 itemsPerPage={8}
-                showFilter={true}
-                BtnItem='Suspend User'
                 handleNextPage={handleNextPage}
                 handlePreviousPage={handlePreviousPage}
                 totalPages={responseData?.totalPages}

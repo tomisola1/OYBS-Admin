@@ -54,8 +54,15 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Quiz Date</td>
                         <td className='py-3'> 
-                            <p className='font-medium'>{new Date(quiz?.startDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })?? "No date"}</p>
-                            <p className='font-medium'>{new Date(quiz?.endDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })?? "No date"}</p>
+                            <p className='font-medium'>{quiz?.startDateTime
+                                ? new Date(quiz.startDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })
+                                : "No date"}
+                             </p>
+                            <p className='font-medium'>
+                            {quiz?.endDateTime
+                            ? new Date(quiz.endDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })
+                            : "No date"}
+                            </p>
                         </td>
                     </tr>
                  </tbody>
@@ -79,6 +86,12 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
                                 </div>
                                 ))
                             }
+                            <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                <p><b>Answer:</b> {question.answer}</p>
+                            </div>
+                            <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                <p><b>Explanation:</b> {question.answerDescription}</p>
+                            </div>
                         </div>
                     ))
                 }
@@ -101,7 +114,7 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
          data={quiz}
          id={params.id}
       />       
-      <UpdateQuestion
+      <UpdateQuiz
          show={showModal.update}
          hide={() => setShowModal({edit:false, add:false, update:false})}
          data={quiz}
@@ -170,7 +183,7 @@ const AddQuestion = (props:Props) =>{
       >
         <form className='mb-12' onSubmit={handleSubmit}>
             <div>
-                <InputField placeholder={`Question 1`} name='question' change={handleChange}/>
+                <InputField placeholder={`Question 1`} name='question' change={handleChange} required/>
                 {questions.choice.map((choice:string, choiceIndex:number) => (
                 <InputField
                     key={choiceIndex}
@@ -178,10 +191,11 @@ const AddQuestion = (props:Props) =>{
                     name={`choice-${choiceIndex}`}
                     value={choice}
                     change={(e: React.ChangeEvent<HTMLInputElement>) => handleChange(e, choiceIndex)}
+                    required
                 />
                 ))}
-                <InputField placeholder='Answer' name='answer' change={handleChange}/>
-                <InputField placeholder="Answer Explanation" name='answerDescription' change={handleChange}/>
+                <InputField placeholder='Answer' name='answer' change={handleChange} required/>
+                <InputField placeholder="Answer Explanation" name='answerDescrption' change={handleChange} required/>
             </div>
             
               <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" >
@@ -193,7 +207,7 @@ const AddQuestion = (props:Props) =>{
     )
 }
 
-const UpdateQuestion = (props:Props) =>{
+const UpdateQuiz = (props:Props) =>{
     const { id, show, hide, data} = props;
     console.log(id);
     
@@ -254,7 +268,7 @@ const UpdateQuestion = (props:Props) =>{
             if(response.success) {
                 setLoading(false)
                 hide()
-                location.reload();
+                // location.reload();
             }
         } catch (error) {
             setLoading(false)

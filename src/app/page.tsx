@@ -37,8 +37,9 @@ export default function Home() {
         toast.success('Login successful')
         router.push("/dashboard") 
       }
-    } catch (error) {
+    } catch (error:any) {
       setLoading(false)
+      toast.error(error.response.data.result)
       console.log(error);
       
     }

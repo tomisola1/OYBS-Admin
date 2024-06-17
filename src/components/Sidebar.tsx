@@ -4,13 +4,15 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React, { useState } from 'react'
 import image from '../../public/assets/image'
-import { ChartIcon, DashboardIcon, LockIcon, NotificationIcon, PrayerIcon, QuizIcon, ReminderIcon, SupportIcon, UserIcon } from '../../public/assets/icons'
+import { CancelIcon, ChartIcon, DashboardIcon, LockIcon, NotificationIcon, PrayerIcon, QuizIcon, ReminderIcon, SupportIcon, UserIcon } from '../../public/assets/icons'
 import { PowerIcon } from '@heroicons/react/24/outline'
 import { usePathname, useRouter } from 'next/navigation'
 
-const Sidebar = () => {
+
+const Sidebar = ({close}:{close:()=>void}) => {
 	const pathname = usePathname()
 	const router = useRouter()
+
 
 	const handleLogout = () => {
 		localStorage.removeItem('token')
@@ -19,7 +21,10 @@ const Sidebar = () => {
 	
   return (
     <>
-        <aside className='box-border h-auto'>
+        <div className='box-border h-auto relative transition-all duration-700 ease-in-out'>
+				<div className='absolute -top-7 right-3 z-100 lg:hidden' onClick={close}>
+                	<CancelIcon/>
+                </div>	
 				<div className="flex gap-3 bg-gradient-to-r from-[#ffffff] to-[#ffffff1e] mt-[50px] ml-8 pt-3.5 pl-3.5 pb-4 rounded-xl">
 					<Image src={image.logo} alt="oybs logo" width={40} className='h-7'/>
                     <div className="leading-5">
@@ -27,7 +32,7 @@ const Sidebar = () => {
                         <p className='font-light text-xs text-gray-400'>Admin Portal</p>
                     </div>
 				</div>
-				<ul className="flex flex-col gap-2 mt-[30px] pl-8">
+				<ul className="flex flex-col gap-2 mt-[30px] pl-8 overflow-auto">
 					<li className="transition-colors duration-700 ease-in-out">
 						<Link
 							href={"/dashboard"}
@@ -36,7 +41,6 @@ const Sidebar = () => {
 							<span className='font-medium text-sm'>Dashboard</span>
 						</Link>
 					</li>
-
 					<li className="transition-colors duration-700 ease-in-out">
 						<Link
 							href={'/dashboard/users'}
@@ -45,7 +49,6 @@ const Sidebar = () => {
 							<span className='font-medium text-sm'>Users</span>
 						</Link>
 					</li>
-
 					<li className="transition-colors duration-700 ease-in-out">
 						<Link
 							href={'/dashboard/prayer'}
@@ -109,7 +112,7 @@ const Sidebar = () => {
 						<span className='text-[#515266] font-medium text-sm'>Logout</span>
 					</button>
 				</div>
-			</aside>
+			</div>
     </>
   )
 }

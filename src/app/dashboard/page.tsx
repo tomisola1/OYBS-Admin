@@ -60,7 +60,7 @@ const Dashboard = () => {
                 }else {
                     console.log('One or more responses are null');
                 }
-                console.log(prayers)
+                console.log()
                 
             } catch (error) {
                 console.log(error);
@@ -151,15 +151,18 @@ const Dashboard = () => {
     <>
         <div>
             <Head title='Dashboard'/>
-            <div className='lg:flex lg:gap-5 my-8'>
-                <div className='w-8/12 '>
-                    <div className='flex justify-between'>
-                        <StatCard Icon={<DonationIcon/>} Title='Total Donations' total={`₦${totals.donations}`} detail='2024' className='bg-[#5372E7]'/>
+            <div className='xl:flex lg:gap-5 my-8 w-full'>
+                <div className='xl:w-8/12'>
+                    <div className='flex md:flex-row xl:gap-x-2 justify-between flex-col gap-5'>
+                        <StatCard Icon={<DonationIcon/>} Title='Total Donations' total={`₦ ${totals.donations}`} detail='2024' className='bg-[#5372E7]'/>
                         <StatCard Icon={<UserIcon2/>} Title='Total Users' total={`${totals.users}`} detail={`Active Users: ${totals.activeUsers}`} className='bg-[#3EC295]'/>
                         <StatCard Icon={<RoundArrow/>} Title='Insights Shared' total={`${totals.insights}`} detail='All Time' className='bg-[#FF9F24]'/>
                     </div>
-                    <div className='bg-backgroud my-8 h-[308px]'>
-                    <Line data={bibleTracker} />
+                    <div>
+
+                    </div>
+                    <div className='bg-backgroud my-8 xl:h-[308px]'>
+                    <Line data={bibleTracker}/>
                     </div>
                     <div className='bg-background rounded-xl py-6 px-7'>
                         <div className='flex justify-between'>
@@ -190,8 +193,8 @@ const Dashboard = () => {
                         </table>
                     </div>
                 </div>
-                <div className='w-2/6'>
-                    <div className='h-[268px]'>
+                <div className='xl:w-2/6 w-full xl:mt-0 mt-8'>
+                    <div className='lg:h-[268px] mb-8'>
                         <Bar data={BarChartData} height={268} width={422}/>
                     </div>
                     <div className='bg-background p-4 rounded-lg'>
@@ -199,7 +202,12 @@ const Dashboard = () => {
                         {totals.fetchedDonations?.map((donation:DonationsProps, index:number)=>(
                             <div className='flex justify-between mb-4' key={index}>
                                 <div className='flex gap-4'>
-                                    <Image src={donation?.userId?.profilePicture || image.user} alt="user image" width={40} height={40} className='rounded-full' />
+                                    {
+                                        donation?.userId?.profilePicture ?
+                                        <Image src={donation?.userId?.profilePicture} alt="user image" width={40} height={40} className='rounded-full' />:
+                                        <Image src={"/assets/defaultImage.svg"} alt="user image" width={40} height={40} className='rounded-full' />
+
+                                    }
                                     <div >
                                         <h3 className='font-normal text-xs'>{donation.userId.firstName}{' '}{donation.userId.lastName}</h3>
                                         <p className='text-[#00000064] text-[10.21px]'>{new Date(donation.createdAt).toLocaleDateString() }</p>

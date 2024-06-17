@@ -3,6 +3,11 @@ import { MonthMap } from "@/types";
 export interface params {
     pageSize?: number,
     pageNumber?: number
+    emailAddress?: string
+    streak?: string
+    insightsShared?: string
+    dateJoined?: string
+    role?: string
 }
 
 export function transformPhoneNumber(phoneNumber:string) {

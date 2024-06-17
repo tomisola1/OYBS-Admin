@@ -6,7 +6,7 @@ const headerToken = localStorage?.getItem('token')
 
 export const fetchUsers = (params:params) => {
     const request = axios.get(
-      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`,
+      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailAddress ? `&emailAddress=${params.emailAddress}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.streak ? `&streak=${params.streak}`: ""}${params.insightsShared ? `&insightsShared=${params.insightsShared}`: ""}`,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>
      response.data
@@ -36,7 +36,7 @@ export const getAdminUser = () => {
 
 export const fetchAdminUsers = (params:params) => {
   const request = axios.get(
-    baseUrl + `/admin/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`,
+    baseUrl + `/admin/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailAddress ? `&emailAddress=${params.emailAddress}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.role ? `&role=${params.role}`: ""}`,
     {headers: {"Authorization":`Bearer ${headerToken}`}}
   ).then((response)=>
    response.data

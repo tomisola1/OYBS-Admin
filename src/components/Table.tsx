@@ -1,11 +1,11 @@
 "use client"
 
 import { ArrowLeftIcon, ArrowRightIcon, BackwardIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { BtnPrimary } from './Buttons';
 import Modal from './Modal';
 import InputField from './Inputfield';
-import { suspendUsers } from '@/services/userService';
+import { fetchUsers, suspendUsers } from '@/services/userService';
 import { SkeletonLoader } from './Loaders';
 // import './index.scss'
 interface TableProps {
@@ -14,17 +14,17 @@ interface TableProps {
    type?: 'normal' | 'stripped';
    itemsPerPage?: number;
    showFilter?: boolean
-   BtnItem?: string
    handleNextPage?: () => void;
    handlePreviousPage?: () => void
    totalPages?: number
    isLoading?: boolean;
    currentPageNumber?: number
 }
-function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, BtnItem, handleNextPage, handlePreviousPage, totalPages, isLoading, currentPageNumber }: TableProps) {
+function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, handleNextPage, handlePreviousPage, totalPages, isLoading, currentPageNumber }: TableProps) {
 
    const [currentPage, setCurrentPage] = useState(1);
    const [searchText, setSearchText] = useState('')
+
 
    // Calculate index of the first and last item of the current page
    const startIndex = (currentPage - 1) * itemsPerPage;
@@ -33,7 +33,7 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
    // Filtered and paginated data based on search query
    const filteredData = body?.filter((item) =>
       Object.values(item).some((value: any) =>
-         value.toString().toLowerCase().includes(searchText.toLowerCase())
+         value?.toString().toLowerCase().includes(searchText.toLowerCase())
       )
    );
    const currentPageData = filteredData?.slice(startIndex, endIndex);
@@ -65,21 +65,37 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
       setSearchText(e.target.value)
       setCurrentPage(1)
    }
+   
+   // const users = async()=>{
+   //    const res = await fetchUsers({pageNumber: currentPage, pageSize: 8,emailAddress:searchText})
+   //    setFiltered(res.result.users)
+   //    console.log(filtered);
+      
+   //    // console.log(res);
+      
+   // }
+
+   // useEffect(() => {
+   //    if (searchText) {
+   //      users();
+   //    }else {
+   //       setFiltered(body); // Reset to the original body if search text is cleared
+   //     }
+   //  }, [searchText]);
 
  
    return (
       <div className='w-full overflow-auto'>
-         {
+         {/* {
             showFilter &&
             <div className='flex gap-5 items-center'>
                 <div className='relative'>
                     <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-gray-500 ml-1 absolute top-3 left-2"
                 aria-hidden="true" />
-                    <input placeholder='Search by user name or email' onChange={handleSearch} className='pr-3.5 pl-10 py-2.5 rounded-lg placeholder:text-gray-500 placeholder:text-sm w-80 focus:outline-none focus:border-orange-200 bg-[#F5F6FC]'/>
+                    <input placeholder='Search by email' onChange={handleSearch} className='pr-3.5 pl-10 py-2.5 rounded-lg placeholder:text-gray-500 placeholder:text-sm w-80 focus:outline-none focus:border-orange-200 bg-[#F5F6FC]'/>
                 </div>
-               
             </div>
-         }
+         } */}
 
          <table className='w-full overflow-x-auto mt-8 bg-[#F5F6FC] rounded-xl'>
             {

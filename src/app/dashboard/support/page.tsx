@@ -69,8 +69,8 @@ const Support = () => {
         <div className='mt-8'>
             <BtnPrimary onClick={()=>setShowModal(true)}>Update support information</BtnPrimary>
         </div>
-        <div className='mt-10 flex flex-col gap-10'>
-           <div className='bg-background p-5 flex gap-5 w-1/2 rounded-lg'>
+        <div className='mt-10 flex flex-col gap-10 md:w-1/2 sm:w-8/12 '>
+           <div className='bg-background p-5 flex gap-5 rounded-lg'>
             <div className='rounded-full p-4 bg-[#fd6e211f] w-fit flex justify-center'>
                 <EnvelopeIcon className="h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true"/>
             </div>
@@ -79,7 +79,7 @@ const Support = () => {
                 <p className='font-medium text-base'>{responseData?.email}</p>
             </div>
            </div>
-           <div className='bg-background p-5 flex gap-5 w-1/2 rounded-lg'>
+           <div className='bg-background p-5 flex gap-5 rounded-lg'>
             <div className='rounded-full p-4 bg-[#fd6e211f] w-fit flex justify-center'>
                 <PhoneIcon className="h-5 w-5 flex-shrink-0 text-primary" aria-hidden="true"/>
             </div>
