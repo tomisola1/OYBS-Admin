@@ -16,6 +16,7 @@ import { addQuestion, createQuizzes, fetchQuizzes, updateQuiz } from '@/services
 import { QuestionsProps, QuizProps } from '@/types'
 import { toDate } from 'date-fns'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
+import { toast } from 'react-toastify'
 
 const Quiz = () => {
     const router = useRouter()
@@ -40,7 +41,6 @@ const Quiz = () => {
             setLoading(true)
             try {
                 const response = await fetchQuizzes({pageNumber: pageNumber, pageSize: 8})
-                console.log(response.result);
                 setResponseData(response?.result)
                 setLoading(false)
             } catch (error) {
@@ -66,12 +66,10 @@ const Quiz = () => {
    const handleChange = (e:any) => {
     const {name, value} = e.target
     setQuizData((prevState)=> ({...prevState, [name]: value}))
-    console.log(quizData);
     }
 
     const handleSelectChange = (e:any) => {
         const {value} = e.target
-        console.log(value);
         if(value === 'Monthly quiz'){
             setQuizType(true)
         }else {
@@ -102,18 +100,18 @@ const Quiz = () => {
               endDateTime: combinedEndDate,
               monthlyQuiz: quizType
             }
-            console.log(payload);
             
             const response = await createQuizzes(payload)
-            console.log(response);
+
             if(response.success) {
                 setLoading(false)
                 setShowModal(false);
                 location.reload();
             }
-        } catch (error) {
+        } catch (error:any) {
             setLoading(false)
-            console.log(error);      
+            console.log(error);
+            toast.error(error.response.data.result)       
         }
     }
 
@@ -140,15 +138,11 @@ const Quiz = () => {
                             <td className='p-4 font-light'>{quiz.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</td>
                             <td className='p-4 font-light'>{quiz.questionCount}</td>
                             <td className='p-4 font-light'>
-                                <p>{new Date(quiz.startDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })}</p>
-                                <p>{new Date(quiz.endDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })}</p>
+                                <p>{new Date(quiz.startDateTime).toLocaleString('en-GB')}</p>
+                                <p>{new Date(quiz.endDateTime).toLocaleString('en-GB')}</p>
                             </td>
                             <td className='pl-4 font-light flex gap-2 items-center h-14'>
                                 <BtnPrimary className={"!h-10 font-medium text-sm"} onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>Open</BtnPrimary>
-                                {/* <div onClick={()=>setQuizAndModal(quiz)}>
-                                    <EditIcon />
-                                </div>
-                                <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true"/> */}
                             </td>
                         </tr>
                     </>

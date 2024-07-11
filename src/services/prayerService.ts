@@ -29,7 +29,7 @@ export const updatePrayer = (data:any, id:string | undefined) => {
     const request = axios.patch(
       baseUrl + `/admin/prayers/${id}`,
       data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+      {headers: {"Authorization":`Bearer ${headerToken}`, 'Content-Type': 'multipart/form-data'}}
     ).then((response)=>
      response.data
     )

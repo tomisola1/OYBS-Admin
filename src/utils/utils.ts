@@ -1,4 +1,5 @@
 import { MonthMap } from "@/types";
+import { toast } from "react-toastify";
 
 export interface params {
     pageSize?: number,
@@ -43,4 +44,14 @@ export const monthNames:MonthMap = {
     10: "Oct",
     11: "Nov",
     12: "Dec"
+};
+
+export const validateURLWithConstructor = (url:string ) => {
+    try {
+        new URL(url);
+        return true;
+    } catch (_) {
+        toast.error("Invalid meeting URL")
+        return false;
+    }
 };

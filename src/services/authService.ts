@@ -1,8 +1,6 @@
 import axios from "axios";
 const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
 const headerToken = localStorage?.getItem('token')
-console.log(headerToken);
-
 
 
 export const adminLogin = (data:any) => {
@@ -26,9 +24,7 @@ export const resetPasssword = (data:any) => {
     return request
 };
 
-export const otpRequest = (data:any) => {
-    console.log(data);
-    
+export const otpRequest = (data:any) => {  
     const request = axios.post(
       baseUrl + "/auth/request/reset/password",
       data,

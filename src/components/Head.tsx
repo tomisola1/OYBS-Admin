@@ -22,7 +22,6 @@ const Head = ({title, navigate}:props) => {
         const getUser = async() => {
             try {
                 const response = await getAdminUser()
-                console.log(response);
                 
                 setAdmin(response.result)
             } catch (error) {

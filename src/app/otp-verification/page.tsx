@@ -25,11 +25,9 @@ export default function OtpVerification() {
     let newArr = [...otp];
     newArr[index] = value;
     setOtp(newArr);
-    console.log(otp);
     
     if(value && index < 4-1){
         const otpBoxArray = otpBoxReference.current as HTMLInputElement[];
-        console.log(otpBoxArray);
         
         const prevInput = otpBoxArray[index + 1];
         if (prevInput) {
@@ -72,7 +70,6 @@ export default function OtpVerification() {
         }
       }
     }, 1000);
-    console.log(seconds, minutes);
     
 
     return () => {
@@ -102,9 +99,10 @@ export default function OtpVerification() {
         localStorage.setItem("token",response.result)
         router.replace("/new-password")
       }
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
       setOtpError("❌ Wrong OTP Please Check Again")
+      toast.error(error.response.data.result)
       
     }
   }

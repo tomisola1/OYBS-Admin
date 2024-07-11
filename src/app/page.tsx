@@ -30,11 +30,10 @@ export default function Home() {
     setLoading(true)
     try {
       const response = await adminLogin(loginData)
-      console.log(response);
       localStorage.setItem('token', response.result.access_token)
       if (response.success === true) {
         setLoading(false)
-        toast.success('Login successful')
+        toast.success('Login Successful')
         router.push("/dashboard") 
       }
     } catch (error:any) {

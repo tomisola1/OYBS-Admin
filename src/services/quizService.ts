@@ -13,6 +13,7 @@ export const fetchQuizzes = (params: params) => {
     .then((response) => response.data);
   return request;
 };
+
 export const createQuizzes = (data: any) => {
   const request = axios
     .post(baseUrl + `/admin/quizzes`, data, {
@@ -34,11 +35,9 @@ export const addQuestion = (data: any) => {
 export const updateQuiz = (data: any, id: string | undefined) => {
   const request = axios
     .patch(baseUrl + `/admin/quizzes/${id}`, data, {
-      headers: 
-      { 
+      headers: {
         Authorization: `Bearer ${headerToken}`,
-        "Content-Type": "application/json-patch+json"
-    },
+      },
     })
     .then((response) => response.data);
   return request;
@@ -47,6 +46,15 @@ export const updateQuiz = (data: any, id: string | undefined) => {
 export const getQuizInfo = (id: string | undefined) => {
   const request = axios
     .get(baseUrl + `/admin/quizzes/${id}`, {
+      headers: { Authorization: `Bearer ${headerToken}` },
+    })
+    .then((response) => response.data);
+  return request;
+};
+
+export const deleteQuiz = (id: string | undefined) => {
+  const request = axios
+    .delete(baseUrl + `/admin/quizzes/${id}`, {
       headers: { Authorization: `Bearer ${headerToken}` },
     })
     .then((response) => response.data);

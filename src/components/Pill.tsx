@@ -23,6 +23,14 @@ function Pill(props: PillProps) {
             </div>
         )
     }
+    if (text === "Has passed"){
+        return (
+            <div className={`bg-[#b1afaf38] text-[#3f3f3f] w-fit py-2 px-4 rounded-2xl font-normal text-sm`}>
+                {text}
+                {children}
+            </div>
+        )
+    }
 
     return (
         <div className={`bg-[#2378ef34] text-[#2378EF] w-fit py-2 px-5 rounded-2xl font-normal text-sm`}>

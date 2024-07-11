@@ -6,6 +6,7 @@ import { fetchNewTestamentBooks, fetchOldTestamentBooks, getBookInfo, updateScri
 import { BookInfoProps, BooksProps, ScheduleProps, ScriptureProps } from '@/types';
 import { getDayOfYear } from 'date-fns';
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify';
 
 interface Props extends ModalProps {
     id?: string | undefined;
@@ -59,7 +60,6 @@ const EditScripture = (props:Props) => {
                 console.log('One or more responses are null');
                }
                setLoading(false)
-               console.log(books.oldtestaments);
                
             } catch (error) {
                 console.log(error);    
@@ -77,7 +77,6 @@ const EditScripture = (props:Props) => {
                     const response = await getBookInfo(bookId)
                     setBookInfo(response.result.verses)
                     setLoading(false)
-                    console.log(bookInfo);
                 }
                
             } catch (error) {
@@ -105,7 +104,6 @@ const EditScripture = (props:Props) => {
     } else {
        setFormData({ ...formData, [name]: value })
     }
-    console.log(formData);
 
  }
 
@@ -113,9 +111,7 @@ const EditScripture = (props:Props) => {
 
  const extractBookId = (books:any)=>{
     books?.forEach((book:BooksProps) =>{
-        console.log(book.bookId);
         setBookId(book.bookId) 
-            console.log(bookId);
     })
  }
 
@@ -136,9 +132,6 @@ const EditScripture = (props:Props) => {
     
         setNewSchedules(updatedSchedules);
     }
-    console.log(oldSchedules, newSchedules);
-
-   
     
   };
 
@@ -149,24 +142,27 @@ const EditScripture = (props:Props) => {
             const dayOfYear = getDayOfYear(new Date(formData.day))
           
             const payload = {
-                day: dayOfYear,
+                day: dayOfYear ? dayOfYear : data?.day,
                 oldTestament: {
-                    schedule: oldSchedules,
-                    title: formData.oldTestament.title
+                    schedule: oldSchedules ? oldSchedules : data?.oldTestament.schedule,
+                    title: formData.oldTestament.title ? formData.oldTestament.title :data?.oldTestament.title
                 },
                 newTestament: {
-                    schedule: newSchedules,
-                    title: formData.newTestament.title
+                    schedule: newSchedules ? newSchedules : data?.newTestament.schedule,
+                    title: formData.newTestament.title ? formData.newTestament.title : data?.newTestament.title
                 }
             }
             
             const response = await updateScripture(payload, data?._id)
             if(response) {
                 setLoading(false)
+                hide()
+                location.reload()
             }
 
-        } catch(error){
-            console.log();           
+        } catch(error:any){
+            console.log(error); 
+            toast.error(error.response.data.result)          
         }
        
     }

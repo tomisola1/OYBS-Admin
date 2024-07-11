@@ -21,11 +21,9 @@ const OtpInput = ({numberOfDigits, oTP, name}:props) => {
     let newArr = [...otp];
     newArr[index] = value;
     setOtp(newArr);
-    console.log(otp);
     
     if(value && index < numberOfDigits-1){
         const otpBoxArray = otpBoxReference.current as HTMLInputElement[];
-        console.log(otpBoxArray);
         
         const prevInput = otpBoxArray[index + 1];
         if (prevInput) {

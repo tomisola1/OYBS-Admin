@@ -25,9 +25,10 @@ export const createNotifications = (data:any) => {
     return request
 };
 
-export const resendNotifications = (id:string|undefined) => {
+export const resendNotifications = (data:any, id:string|undefined) => {
     const request = axios.post(
       baseUrl + `/admin/push-notifications/resend/${id}`,
+      data,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>
      response.data

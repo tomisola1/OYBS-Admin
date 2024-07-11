@@ -24,7 +24,6 @@ const Users = () => {
             setLoading(true)
             try {
                 const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8, emailAddress: searchText, dateJoined: dateJoined, streak: streak, insightsShared: insightsShared})
-                console.log(response.result.users);
                 setResponseData(response.result)
                 setLoading(false)
             } catch (error) {

@@ -5,23 +5,24 @@ import Head from '@/components/Head'
 import InputField from '@/components/Inputfield'
 import { Loader } from '@/components/Loaders'
 import Modal, { ModalProps } from '@/components/Modal'
-import { addQuestion, getQuizInfo, updateQuiz } from '@/services/quizService'
+import { addQuestion, deleteQuiz, getQuizInfo, updateQuiz } from '@/services/quizService'
 import { QuestionsProps, QuizProps } from '@/types'
 import { toDate } from 'date-fns'
+import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'react-toastify'
 
 const SingleQuiz = ({ params }: { params: { id: string } }) => {
     const [quiz, setQuiz] = useState<QuizProps>()
     const [questions, setQuestions] = useState<QuestionsProps[]>()
-    const [showModal, setShowModal] = useState({edit:false, add:false, update:false})
+    const [showModal, setShowModal] = useState({edit:false, add:false, update:false,delete:false})
+    const [loading, setLoading] = useState(false)
     
     useEffect(() =>{
         const fetchAllquizs = async() =>{
             try {
                 const response = await getQuizInfo(params.id)
-                setQuiz(response?.result.quiz)
-                console.log(response?.result);
-                
+                setQuiz(response?.result.quiz)               
                 setQuestions(response?.result.questions)
             } catch (error) {
                 console.log(error);    
@@ -30,93 +31,104 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
         fetchAllquizs()
     },[params])
   return (
-    <div>  
+    <div >  
         <Head title='Quiz Details' navigate={true}/>
-            <div className='bg-background w-2/5 p-6 rounded-xl mt-6'>
-                <div className='flex justify-between items-center mb-5'>
-                  <h3 className='font-semibold text-base'>Quiz Information</h3>
-                  <Btn className={"!px-8 !h-9"} onClick={() => setShowModal({edit:true, add:false, update:false})}>Edit</Btn>
-                </div>
-                <table className='w-full'>
-                 <tbody className='font-normal text-sm'>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Quiz Title</td>
-                        <td className='py-3'><p className='font-medium'>{quiz?.title}</p></td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Type</td>
-                        <td className='py-3'><p className='font-medium'>{quiz?.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</p></td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>No of Questions</td>
-                        <td className='py-3'><p className='font-medium'>{quiz?.questionCount}</p></td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Quiz Date</td>
-                        <td className='py-3'> 
-                            <p className='font-medium'>{quiz?.startDateTime
-                                ? new Date(quiz.startDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })
+            <div>
+                <div className='bg-background w-2/5 p-6 rounded-xl mt-6'>
+                    <div className='flex justify-between items-center mb-5'>
+                    <h3 className='font-semibold text-base'>Quiz Information</h3>
+                    <Btn className={"!px-8 !h-9"} onClick={() => setShowModal({edit:true, add:false, update:false, delete:false})}>Edit</Btn>
+                    </div>
+                    <table className='w-full'>
+                    <tbody className='font-normal text-sm'>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Quiz Title</td>
+                            <td className='py-3'><p className='font-medium'>{quiz?.title}</p></td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Type</td>
+                            <td className='py-3'><p className='font-medium'>{quiz?.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</p></td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>No of Questions</td>
+                            <td className='py-3'><p className='font-medium'>{quiz?.questionCount}</p></td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Quiz Date</td>
+                            <td className='py-3'> 
+                                <p className='font-medium'>{quiz?.startDateTime
+                                    ? new Date(quiz.startDateTime).toLocaleString('en-GB')
+                                    : "No date"}
+                                </p>
+                                <p className='font-medium'>
+                                {quiz?.endDateTime
+                                ? new Date(quiz.endDateTime).toLocaleString('en-GB')
                                 : "No date"}
-                             </p>
-                            <p className='font-medium'>
-                            {quiz?.endDateTime
-                            ? new Date(quiz.endDateTime).toLocaleString('en-GB', { timeZone: 'UTC' })
-                            : "No date"}
-                            </p>
-                        </td>
-                    </tr>
-                 </tbody>
-                </table>
-            </div>
-            <div className='mt-8'>
-                <h3 className='font-semibold text-lg'>Quiz Questions</h3>
-            </div>
-            <div className='grid grid-cols-2 gap-6'>
-                {
-                    questions?.map((question:QuestionsProps, index:number)=>(
-                        <div className='mt-4' key={index}>
-                            <h3 className='font-semibold text-base'>Question {index+1}</h3>
-                            <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
-                                <p>{question.question}</p>
-                            </div>
-                            {
-                                question.choice.map((choice, index:number)=>(
-                                <div className='border rounded-lg py-2 px-3 text-sm mt-4' key={index}>
-                                    <p>{choice}</p>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <div className='mt-8'>
+                    <h3 className='font-semibold text-lg'>Quiz Questions</h3>
+                </div>
+                <div className='grid grid-cols-2 gap-6'>
+                    {
+                        questions?.map((question:QuestionsProps, index:number)=>(
+                            <div className='mt-4' key={index}>
+                                <h3 className='font-semibold text-base'>Question {index+1}</h3>
+                                <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                    <p>{question.question}</p>
                                 </div>
-                                ))
-                            }
-                            <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
-                                <p><b>Answer:</b> {question.answer}</p>
+                                {
+                                    question.choice.map((choice, index:number)=>(
+                                    <div className='border rounded-lg py-2 px-3 text-sm mt-4' key={index}>
+                                        <p>{choice}</p>
+                                    </div>
+                                    ))
+                                }
+                                <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                    <p><b>Answer:</b> {question.answer}</p>
+                                </div>
+                                <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                    <p><b>Explanation:</b> {question.answerDescription}</p>
+                                </div>
                             </div>
-                            <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
-                                <p><b>Explanation:</b> {question.answerDescription}</p>
-                            </div>
-                        </div>
-                    ))
-                }
+                        ))
+                    }
 
+                </div>
+                <div className='absolute bottom-3 right-3'>
+                        <BtnPrimary className='p-0' onClick={()=> setShowModal({edit:false, add:false, update:false,delete:true})}>{loading?<Loader/> : "Delete Quiz"}</BtnPrimary>
+                </div>
             </div>
             <Modal
             show={showModal.edit}
-            hide={() => setShowModal({edit:false, add:false, update:false})}
+            hide={() => setShowModal({edit:false, add:false, update:false,delete:false})}
             heading="Edit Quiz"
             sub="Kindly select which action you would like to proceed with."
             >
             <div className='flex justify-center gap-6'>
-                <Btn className="px-10 text-sm" onClick={() => setShowModal({edit:false, add:false, update:true})}>Edit Quiz Information</Btn>
-                <Btn className="px-10 text-sm" onClick={() => setShowModal({edit:false, add:true, update:false})}>Add Quiz Questions</Btn>
+                <Btn className="px-10 text-sm" onClick={() => setShowModal({edit:false, add:false, update:true, delete:false})}>Edit Quiz Information</Btn>
+                <Btn className="px-10 text-sm" onClick={() => setShowModal({edit:false, add:true, update:false, delete:false})}>Add Quiz Questions</Btn>
             </div>
             </Modal>
             <AddQuestion
          show={showModal.add}
-         hide={() => setShowModal({edit:false, add:false, update:false})}
+         hide={() => setShowModal({edit:false, add:false, update:false, delete:false})}
          data={quiz}
          id={params.id}
       />       
       <UpdateQuiz
          show={showModal.update}
-         hide={() => setShowModal({edit:false, add:false, update:false})}
+         hide={() => setShowModal({edit:false, add:false, update:false, delete:false})}
+         data={quiz}
+         id={params.id}
+      /> 
+      <DeleteQuiz
+         show={showModal.delete}
+         hide={() => setShowModal({edit:false, add:false, update:false, delete:false})}
          data={quiz}
          id={params.id}
       /> 
@@ -132,7 +144,6 @@ interface Props extends ModalProps {
   }
 const AddQuestion = (props:Props) =>{
     const { id, show, hide} = props;
-    console.log(id);
     
     const [options, setOptions] = useState([''])
     const [loading, setLoading] = useState(false)
@@ -147,7 +158,6 @@ const AddQuestion = (props:Props) =>{
     )
   
     const handleChange = (e:any, choiceIndex?: number) => {
-        console.log({...questions});
         const {name, value} = e.target
         const updatedQuestions = {...questions};
         if (choiceIndex !== undefined) {
@@ -163,14 +173,15 @@ const AddQuestion = (props:Props) =>{
         setLoading(true)
         try {
             const response  = await addQuestion({...questions, quiz: id})
-            console.log(response);  
+
             if(response.success) {
                 setLoading(false)
                 hide()
                 location.reload();
             }
-        } catch (error) {
+        } catch (error:any) {
             console.log(error);
+            toast.error(error.response.data.result) 
         }
     }
 
@@ -209,7 +220,6 @@ const AddQuestion = (props:Props) =>{
 
 const UpdateQuiz = (props:Props) =>{
     const { id, show, hide, data} = props;
-    console.log(id);
     
     const [quizType, setQuizType] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -225,12 +235,11 @@ const UpdateQuiz = (props:Props) =>{
     const handleChange = (e:any) => {
         const {name, value} = e.target
         setQuizData((prevState)=> ({...prevState, [name]: value}))
-        console.log(quizData);
     }
     
     const handleSelectChange = (e:any) => {
         const {value} = e.target
-        console.log(value);
+
         if(value === 'Monthly quiz'){
             setQuizType(true)
         }else {
@@ -245,34 +254,46 @@ const UpdateQuiz = (props:Props) =>{
         const combinedDateTime = new Date(year, month - 1, day, hours, minutes);
         return toDate(combinedDateTime)
     }
-
+    
     const handleSubmit = async(e:any) => {
         e.preventDefault();
         setLoading(true);
         try {
             const { title, description, startDate, startTime, endDate, endTime } = quizData;
-
-           const combinedStartDate = combineDate(startDate, startTime);
-           const combinedEndDate = combineDate(endDate, endTime);
-            const payload = {
-              title, 
-              description, 
-              startDateTime: combinedStartDate, 
-              endDateTime: combinedEndDate,
-              monthlyQuiz: quizType
+            if ((startDate && !startTime) || (!startDate && startTime)) {
+                setLoading(false);
+                toast.error("Please provide a valid date and time.");
+                return;
             }
-            console.log(payload);
+            if ((endDate && !endTime) || (!endDate && endTime)) {
+                setLoading(false);
+                toast.error("Please provide a valid date and time.");
+                return;
+            }
+
+            const combinedStartDate = startDate && startTime ? combineDate(startDate, startTime) : data?.startDateTime;
+            const combinedEndDate = endDate && endTime ? combineDate(endDate, endTime) : data?.endDateTime;
+            
+            const payload = {
+                title: title || data?.title,
+                description: description || data?.description,
+                startDateTime: combinedStartDate,
+                endDateTime: combinedEndDate,
+                monthlyQuiz: quizType || data?.monthlyQuiz
+            };
+
             
             const response = await updateQuiz(payload, id)
-            console.log(response);
+          
             if(response.success) {
                 setLoading(false)
                 hide()
-                // location.reload();
+                location.reload();
             }
-        } catch (error) {
+        } catch (error:any) {
             setLoading(false)
-            console.log(error);      
+            console.log(error);   
+            toast.error(error.response.data.result)   
         }
     }
 
@@ -286,7 +307,7 @@ const UpdateQuiz = (props:Props) =>{
         className='h-4/5'
       >
         <form className='' onSubmit={handleSubmit}>
-            <InputField name='title' placeholder="Quiz Title" change={handleChange}/>   
+            <InputField name='title' placeholder="Quiz Title" change={handleChange} defaultValue={data?.title} value={quizData.title}/>   
             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' onChange={handleSelectChange} >
             <option>{data?.monthlyQuiz?"Monthly Quiz":"Weekly Quiz"}</option>
                 {quizTypes.map((option, index) => {
@@ -297,7 +318,7 @@ const UpdateQuiz = (props:Props) =>{
                     );
                 })}
             </select>
-            <InputField type='textarea' name='description' placeholder='Description' change={handleChange}/>
+            <InputField type='textarea' name='description' placeholder='Description' change={handleChange} defaultValue={data?.description}/>
             <div>
             Quiz Starting Date
             <InputField type='date' name='startDate' change={handleChange}/>
@@ -316,5 +337,36 @@ const UpdateQuiz = (props:Props) =>{
          </form>
        
       </Modal>  
+    )
+}
+
+const DeleteQuiz = (props: Props) => {
+    const router = useRouter()
+    const { id, show, hide} = props;
+    const handleDelete = async() => {
+        try {
+            const response = await deleteQuiz(id)
+            
+            if(response.success){
+                hide()
+                router.back()
+
+            }
+        } catch (error) {
+            console.log(error)        
+        }
+    }
+    return (
+        <Modal
+        show={show}
+        hide={hide}
+        heading="Delete Quiz"
+        sub="Are you sure you want to delete this Quiz?"
+      >
+        <div className='flex justify-center gap-6'>
+            <Btn className="px-10 text-sm" onClick={hide}>No, Cancel</Btn>
+            <Btn className="px-10 text-sm" onClick={handleDelete}>Yes, Confirm</Btn>
+        </div>
+      </Modal>
     )
 }

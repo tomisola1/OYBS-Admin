@@ -33,6 +33,7 @@ export default function NewPassword() {
     setLoading(true)
     try {
       if (password !== confirmPassword) {
+        setLoading(false)
         toast.error("Passwords do not match")
         return
      }
@@ -45,9 +46,9 @@ export default function NewPassword() {
         toast.success('Password changed successfully')
         router.replace("/")
       }
-    } catch (error) {
+    } catch (error:any) {
       setLoading(false)
-      toast.error("Something went wrong")
+      toast.error(error.response.data.result)
       console.log(error);
       
     }

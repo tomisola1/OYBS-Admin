@@ -13,6 +13,7 @@ import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
 import { fetchSupport, updateSupport } from '@/services/supportService'
 import { transformPhoneNumber } from '@/utils/utils'
 import { Loader } from '@/components/Loaders'
+import { toast } from 'react-toastify'
 
 const Support = () => {
     const router = useRouter()
@@ -28,7 +29,6 @@ const Support = () => {
       const getSupport = async() =>{
           try {
               const response = await fetchSupport()
-              console.log(response);
               setResponseData(response.result)
           } catch (error) {
               console.log(error);    
@@ -46,20 +46,25 @@ const Support = () => {
     e.preventDefault()
     setLoading(true)
     try { 
-        let whatsappNumber = transformPhoneNumber(formData.supportPhoneNumber) 
-        console.log({...formData, supportPhoneNumber: whatsappNumber});
+        const {supportPhoneNumber, supportEmail } = formData
+        let whatsappNumber = transformPhoneNumber(supportPhoneNumber) 
+
+        const payload = {
+            supportPhoneNumber: whatsappNumber || responseData.phoneNumber,
+            supportEmail: supportEmail || responseData.email 
+        }
         
-        const result = await updateSupport({...formData, supportPhoneNumber: whatsappNumber})
-        console.log(result);
+        const result = await updateSupport(payload)
         if(result.success) {
             setLoading(false)
             setShowModal(false) 
             location.reload();
         }
         
-    } catch (error) {
+    } catch (error:any) {
         setLoading(false)
         console.log(error);  
+        toast.error(error.response.data.result)
     }
   }
 
@@ -95,8 +100,8 @@ const Support = () => {
         heading="Support"
       >
         <form className='mb-12' onSubmit={handleSubmit}> 
-            <InputField placeholder='Email' name='supportEmail' type='email' change={handleChange} defaultValue={responseData?.email} value={responseData?.email}/>
-            <InputField placeholder='Phone Number' name='supportPhoneNumber' type='tel' pattern="[0-9]{3} [0-9]{4} [0-9]{4}" change={handleChange} defaultValue={responseData?.phoneNumber} value={responseData?.phoneNumber}/>
+            <InputField placeholder='Email' name='supportEmail' type='email' change={handleChange} defaultValue={responseData?.email} />
+            <InputField placeholder='Phone Number' name='supportPhoneNumber' type='tel' change={handleChange} defaultValue={responseData?.phoneNumber}/>
           <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit">
             {loading ? <Loader/> : "Update Information"}
           </BtnPrimary>

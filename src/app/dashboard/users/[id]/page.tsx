@@ -31,7 +31,6 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
         const fetchAllUsers = async() =>{
             try {
                 const response = await fetchSingleUser(params.id)
-                console.log(response);
                 setUser(response?.result)
             } catch (error) {
                 console.log(error);    
@@ -54,9 +53,9 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
                 setLoading(false)
                 location.reload()
             }
-        } catch (error) {
+        } catch (error:any) {
             console.log(error);
-            
+            toast.error(error.response.data.result)
         }
       }
    
@@ -70,16 +69,15 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
                return
             }
             const response = await suspendUsers({...formData, email: user?.email})
-            console.log(response);
             if(response.success){
                setShowModal(false)
                setLoading(false)
                location.reload()
             }
             
-         } catch (error) {
+         } catch (error:any) {
             console.log(error);
-            
+            toast.error(error.response.data.result)
          }
       }
       

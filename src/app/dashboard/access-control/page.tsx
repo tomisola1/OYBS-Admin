@@ -39,7 +39,6 @@ const AccessControl = () => {
             setLoading(true)
             try {
                 const response = await fetchAdminUsers({pageNumber: pageNumber, pageSize: 8})
-                console.log(response.result);
                 setResponseData(response.result)
                 setLoading(false)
             } catch (error) {
@@ -51,14 +50,12 @@ const AccessControl = () => {
     
     const setUserAndModal: any= (data:any) => {
         setShowModal({form:false, edit:true,  delete:false})
-        console.log(data);
         
-         setUser(data)
+        setUser(data)
     }
 
     const setIdAndModal: any= (data:any) => {
         setShowModal({form:false, edit:false,  delete:true})
-        console.log(data);
         
          setUser(data)
     }
@@ -78,7 +75,6 @@ const AccessControl = () => {
    const handleChange = (e:any) => {
     const {name, value} = e.target
     setFormData((prevState)=> ({...prevState, [name]: value}))
-    console.log(formData);
     
  }
 
@@ -195,15 +191,14 @@ interface Props extends ModalProps {
 const DeleteUser = (props: Props) => {
     const router = useRouter()
     const { id, show, hide} = props;
-    console.log(id);
     
     const handleDelete = async() => {
         try {
             const response = await deleteUser(id)
-            console.log(response);
+      
             if(response.success){
                 hide()
-                // location.reload();
+                location.reload();
 
             }
         } catch (error) {
@@ -246,8 +241,15 @@ const UpdateUser = (props: Props) => {
         e.preventDefault();
         setLoading(true)
         try {
-            const response = await editUser(formData, id)
-            console.log(response);
+            const {firstName, lastName, email, userType}=formData
+            const payload = {
+                firstName: firstName ? firstName : data?.firstName,
+                lastName: lastName ? lastName : data?.lastName,
+                email: email ? email : data?.email,
+                userType: userType ? userType : data?.userType
+            }
+            const response = await editUser(payload, id)
+
             if(response.success) {
                 setLoading(false)
                 hide()
@@ -271,7 +273,7 @@ const UpdateUser = (props: Props) => {
             <InputField placeholder='Email' name='email' change={handleChange } defaultValue={data?.email}/>
             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm' name='userType' value={formData.userType}
             onChange={handleChange} defaultValue={data?.userType}>
-            <option>Select Role</option>
+            <option>{data?.userType}</option>
                 {Roles.map((option, index) => {
                     return (
                         <option key={index}>

@@ -17,6 +17,7 @@ import { BookInfoProps, BooksProps, ScheduleProps, ScriptureProps } from '@/type
 import { getDayOfYear } from 'date-fns'
 import EditScripture from './EditScripture'
 import { Loader } from '@/components/Loaders'
+import { toast } from 'react-toastify'
 
 const Scripture = () => {
     const router = useRouter()
@@ -60,7 +61,6 @@ const Scripture = () => {
             setLoading(true)
             try {
                 const response = await fetchScriptures({pageNumber: pageNumber, pageSize: 8})
-                console.log(response);
                 setResponseData(response.result)
                 setLoading(false)
             } catch (error) {
@@ -84,7 +84,6 @@ const Scripture = () => {
                 console.log('One or more responses are null');
                }
                setLoading(false)
-               console.log(books.oldtestaments);
                
             } catch (error) {
                 console.log(error);    
@@ -102,7 +101,6 @@ const Scripture = () => {
                     const response = await getBookInfo(bookId)
                     setBookInfo(response.result.verses)
                     setLoading(false)
-                    console.log(bookInfo);
                 }
                
             } catch (error) {
@@ -143,7 +141,6 @@ const Scripture = () => {
     } else {
        setFormData({ ...formData, [name]: value })
     }
-    console.log(formData);
 
  }
 
@@ -151,9 +148,7 @@ const Scripture = () => {
 
  const extractBookId = (books:any)=>{
     books?.forEach((book:BooksProps) =>{
-        console.log(book.bookId);
         setBookId(book.bookId) 
-            console.log(bookId);
     })
  }
 
@@ -174,9 +169,6 @@ const Scripture = () => {
     
         setNewSchedules(updatedSchedules);
     }
-    console.log(oldSchedules, newSchedules);
-
-   
     
   };
 
@@ -205,8 +197,9 @@ const Scripture = () => {
                 location.reload()
             }
 
-        } catch(error){
-            console.log();           
+        } catch(error:any){
+            console.log(); 
+            toast.error(error.response.data.result)          
         }
        
     }
@@ -228,10 +221,10 @@ const Scripture = () => {
             body={responseData?.schedules.map((schedule:ScriptureProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
-                        <td className='p-4 font-normal tracking-wide'>
+                        <td className='p-4 font-normal tracking-wide uppercase'>
                         {schedule?.oldTestament?.title}
                         </td>
-                        <td className='p-4 font-light'>{schedule?.newTestament.title}</td>
+                        <td className='p-4 font-light uppercase'>{schedule?.newTestament.title}</td>
                         <td className='p-4 font-light'>
                             <p>{new Date(schedule?.createdAt).toLocaleDateString()}</p>
                         </td>

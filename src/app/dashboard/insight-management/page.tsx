@@ -17,6 +17,7 @@ const InsightManagement = () => {
     const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
+    const [selectedInsight, setSelectedInsight] = useState('')
     const [loading, setLoading] = useState(false)
 
     useEffect(() =>{
@@ -24,7 +25,6 @@ const InsightManagement = () => {
              setLoading(true)
             try {
                 const response = await fetchInsights({pageNumber: pageNumber, pageSize: 8})
-                console.log(response);
                 setResponseData(response)
                 setLoading(false)
             } catch (error) {
@@ -47,6 +47,10 @@ const InsightManagement = () => {
       setPageNumber(pageNumber + 1)
    };
 
+   const setIdAndModal = (id:string) => {
+    setSelectedInsight(id)
+    setShowModal(true)
+   }
 
     const handleDelete = async(id:string|undefined) => {
       try {
@@ -84,7 +88,7 @@ const InsightManagement = () => {
                             </p>
                         </td>
                         <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>handleDelete(insight._id)}/>
+                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={() => setIdAndModal(insight._id) } />
                         </td>
                     </tr>
                 </>
@@ -107,7 +111,7 @@ const InsightManagement = () => {
       >
         <div className='flex justify-center gap-6'>
             <Btn className="px-10 text-sm">No, Cancel</Btn>
-            <Btn className="px-10 text-sm">Yes, Confirm</Btn>
+            <Btn className="px-10 text-sm" onClick={()=>handleDelete(selectedInsight)}>Yes, Confirm</Btn>
         </div>
       </Modal>        
     </div>

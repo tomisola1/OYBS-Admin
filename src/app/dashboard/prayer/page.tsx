@@ -14,9 +14,12 @@ import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
 import { createPrayer, deletePrayer, fetchPrayers, updatePrayer } from '@/services/prayerService'
 import { PrayerProps } from '@/types'
-import { isToday, toDate } from "date-fns";
+import { isToday, isTomorrow, isYesterday, toDate } from "date-fns";
 import EmptyState from '@/components/emptyState'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
+import ImageInput from '@/components/ImageInput'
+import { validateURLWithConstructor } from '@/utils/utils'
+import { toast } from 'react-toastify'
 
 const Prayer = () => {
     const router = useRouter()
@@ -27,6 +30,7 @@ const Prayer = () => {
     const [prayerId, setPrayerId] = useState('')
     const [loading, setLoading] = useState(false)
     const [prayer, setPrayer] = useState<PrayerProps>()
+    const [previewImage, setPreviewImage] = useState<any>();
     const [formData, setFormData] = useState({
         text:'',
         meetingLink:'',
@@ -41,7 +45,6 @@ const Prayer = () => {
             setLoading(true)
             try {
                 const response = await fetchPrayers({pageNumber: pageNumber, pageSize: 8})
-                console.log(response.result);
                 setResponseData(response?.result)
                 setLoading(false)
             } catch (error) {
@@ -75,6 +78,11 @@ const Prayer = () => {
       setImage(file);
       console.log('Selected file:', file);
     }
+    const reader = new FileReader();
+		reader.onload = function (event) {
+			setPreviewImage(event?.target?.result);
+		};
+		reader.readAsDataURL(file);
    };
 
    const setPrayerAndModal: any= (data:PrayerProps) => {
@@ -96,23 +104,28 @@ const Prayer = () => {
             const [hours, minutes] = time.split(':').map(Number);
       
             const combinedDateTime = new Date(year, month - 1, day, hours, minutes);
-      
+            if (meetingLink) {
+             validateURLWithConstructor(meetingLink)
+
+            }
             const payload = {
                 text,
                 meetingLink,
                 startDate: toDate(combinedDateTime) ,
                 picture: image
             }
+            
             const response = await createPrayer(payload)
-            console.log(response);
+
             if(response.success) {
                 setLoading(false)
                 setShowModal({form:false, delete:false, edit:false})
                 location.reload();
             }
-        } catch (error) {
+        } catch (error:any) {
             setLoading(false)
-            console.log(error);      
+            console.log(error); 
+            toast.error(error.response.data.result[0])     
         }
     }
    
@@ -138,10 +151,17 @@ const Prayer = () => {
                             </td>
                             <td className='p-4 font-light'>{prayer.meetingLink}</td>
                             {
-                                isToday(new Date(prayer.startDate)) ?
-                                <td className='pl-4'><Pill text='Today'/></td> :
-                                <td className='pl-4'><Pill text='Happening Soon'/></td>
+                                isYesterday(new Date(prayer.startDate)) ? (
+                                    <td className='pl-4'><Pill text='Has Happened'/></td>
+                                ) : isToday(new Date(prayer.startDate)) ? (
+                                    <td className='pl-4'><Pill text='Today'/></td>
+                                ) : isTomorrow(new Date(prayer.startDate)) ? (
+                                    <td className='pl-4'><Pill text='Happening Tomorrow'/></td>
+                                ) : (
+                                    <td className='pl-4'><Pill text='Happening Soon'/></td>
+                                )
                             }
+
                             <td className='p-4 font-light'>
                                 <p>{new Date(prayer.startDate).toLocaleTimeString('en-US')}</p>
                                 <p>{new Date(prayer.startDate).toLocaleDateString()}</p>
@@ -171,13 +191,14 @@ const Prayer = () => {
         hide={() => setShowModal({form:false, delete:false, edit:false})}
         heading="Add Prayer Session"
         sub="This will be updated on the OYBS mobile app"
+        className='h-4/5'
       >
         <form onSubmit={handleSubmit}>
-            <InputField placeholder="Title of Prayer Session" name='text' change={handleChange}/>
-            <InputField placeholder="Meeting Link" name='meetingLink' change={handleChange}/>
-            <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange}/>
-            <InputField placeholder="Date of Prayer Session" name='startDate' type='date' change={handleChange}/>
-            <InputField type='file' className='border' name='picture' change={handleImageSelect}/>
+            <InputField placeholder="Title of Prayer Session" name='text' change={handleChange} required/>
+            <InputField placeholder="Meeting Link" name='meetingLink' change={handleChange} required/>
+            <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange} required/>
+            <InputField placeholder="Date of Prayer Session" name='startDate' type='date' change={handleChange} required/>
+            <ImageInput name='picture' onImageSelect={handleImageSelect} preview={previewImage} required/>
           <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">
             {loading ? <Loader/> : "Add Prayer Session"}
           </BtnPrimary>
@@ -211,7 +232,7 @@ const DeletePrayer = (props: Props) => {
     const handleDelete = async() => {
         try {
             const response = await deletePrayer(id)
-            console.log(response);
+
             if(response.success){
                 hide()
                 location.reload();
@@ -242,11 +263,13 @@ const UpdatePrayer = (props: Props) => {
     const { show, hide, data} = props;
     const [image, setImage] = useState<File | null>();
     const [loading, setLoading] = useState(false)
+    const [previewImage, setPreviewImage] = useState<any>();
     const [formData, setFormData] = useState({
         text:'',
         meetingLink:'',
         picture:{},
-        startDate:''
+        startDate:'',
+        time:''
      })
 
     const handleChange = (e:any) => {
@@ -254,29 +277,55 @@ const UpdatePrayer = (props: Props) => {
         setFormData((prevState)=> ({...prevState, [name]: value}))
     }
   
-     const handleImageSelect = (e: any) => {
-      const file = e.target.files?.[0]; // Get the first selected file
-      if (file) {
-        setImage(file);
-        console.log('Selected file:', file);
-      }
-      const reader = new FileReader();
-     };
+
+    const handleImageSelect = (event: any) => {
+		const file = event.target.files?.[0]; 
+        
+		if (!file) {
+			return;
+		}
+        if (file) {
+            setImage(file);
+        }
+
+		const reader = new FileReader();
+		reader.onload = function (event) {
+			setPreviewImage(event?.target?.result);
+		};
+		reader.readAsDataURL(file);
+	};
+  
 
      const handleSubmit = async(e:any) => {
         e.preventDefault();
         setLoading(true);
         try {
-            console.log(formData);
+            const { startDate, time, text, meetingLink } = formData;
+            if ((startDate && !time) || (!startDate && time)) {
+                setLoading(false);
+                toast.error("Please provide a valid date and time.");
+                return;
+            }
+            if (meetingLink) {
+                const res = validateURLWithConstructor(meetingLink)
+                if (!res) {
+                    setLoading(false);
+                    return;
+                }
+            }
+            const [year, month, day] = startDate.split('-').map(Number);
+            const [hours, minutes] = time.split(':').map(Number);
+      
+            const combinedDateTime = new Date(year, month - 1, day, hours, minutes);
             
             const payload = {
-                text:formData.text,
-                meetingLink: formData?.meetingLink,
-                picture:formData?.picture,
-                startDate:formData?.startDate
+                text: text || data?.text,
+                meetingLink: meetingLink || data?.meetingLink,
+                startDate: combinedDateTime || data?.startDate,
+                picture: image || data?.picture,
             }
+        
             const response = await updatePrayer(payload, data?._id)
-            console.log(response);
             if(response.success) {
                 setLoading(false)
                 hide()
@@ -297,10 +346,10 @@ const UpdatePrayer = (props: Props) => {
        <form className='mb-12'  onSubmit={handleSubmit}>
             <InputField placeholder="Title of Prayer Session" name='text' defaultValue={data?.text} value={formData.text} change={handleChange}/>
             <InputField placeholder="Meeting Link" name='meetingLink' defaultValue={data?.meetingLink} value={formData.meetingLink} change={handleChange}/>
-            <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange}/>
-            <InputField placeholder="Date of Prayer Session" name='startDate' defaultValue={data?.startDate} value={formData.startDate} type='date' change={handleChange}/>
-            <InputField type='file' className='border' name='picture' change={handleImageSelect}/>
-          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">{loading ? <Loader/> : "Add Prayer Session"}</BtnPrimary>
+            <InputField placeholder="Time of Prayer Session" name='time' type='time' value={formData.time} change={handleChange}/>
+            <InputField placeholder="Date of Prayer Session" name='startDate' value={formData.startDate} type='date' change={handleChange}/>
+            <ImageInput name='picture' onImageSelect={handleImageSelect} defaultVal={data?.picture} preview={previewImage} />
+          <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">{loading ? <Loader/> : "Edit Prayer Session"}</BtnPrimary>
          </form>
       </Modal>
     )

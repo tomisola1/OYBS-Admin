@@ -72,6 +72,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
                     required={required}
                     minLength={minLength}
                     defaultValue={defaultValue}
+					{...rest}
                 />
 				)}
                 {type === "password" && (

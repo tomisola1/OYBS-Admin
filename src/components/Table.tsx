@@ -46,56 +46,14 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
    };
 
 
-   // Generate an array of page numbers to display
-   // const getPageNumbers = () => {
-   //    const pageNumbers = [];
-   //    for (let i = 1; i <= totalPages; i++) {
-   //       console.log(i, totalPages);
-
-   //       if (i <= 3 || i > totalPages - 3 || (i >= currentPage - 1 && i <= currentPage + 1) || +i == +totalPages) {
-   //          pageNumbers.push(i);
-   //       }
-   //    }
-   //    console.log(pageNumbers);
-      
-   //    return pageNumbers;
-   // };
-
    const handleSearch = (e: any) => {
       setSearchText(e.target.value)
       setCurrentPage(1)
    }
    
-   // const users = async()=>{
-   //    const res = await fetchUsers({pageNumber: currentPage, pageSize: 8,emailAddress:searchText})
-   //    setFiltered(res.result.users)
-   //    console.log(filtered);
-      
-   //    // console.log(res);
-      
-   // }
-
-   // useEffect(() => {
-   //    if (searchText) {
-   //      users();
-   //    }else {
-   //       setFiltered(body); // Reset to the original body if search text is cleared
-   //     }
-   //  }, [searchText]);
-
  
    return (
       <div className='w-full overflow-auto'>
-         {/* {
-            showFilter &&
-            <div className='flex gap-5 items-center'>
-                <div className='relative'>
-                    <MagnifyingGlassIcon className="h-5 w-5 flex-shrink-0 text-gray-500 ml-1 absolute top-3 left-2"
-                aria-hidden="true" />
-                    <input placeholder='Search by email' onChange={handleSearch} className='pr-3.5 pl-10 py-2.5 rounded-lg placeholder:text-gray-500 placeholder:text-sm w-80 focus:outline-none focus:border-orange-200 bg-[#F5F6FC]'/>
-                </div>
-            </div>
-         } */}
 
          <table className='w-full overflow-x-auto mt-8 bg-[#F5F6FC] rounded-xl'>
             {

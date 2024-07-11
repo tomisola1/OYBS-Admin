@@ -15,8 +15,9 @@ import dynamic from 'next/dynamic';
 import 'chart.js/auto';
 import { DonationsProps, PrayerProps, QuizTakersProps } from '@/types'
 import { useRouter } from 'next/navigation'
-import { isToday } from 'date-fns'
+import { isToday, isYesterday } from 'date-fns'
 import { monthNames } from '@/utils/utils'
+import { toast } from 'react-toastify'
 
 const Line = dynamic(() => import('react-chartjs-2').then((mod) => mod.Line), {
   ssr: false,
@@ -60,11 +61,11 @@ const Dashboard = () => {
                 }else {
                     console.log('One or more responses are null');
                 }
-                console.log()
+
                 
-            } catch (error) {
+            } catch (error:any) {
                 console.log(error);
-                
+                toast.error(error.response.data.result)
             }
         }
         fetchTotals()
@@ -154,7 +155,7 @@ const Dashboard = () => {
             <div className='xl:flex lg:gap-5 my-8 w-full'>
                 <div className='xl:w-8/12'>
                     <div className='flex md:flex-row xl:gap-x-2 justify-between flex-col gap-5'>
-                        <StatCard Icon={<DonationIcon/>} Title='Total Donations' total={`₦ ${totals.donations}`} detail='2024' className='bg-[#5372E7]'/>
+                        <StatCard Icon={<DonationIcon/>} Title='Total Donations' total={`₦ ${totals.donations.toLocaleString('en-US')}`} detail='2024' className='bg-[#5372E7]'/>
                         <StatCard Icon={<UserIcon2/>} Title='Total Users' total={`${totals.users}`} detail={`Active Users: ${totals.activeUsers}`} className='bg-[#3EC295]'/>
                         <StatCard Icon={<RoundArrow/>} Title='Insights Shared' total={`${totals.insights}`} detail='All Time' className='bg-[#FF9F24]'/>
                     </div>
@@ -167,7 +168,7 @@ const Dashboard = () => {
                     <div className='bg-background rounded-xl py-6 px-7'>
                         <div className='flex justify-between'>
                             <h3 className='font-semibold text-lg'>Upcoming Prayers</h3>
-                            <span className='text-primary text-sm font-normal' onClick={()=> router.push('/dashboard/prayer')}>View All</span>
+                            <span className='text-primary text-sm font-normal cursor-pointer' onClick={()=> router.push('/dashboard/prayer')}>View All</span>
                         </div>
                         <table className='w-full'>
                             <tbody>
@@ -182,10 +183,10 @@ const Dashboard = () => {
                                             {new Date(prayer.startDate).toLocaleDateString()}
                                         </td>
                                         {
-                                            isToday(new Date(prayer.startDate)) ?
-                                            <td className='pl-4'><Pill text='Today'/></td> :
-                                            <td className='pl-4'><Pill text='Happening Soon'/></td>
-                                        }
+                                            isToday(new Date(prayer.startDate)) &&
+                                            <td className='pl-4'><Pill text='Today'/></td>
+                                            } 
+                                        <td className='pl-4'><Pill text='Happening Soon'/></td>
                                     </tr>
                                     ))
                                 }
@@ -213,7 +214,7 @@ const Dashboard = () => {
                                         <p className='text-[#00000064] text-[10.21px]'>{new Date(donation.createdAt).toLocaleDateString() }</p>
                                     </div>
                                 </div>
-                                <span className='text-sm font-medium'>₦{donation.amount}</span>
+                                <span className='text-sm font-medium'>₦ {donation.amount.toLocaleString('en-US')}</span>
                             </div>
                         ))}
                         <BtnPrimary className="w-full">View All Donations</BtnPrimary>

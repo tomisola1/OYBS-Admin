@@ -20,15 +20,15 @@ export default function ForgotPassword() {
     
     try {
       const response = await otpRequest({email: email})
-      console.log(response);
+ 
       if(response.success) {
         toast.success(response.result)
         localStorage.setItem('email',email)
         router.replace("/otp-verification")
       }
-    } catch (error) {
+    } catch (error:any) {
       console.log(error);
-      
+      toast.error(error.response.data.result)
     }
   }
   return (
