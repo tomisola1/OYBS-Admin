@@ -2,12 +2,7 @@
 
 import Head from '@/components/Head'
 import Table from '@/components/Table'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import React, { FormEvent, useEffect, useState } from 'react'
-import image from '../../../../public/assets/image'
-import Pill from '@/components/Pill'
-import { TrashIcon } from '@heroicons/react/24/outline'
 import { EditIcon } from '../../../../public/assets/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal from '@/components/Modal'
@@ -20,7 +15,6 @@ import { Loader } from '@/components/Loaders'
 import { toast } from 'react-toastify'
 
 const Scripture = () => {
-    const router = useRouter()
     const [showModal, setShowModal] = useState({create: false, edit: false})
     const [pageNumber, setPageNumber] = useState(1)
     const [loading, setLoading] = useState(false)

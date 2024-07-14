@@ -1,14 +1,11 @@
 "use client"
 
 import Head from '@/components/Head'
-import Table from '@/components/Table'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { TrashIcon } from '@heroicons/react/24/outline'
 import { Btn, BtnPrimary} from '@/components/Buttons'
 import Modal from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import Pill from '@/components/Pill'
 import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
 import { fetchSupport, updateSupport } from '@/services/supportService'
 import { transformPhoneNumber } from '@/utils/utils'

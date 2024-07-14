@@ -5,17 +5,12 @@ import Head from '@/components/Head'
 import InputField from '@/components/Inputfield'
 import { Loader } from '@/components/Loaders'
 import Modal from '@/components/Modal'
-import Table from '@/components/Table'
 import { fetchSingleUser, suspendUsers, unsuspendUsers } from '@/services/userService'
 import { UserDetailProps } from '@/types'
-import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 
 
-// export function generateStaticParams() {
-//     return 
-//   }
 
 const SingleUser = ({ params }: { params: { id: string } }) => {
     const [user, setUser] = useState<UserDetailProps>()

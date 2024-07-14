@@ -2,11 +2,8 @@
 
 import Head from '@/components/Head'
 import Table from '@/components/Table'
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import image from '../../../../public/assets/image'
-import Pill from '@/components/Pill'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { EditIcon } from '../../../../public/assets/icons'
 import { Btn, BtnPrimary } from '@/components/Buttons'
