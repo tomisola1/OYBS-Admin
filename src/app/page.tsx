@@ -30,7 +30,11 @@ export default function Home() {
     setLoading(true)
     try {
       const response = await adminLogin(loginData)
-      localStorage.setItem('token', response.result.access_token)
+      if(typeof window !== 'undefined'){
+        // now access your localStorage
+        localStorage.setItem('token', response.result.access_token)      
+      }
+      
       if (response.success === true) {
         setLoading(false)
         toast.success('Login Successful')
