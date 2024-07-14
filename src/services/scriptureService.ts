@@ -1,7 +1,12 @@
 import { params } from "@/utils/utils";
 import axios from "axios";
 const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
-const headerToken = localStorage?.getItem('token')
+let headerToken: string | null;
+if(typeof window !== 'undefined'){
+  // now access your localStorage
+   headerToken = localStorage.getItem('token');
+ 
+}
 
 
 export const fetchScriptures = (params:params) => {

@@ -11,7 +11,7 @@ interface statProps {
 const StatCard = ({Icon, Title, total, detail, className}:statProps) => {
   return (
     <div>
-        <div className='bg-background rounded-xl md:w-60 p-4 pb-6 flex flex-col gap-1'>
+        <div className='bg-background rounded-xl w-full p-4 pb-6 flex flex-col gap-1'>
             <div className='flex gap-2 items-center mb-4'>
                 <span className={`rounded-full p-1 ${className}`}>{Icon}</span>
                 <span className='text-sm'>{Title}</span>

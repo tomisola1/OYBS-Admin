@@ -154,8 +154,7 @@ const Dashboard = () => {
             <Head title='Dashboard'/>
             <div className='xl:flex lg:gap-5 my-8 w-full'>
                 <div className='xl:w-8/12'>
-                    <div className='flex md:flex-row xl:gap-x-2 justify-between flex-col gap-5'>
-                        <StatCard Icon={<DonationIcon/>} Title='Total Donations' total={`₦ ${totals.donations.toLocaleString('en-US')}`} detail='2024' className='bg-[#5372E7]'/>
+                    <div className='grid md:grid-cols-2 xl:gap-x-2 justify-between grid-cols-1 gap-5'>
                         <StatCard Icon={<UserIcon2/>} Title='Total Users' total={`${totals.users}`} detail={`Active Users: ${totals.activeUsers}`} className='bg-[#3EC295]'/>
                         <StatCard Icon={<RoundArrow/>} Title='Insights Shared' total={`${totals.insights}`} detail='All Time' className='bg-[#FF9F24]'/>
                     </div>

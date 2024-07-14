@@ -111,6 +111,7 @@ const Scripture = () => {
         fetchBooksInfo()
     },[bookId])
     
+    console.log(bookInfo);
     
    // Handle previous page
    const handlePreviousPage = () => {
@@ -312,7 +313,7 @@ const Scripture = () => {
                                 {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
                                     return (
                                         <option key={index} value={info.chapter}>
-                                            {`${info.chapter} - ${info.verses} Verser`}
+                                            {`${info.chapter} - ${info.verses} Verses`}
                                         </option>
                                     );
                                 })}

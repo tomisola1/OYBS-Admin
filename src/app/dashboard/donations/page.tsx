@@ -12,7 +12,7 @@ import { InsightProps } from '@/types'
 import EmptyState from '@/components/emptyState'
 
 
-const InsightManagement = () => {
+const Donations = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
@@ -118,4 +118,4 @@ const InsightManagement = () => {
   )
 }
 
-export default InsightManagement
+export default Donations

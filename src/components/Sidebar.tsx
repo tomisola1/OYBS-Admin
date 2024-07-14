@@ -91,6 +91,14 @@ const Sidebar = ({close}:{close:()=>void}) => {
 					</li>
 					<li className="transition-colors duration-700 ease-in-out">
 						<Link
+							href={'/dashboard/donations'}
+							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/donations/gi) ? 'active-link' : ''}`}>
+							<ChartIcon />
+							<span className='font-medium text-sm'>Donations</span>
+						</Link>
+					</li>
+					<li className="transition-colors duration-700 ease-in-out">
+						<Link
 							href={'/dashboard/notifications'}
 							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/notification/gi) ? 'active-link' : ''}`}>
 							<NotificationIcon />
