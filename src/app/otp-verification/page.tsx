@@ -19,7 +19,14 @@ export default function OtpVerification() {
   const otpBoxReference = useRef<HTMLInputElement[]>([]);
   const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
+  const [email, setEmail] = useState<String | null>('')
+  
 
+if(typeof window !== 'undefined'){
+  // now access your localStorage
+  const mail = localStorage.getItem('email');
+ setEmail(mail)
+}
 
   function handleChange(value:string, index:number) {
     let newArr = [...otp];
@@ -79,7 +86,7 @@ export default function OtpVerification() {
 
   const resendOTP = async() => {
     const response = await resendOtpRequest({
-      email: localStorage.getItem("email"),
+      email: email,
     })
     setMinutes(1);
     setSeconds(59);
@@ -90,7 +97,7 @@ export default function OtpVerification() {
     e.preventDefault()
     try {   
       const response = await otpVerification({
-        email: localStorage.getItem("email"),
+        email: email,
         otp:otp.join("")
       })
 
@@ -119,7 +126,7 @@ export default function OtpVerification() {
         <div className="small-laptop:w-[403px] md:w-[303px] sm:w-3/4 w-full flex flex-col gap-12">
           <div className="text-center text-[#222222]">
             <h3 className="font-bold sm:text-[32px] text-3xl leading-[4rem] tracking-normal ">OTP Verification</h3>
-            <p className="font-normal m-0 text-base">We sent a 4 digit code to your email at <b>{localStorage.getItem("email")}</b></p>
+            <p className="font-normal m-0 text-base">We sent a 4 digit code to your email at <b>{email}</b></p>
           </div>
           <form onSubmit={handleSubmit}>
             <div className='flex items-center gap-4'>

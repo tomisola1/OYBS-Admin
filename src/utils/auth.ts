@@ -1,1 +1,6 @@
-export const isAuthenticated = localStorage?.getItem('token');
+export const isAuthenticated = () => {
+    if(typeof window !== 'undefined'){
+        // now access your localStorage
+        localStorage.getItem('token');
+      }
+}

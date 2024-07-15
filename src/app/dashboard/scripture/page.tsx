@@ -163,6 +163,7 @@ const Scripture = () => {
         updatedSchedules[index][name as keyof ScheduleProps] = value;
     
         setNewSchedules(updatedSchedules);
+        extractBookId(newSchedules)
     }
     
   };
@@ -201,7 +202,7 @@ const Scripture = () => {
 
     const setScriptureAndModal: any= (data:ScriptureProps) => {
         setShowModal({create:false, edit:true}) 
-         setScripture(data)
+        setScripture(data)
     }
 
   return (

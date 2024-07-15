@@ -34,7 +34,7 @@ const Carousel = () => {
         <div className="w-full ">
         {
             images.map((image, index) =>(
-                <Image src={image} alt='' key={index} className='w-full min-h-screen h-auto rounded-tr-3xl rounded-br-3xl inline-block'/>
+                <Image src={image} alt='' key={index} className='w-full min-h-screen h-auto rounded-tr-3xl rounded-br-3xl inline-block' priority={true}/>
             ))
         }
         </div>
