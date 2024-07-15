@@ -32,7 +32,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
 	} = props;
     const [isPasswordVisible, setIsPasswordVisible] = useState(false)
 
-    const tooglePaswword = () => {
+    const togglePassword = () => {
 		setIsPasswordVisible(current => !current)
 	}
     const passwordType = isPasswordVisible ? 'text' : 'password'
@@ -76,7 +76,7 @@ export const InputField: React.FC<InputProps> = ({ ...props }) => {
                 />
 				)}
                 {type === "password" && (
-                        <button type="button" onClick={tooglePaswword}>
+                        <button type="button" onClick={togglePassword}>
                             {isPasswordVisible ? (
                                 <EyeSlashIcon className="h-5 w-5 text-[#75838D] absolute right-3 top-4" aria-hidden="true"/>
                             ) : (

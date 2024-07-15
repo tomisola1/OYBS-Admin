@@ -37,7 +37,7 @@ const Scripture = () => {
         endVerse: '',
     }])
     const [bookId, setBookId] = useState('')
-    const [bookInfo, setBookInfo] = useState<BookInfoProps[]>()
+    const [bookInfo, setBookInfo] = useState<string[]>()
     const [formData, setFormData] = useState<any>(
         {
         day: '',
@@ -93,7 +93,7 @@ const Scripture = () => {
                 setLoading(true);
                 if(bookId){
                     const response = await getBookInfo(bookId)
-                    setBookInfo(response.result.verses)
+                    setBookInfo(response.result.chapters)
                     setLoading(false)
                 }
                
@@ -105,7 +105,6 @@ const Scripture = () => {
         fetchBooksInfo()
     },[bookId])
     
-    console.log(bookInfo);
     
    // Handle previous page
    const handlePreviousPage = () => {
@@ -194,7 +193,7 @@ const Scripture = () => {
             }
 
         } catch(error:any){
-            console.log(); 
+            console.log(error); 
             toast.error(error.response.data.result)          
         }
        
@@ -271,16 +270,16 @@ const Scripture = () => {
                     <div className='flex justify-between gap-2'>  
                         <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')} required>
                         <option>Chapters</option>
-                            {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
+                            {bookInfo && bookInfo?.map((chapter:string, index:number) => {
                                 return (
-                                    <option key={index} value={info.chapter}>
-                                        {`Chapter ${info.chapter} - ${info.verses} Verses`}
+                                    <option key={index} value={chapter}>
+                                        {`Chapter ${chapter} -  Verses`}
                                     </option>
                                 );
                             })}
                         </select>
-                        <InputField placeholder='Verses' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
-                        <InputField placeholder='Verses' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
+                        <InputField placeholder='start verse' type='number' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
+                        <InputField placeholder='end verse' type='number' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
                     </div>
                 </>
                 
@@ -305,16 +304,16 @@ const Scripture = () => {
                        
                             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'newTestament')} required>
                             <option>Chapters</option>
-                                {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
+                                {bookInfo && bookInfo?.map((chapter:string, index:number) => {
                                     return (
-                                        <option key={index} value={info.chapter}>
-                                            {`${info.chapter} - ${info.verses} Verses`}
+                                        <option key={index} value={chapter}>
+                                            {`Chapter ${chapter} - Verses`}
                                         </option>
                                     );
                                 })}
                             </select>
-                            <InputField placeholder='Verses' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
-                            <InputField placeholder='Verses' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
+                            <InputField placeholder='start verse' type='number' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
+                            <InputField placeholder='end verse' type='number' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
                         </div>
                     </>
 

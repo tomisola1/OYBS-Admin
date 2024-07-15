@@ -2,36 +2,32 @@
 
 import Head from '@/components/Head'
 import Table from '@/components/Table'
-import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { TrashIcon } from '@heroicons/react/24/outline'
-import { Btn} from '@/components/Buttons'
-import Modal from '@/components/Modal'
-import { deleteInsights, fetchInsights } from '@/services/insights'
-import { InsightProps } from '@/types'
+import { DonationsProps } from '@/types'
 import EmptyState from '@/components/emptyState'
+import { fetchDonations } from '@/services/dashboard'
+import Image from 'next/image'
+import Pill from '@/components/Pill'
 
 
 const Donations = () => {
-    const router = useRouter()
-    const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
-    const [selectedInsight, setSelectedInsight] = useState('')
+
     const [loading, setLoading] = useState(false)
 
     useEffect(() =>{
-        const fetchAllInsights = async() =>{
+        const fetchAllDonations = async() =>{
              setLoading(true)
             try {
-                const response = await fetchInsights({pageNumber: pageNumber, pageSize: 8})
-                setResponseData(response)
+               const response = await fetchDonations({pageNumber: 1, pageSize:8})
+                setResponseData(response.result)
                 setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
         }
-        fetchAllInsights()
+        fetchAllDonations()
     },[pageNumber])
     
     
@@ -47,23 +43,6 @@ const Donations = () => {
       setPageNumber(pageNumber + 1)
    };
 
-   const setIdAndModal = (id:string) => {
-    setSelectedInsight(id)
-    setShowModal(true)
-   }
-
-    const handleDelete = async(id:string|undefined) => {
-      try {
-        setShowModal(true)
-        const result = await deleteInsights(id)
-        if (result.success){
-          setShowModal(false)
-          location.reload()
-        }
-      } catch (error) {
-        console.log(error);    
-      }
-    }
 
   return (
     <div>
@@ -71,25 +50,23 @@ const Donations = () => {
         <div className='w-full mt-10'>
           {
             responseData?.result?.length === 0 ? 
-            <EmptyState text='No insignts reported'/>:
+            <EmptyState text='No Donations'/>:
             <Table
-            head={['UserName', 'Insight Reported', 'Likes', 'Date Reported', 'Action']}
-            body={responseData?.result?.map((insight: InsightProps, index: number) =>
+            head={['Picture', 'Name', 'Amonunt', 'Currency', 'Status']}
+            body={responseData?.donations.map((donation:DonationsProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
                         <td className='p-4 font-normal tracking-wide pl-6'>
-                        {insight?.userId?.firstName}{' '}{insight?.userId?.lastName}
+                        {
+                          donation?.userId?.profilePicture ?
+                          <Image src={donation?.userId?.profilePicture} alt="user image" width={40} height={40} className='rounded-full' />:
+                          <Image src={"/assets/defaultImage.svg"} alt="user image" width={40} height={40} className='rounded-full' />
+                        }
                         </td>
-                        <td className='p-4 font-light w-1/3'>{insight.content}</td>
-                        <td className='p-4 font-light'>{insight.likes}</td>
-                        <td className='p-4 font-light'>
-                            <p>
-                              {new Date(insight.createdAt).toLocaleDateString()}
-                            </p>
-                        </td>
-                        <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={() => setIdAndModal(insight._id) } />
-                        </td>
+                        <td className='p-4 font-light w-1/3'>{donation.userId.firstName}{' '}{donation.userId.lastName}</td>
+                        <td className='p-4 font-light'>{donation.amount.toLocaleString('en-US')}</td>
+                        <td className='p-4 font-light'>{donation.currency}</td>
+                       <td><Pill text={donation.transactionStatus}/></td>
                     </tr>
                 </>
                 )}
@@ -97,23 +74,12 @@ const Donations = () => {
             showFilter={false}
             handleNextPage={handleNextPage}
             handlePreviousPage={handlePreviousPage}
-            totalPages={responseData?.result?.length}
+            totalPages={responseData?.donations.length}
             isLoading={loading}
             currentPageNumber={pageNumber}
             />
           }
-        </div>
-        <Modal
-        show={showModal}
-        hide={() => setShowModal(false)}
-        heading="Delete Insight"
-        sub="Are you sure you want to delete this insight?"
-      >
-        <div className='flex justify-center gap-6'>
-            <Btn className="px-10 text-sm">No, Cancel</Btn>
-            <Btn className="px-10 text-sm" onClick={()=>handleDelete(selectedInsight)}>Yes, Confirm</Btn>
-        </div>
-      </Modal>        
+        </div>      
     </div>
   )
 }

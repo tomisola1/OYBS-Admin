@@ -15,6 +15,14 @@ function Pill(props: PillProps) {
             </div>
         )
     }
+    if (text === "pending"){
+        return (
+            <div className={`bg-[#ffaa2a35] text-[#FFAB2A] w-fit py-2 px-4 rounded-2xl font-normal text-sm`}>
+                {text}
+                {children}
+            </div>
+        )
+    }
     if (text === "Happening Soon"){
         return (
             <div className={`bg-[#f76e6e38] text-[#F76E6F] w-fit py-2 px-4 rounded-2xl font-normal text-sm`}>

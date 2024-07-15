@@ -4,7 +4,7 @@ import Head from '@/components/Head'
 import Sidebar from '@/components/Sidebar'
 import StatCard from '@/components/statCard'
 import React, { useEffect, useRef, useState } from 'react'
-import { DonationIcon, RoundArrow, UserIcon, UserIcon2 } from '../../../public/assets/icons'
+import { RoundArrow, UserIcon, UserIcon2 } from '../../../public/assets/icons'
 import { CalendarIcon } from '@heroicons/react/24/outline'
 import Pill from '@/components/Pill'
 import { BtnPrimary } from '@/components/Buttons'
@@ -13,11 +13,13 @@ import image from '../../../public/assets/image'
 import { fetchBibleTracker, fetchDonations, fetchQuizTakers, fetchTotalDonations, fetchTotalInsights, fetchTotalUsers, fetchUpcomingPrayers } from '@/services/dashboard'
 import dynamic from 'next/dynamic';
 import 'chart.js/auto';
-import { DonationsProps, PrayerProps, QuizTakersProps } from '@/types'
+import { DonationsProps, PrayerProps, QuizTakersProps, UserDetailProps, UserProps } from '@/types'
 import { useRouter } from 'next/navigation'
 import { isToday, isYesterday } from 'date-fns'
 import { monthNames } from '@/utils/utils'
 import { toast } from 'react-toastify'
+import { fetchUsersWithHighStreaks } from '@/services/userService'
+import Link from 'next/link'
 
 const Line = dynamic(() => import('react-chartjs-2').then((mod) => mod.Line), {
   ssr: false,
@@ -31,12 +33,11 @@ const Dashboard = () => {
     const canvasEl = useRef();
     const router = useRouter()
     const [totals, setTotals] = useState({
-        donations: 0,
         users: 0,
         insights: 0,
         activeUsers: 0,
+        userStreak: [],
         prayers: [],
-        fetchedDonations: []
     })
     const [quizTakers, setQuizTakers] = useState<any>();
     const [bibleTrackers, setBibleTrackers] = useState([])
@@ -44,24 +45,23 @@ const Dashboard = () => {
     useEffect(()=>{
         const fetchTotals = async () => {
             try {
-                const donations = await fetchTotalDonations()
                 const users = await fetchTotalUsers()
+                const userStreaks = await fetchUsersWithHighStreaks({pageNumber: 1, pageSize:6, streak: 'DESC'})
                 const insights = await fetchTotalInsights()
                 const prayers = await fetchUpcomingPrayers({pageNumber: 1, pageSize:3})
-                const getdonation = await fetchDonations({pageNumber: 1, pageSize:6})
-                if(donations && users && insights && prayers && getdonation) {
+                if(users && insights && prayers && userStreaks) {
                     setTotals({
-                        donations: donations.result?.totalDonations ?? 0,
                         users: users.result?.totalUsers ?? 0,
                         insights: insights.result?.totalInsights ?? 0,
                         activeUsers: users.result?.totalActiveUsers ?? 0,
                         prayers: prayers.result?.prayers ?? [],
-                        fetchedDonations: getdonation.result?.donations ?? []
+                        userStreak: userStreaks.result?.users ?? []
                     })
                 }else {
                     console.log('One or more responses are null');
                 }
-
+               
+                
                 
             } catch (error:any) {
                 console.log(error);
@@ -91,6 +91,8 @@ const Dashboard = () => {
          }
          bibleTracking()
     },[])
+
+    console.log(totals);
 
     const totalUsersTakingQuiz = quizTakers?.map((takers:any) =>{
         return takers?.totalUsers
@@ -154,7 +156,7 @@ const Dashboard = () => {
             <Head title='Dashboard'/>
             <div className='xl:flex lg:gap-5 my-8 w-full'>
                 <div className='xl:w-8/12'>
-                    <div className='grid md:grid-cols-2 xl:gap-x-2 justify-between grid-cols-1 gap-5'>
+                    <div className='grid md:grid-cols-2 xl:gap-x-2 justify-between grid-cols-1 !gap-8'>
                         <StatCard Icon={<UserIcon2/>} Title='Total Users' total={`${totals.users}`} detail={`Active Users: ${totals.activeUsers}`} className='bg-[#3EC295]'/>
                         <StatCard Icon={<RoundArrow/>} Title='Insights Shared' total={`${totals.insights}`} detail='All Time' className='bg-[#FF9F24]'/>
                     </div>
@@ -198,25 +200,21 @@ const Dashboard = () => {
                         <Bar data={BarChartData} height={268} width={422}/>
                     </div>
                     <div className='bg-background p-4 rounded-lg'>
-                        <h3 className='text-base font-medium mb-6'>Top Donations</h3>
-                        {totals.fetchedDonations?.map((donation:DonationsProps, index:number)=>(
+                        <h3 className='text-base font-medium mb-6'>Top Streaks</h3>
+                        {totals.userStreak?.map((user:UserProps, index:number)=>(
                             <div className='flex justify-between mb-4' key={index}>
-                                <div className='flex gap-4'>
-                                    {
-                                        donation?.userId?.profilePicture ?
-                                        <Image src={donation?.userId?.profilePicture} alt="user image" width={40} height={40} className='rounded-full' />:
-                                        <Image src={"/assets/defaultImage.svg"} alt="user image" width={40} height={40} className='rounded-full' />
-
-                                    }
                                     <div >
-                                        <h3 className='font-normal text-xs'>{donation.userId.firstName}{' '}{donation.userId.lastName}</h3>
-                                        <p className='text-[#00000064] text-[10.21px]'>{new Date(donation.createdAt).toLocaleDateString() }</p>
+                                        <h3 className='font-normal text-sm'>{user.fullName}</h3>
+                                        <p className='text-[#00000078] text-[10.21px]'>{user.email}</p>
                                     </div>
-                                </div>
-                                <span className='text-sm font-medium'>₦ {donation.amount.toLocaleString('en-US')}</span>
+                                <span className='text-sm font-medium'>{user.streak}</span>
                             </div>
                         ))}
-                        <BtnPrimary className="w-full">View All Donations</BtnPrimary>
+                        <BtnPrimary className="w-full">
+                            <Link href={"/dashboard/users"}>
+                            View All Users
+                            </Link>    
+                        </BtnPrimary>
                     </div>
                 </div>
             </div>

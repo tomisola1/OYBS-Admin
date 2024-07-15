@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 export interface params {
     pageSize?: number,
     pageNumber?: number
+    emailOrName?: string
     emailAddress?: string
     streak?: string
     insightsShared?: string

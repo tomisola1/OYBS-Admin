@@ -7,6 +7,7 @@ import image from '../../public/assets/image'
 import { CancelIcon, ChartIcon, DashboardIcon, LockIcon, NotificationIcon, PrayerIcon, QuizIcon, ReminderIcon, SupportIcon, UserIcon } from '../../public/assets/icons'
 import { PowerIcon } from '@heroicons/react/24/outline'
 import { usePathname, useRouter } from 'next/navigation'
+import { BanknotesIcon } from '@heroicons/react/24/outline'
 
 
 const Sidebar = ({close}:{close:()=>void}) => {
@@ -93,7 +94,7 @@ const Sidebar = ({close}:{close:()=>void}) => {
 						<Link
 							href={'/dashboard/donations'}
 							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/donations/gi) ? 'active-link' : ''}`}>
-							<ChartIcon />
+							<BanknotesIcon className="h-[22px] w-[22px] text-[#515266]" />
 							<span className='font-medium text-sm'>Donations</span>
 						</Link>
 					</li>

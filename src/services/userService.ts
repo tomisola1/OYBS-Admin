@@ -11,7 +11,17 @@ if(typeof window !== 'undefined'){
 
 export const fetchUsers = (params:params) => {
     const request = axios.get(
-      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailAddress ? `&emailAddress=${params.emailAddress}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.streak ? `&streak=${params.streak}`: ""}${params.insightsShared ? `&insightsShared=${params.insightsShared}`: ""}`,
+      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailOrName ? `&emailOrName=${params.emailOrName}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.streak ? `&streak=${params.streak}`: ""}${params.insightsShared ? `&insightsShared=${params.insightsShared}`: ""}`,
+      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    ).then((response)=>
+     response.data
+    )
+    return request
+};
+
+export const fetchUsersWithHighStreaks = (params:params) => {
+    const request = axios.get(
+      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.streak ? `&streak=${params.streak}`: ""}`,
       {headers: {"Authorization":`Bearer ${headerToken}`}}
     ).then((response)=>
      response.data

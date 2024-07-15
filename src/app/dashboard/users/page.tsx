@@ -23,7 +23,7 @@ const Users = () => {
         const fetchAllUsers = async() =>{
             setLoading(true)
             try {
-                const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8, emailAddress: searchText, dateJoined: dateJoined, streak: streak, insightsShared: insightsShared})
+                const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8, emailOrName: searchText, dateJoined: dateJoined, streak: streak, insightsShared: insightsShared})
                 setResponseData(response.result)
                 setLoading(false)
             } catch (error) {

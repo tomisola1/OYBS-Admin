@@ -41,7 +41,7 @@ const ImageInput = ({ onImageSelect, defaultVal, name, preview, required=false }
             ref={fileRef}
             type="file"
             id="image-upload"
-            accept="image/*"
+            accept=".png, .jpg, .jpeg"
             onChange={onImageSelect}
             className='hidden  w-1 h-1'
             required={required}

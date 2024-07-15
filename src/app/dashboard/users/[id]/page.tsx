@@ -95,7 +95,10 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Birth Date</td>
-                        <td className='py-3'>{user?.birthDate ? user?.birthDate :"None"}</td>
+                        {user && 
+                        <td className='py-3'>{new Date(user.birthDate).toLocaleDateString() ? new Date(user.birthDate).toLocaleDateString():"None"}</td>
+                        }
+                 
                     </tr>
                     <tr className='border-b border-b-white'>
                         <td className='py-3'>Phone Number</td>
