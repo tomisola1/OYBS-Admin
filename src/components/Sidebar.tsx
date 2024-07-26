@@ -22,7 +22,7 @@ const Sidebar = ({close}:{close:()=>void}) => {
 	
   return (
     <>
-        <div className='box-border h-auto relative transition-all duration-700 ease-in-out'>
+        <div className='box-border relative transition-all duration-700 ease-in-out'>
 				<div className='absolute -top-7 right-3 z-100 lg:hidden' onClick={close}>
                 	<CancelIcon/>
                 </div>	

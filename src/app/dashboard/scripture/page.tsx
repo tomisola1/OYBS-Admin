@@ -273,7 +273,7 @@ const Scripture = () => {
                             {bookInfo && bookInfo?.map((chapter:string, index:number) => {
                                 return (
                                     <option key={index} value={chapter}>
-                                        {`Chapter ${chapter} -  Verses`}
+                                        {`Chapter ${chapter}`}
                                     </option>
                                 );
                             })}
@@ -307,7 +307,7 @@ const Scripture = () => {
                                 {bookInfo && bookInfo?.map((chapter:string, index:number) => {
                                     return (
                                         <option key={index} value={chapter}>
-                                            {`Chapter ${chapter} - Verses`}
+                                            {`Chapter ${chapter}`}
                                         </option>
                                     );
                                 })}

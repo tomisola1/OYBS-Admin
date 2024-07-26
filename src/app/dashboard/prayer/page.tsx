@@ -15,6 +15,7 @@ import InputField from '@/components/Inputfield'
 import { createPrayer, deletePrayer, fetchPrayers, updatePrayer } from '@/services/prayerService'
 import { PrayerProps } from '@/types'
 import { isToday, isTomorrow, isYesterday, toDate } from "date-fns";
+import dayjs from 'dayjs'
 import EmptyState from '@/components/emptyState'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
 import ImageInput from '@/components/ImageInput'
@@ -150,17 +151,7 @@ const Prayer = () => {
                             {prayer.text} 
                             </td>
                             <td className='p-4 font-light'>{prayer.meetingLink}</td>
-                            {
-                                isYesterday(new Date(prayer.startDate)) ? (
-                                    <td className='pl-4'><Pill text='Has Happened'/></td>
-                                ) : isToday(new Date(prayer.startDate)) ? (
-                                    <td className='pl-4'><Pill text='Today'/></td>
-                                ) : isTomorrow(new Date(prayer.startDate)) ? (
-                                    <td className='pl-4'><Pill text='Happening Tomorrow'/></td>
-                                ) : (
-                                    <td className='pl-4'><Pill text='Happening Soon'/></td>
-                                )
-                            }
+                            <td className='pl-4'><Pill text={dayjs(prayer.startDate).diff(dayjs(), 'd')}/></td>
 
                             <td className='p-4 font-light'>
                                 <p>{new Date(prayer.startDate).toLocaleTimeString('en-US')}</p>

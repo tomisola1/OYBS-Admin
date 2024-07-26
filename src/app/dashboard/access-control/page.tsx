@@ -248,6 +248,7 @@ const UpdateUser = (props: Props) => {
             const response = await editUser(payload, id)
 
             if(response.success) {
+                toast.success("A New User has been created")
                 setLoading(false)
                 hide()
                 location.reload();

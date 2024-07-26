@@ -7,16 +7,34 @@ import { Loader } from '@/components/Loaders'
 import Modal, { ModalProps } from '@/components/Modal'
 import { addQuestion, deleteQuiz, getQuizInfo, updateQuiz } from '@/services/quizService'
 import { QuestionsProps, QuizProps } from '@/types'
+import { pdfOptions } from '@/utils/utils'
 import { toDate } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
+import generatePDF, { Margin } from 'react-to-pdf'
 import { toast } from 'react-toastify'
 
 const SingleQuiz = ({ params }: { params: { id: string } }) => {
+    const targetRef: RefObject<HTMLDivElement> = useRef(null);
     const [quiz, setQuiz] = useState<QuizProps>()
     const [questions, setQuestions] = useState<QuestionsProps[]>()
     const [showModal, setShowModal] = useState({edit:false, add:false, update:false,delete:false})
     const [loading, setLoading] = useState(false)
+
+    const options = {
+        page: {
+            // margin is in MM, default is Margin.NONE = 0
+            margin: Margin.MEDIUM,
+            // default is 'A4'
+            format: 'letter',
+            // default is 'portrait'
+         },
+         canvas: {
+            // default is 'image/jpeg' for better size performance,
+            qualityRatio: 1
+         },
+         filename: `Quiz ${params.id}.pdf`
+    }
     
     useEffect(() =>{
         const fetchAllquizs = async() =>{
@@ -34,70 +52,85 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
     <div >  
         <Head title='Quiz Details' navigate={true}/>
             <div>
-                <div className='bg-background w-2/5 p-6 rounded-xl mt-6'>
-                    <div className='flex justify-between items-center mb-5'>
-                    <h3 className='font-semibold text-base'>Quiz Information</h3>
-                    <Btn className={"!px-8 !h-9"} onClick={() => setShowModal({edit:true, add:false, update:false, delete:false})}>Edit</Btn>
-                    </div>
-                    <table className='w-full'>
-                    <tbody className='font-normal text-sm'>
-                        <tr className='border-b border-b-white'>
-                            <td className='py-3'>Quiz Title</td>
-                            <td className='py-3'><p className='font-medium'>{quiz?.title}</p></td>
-                        </tr>
-                        <tr className='border-b border-b-white'>
-                            <td className='py-3'>Type</td>
-                            <td className='py-3'><p className='font-medium'>{quiz?.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</p></td>
-                        </tr>
-                        <tr className='border-b border-b-white'>
-                            <td className='py-3'>No of Questions</td>
-                            <td className='py-3'><p className='font-medium'>{quiz?.questionCount}</p></td>
-                        </tr>
-                        <tr className='border-b border-b-white'>
-                            <td className='py-3'>Quiz Date</td>
-                            <td className='py-3'> 
-                                <p className='font-medium'>{quiz?.startDateTime
-                                    ? new Date(quiz.startDateTime).toLocaleString('en-GB')
+                <div className='flex justify-between'>
+                    <div className='bg-background w-2/5 p-6 rounded-xl mt-6'>
+                        <div className='flex justify-between items-center mb-5'>
+                        <h3 className='font-semibold text-base'>Quiz Information</h3>
+                        <Btn className={"!px-8 !h-9"} onClick={() => setShowModal({edit:true, add:false, update:false, delete:false})}>Edit</Btn>
+                        </div>
+                        <table className='w-full'>
+                        <tbody className='font-normal text-sm'>
+                            <tr className='border-b border-b-white'>
+                                <td className='py-3'>Quiz Title</td>
+                                <td className='py-3'><p className='font-medium'>{quiz?.title}</p></td>
+                            </tr>
+                            <tr className='border-b border-b-white'>
+                                <td className='py-3'>Type</td>
+                                <td className='py-3'><p className='font-medium'>{quiz?.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</p></td>
+                            </tr>
+                            <tr className='border-b border-b-white'>
+                                <td className='py-3'>No of Questions</td>
+                                <td className='py-3'><p className='font-medium'>{quiz?.questionCount}</p></td>
+                            </tr>
+                            <tr className='border-b border-b-white'>
+                                <td className='py-3'>Quiz Date</td>
+                                <td className='py-3'> 
+                                    <p className='font-medium'>{quiz?.startDateTime
+                                        ? new Date(quiz.startDateTime).toLocaleString('en-GB')
+                                        : "No date"}
+                                    </p>
+                                    <p className='font-medium'>
+                                    {quiz?.endDateTime
+                                    ? new Date(quiz.endDateTime).toLocaleString('en-GB')
                                     : "No date"}
-                                </p>
-                                <p className='font-medium'>
-                                {quiz?.endDateTime
-                                ? new Date(quiz.endDateTime).toLocaleString('en-GB')
-                                : "No date"}
-                                </p>
-                            </td>
-                        </tr>
-                    </tbody>
-                    </table>
-                </div>
-                <div className='mt-8'>
-                    <h3 className='font-semibold text-lg'>Quiz Questions</h3>
-                </div>
-                <div className='grid grid-cols-2 gap-6'>
-                    {
-                        questions?.map((question:QuestionsProps, index:number)=>(
-                            <div className='mt-4' key={index}>
-                                <h3 className='font-semibold text-base'>Question {index+1}</h3>
-                                <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
-                                    <p>{question.question}</p>
-                                </div>
-                                {
-                                    question.choice.map((choice, index:number)=>(
-                                    <div className='border rounded-lg py-2 px-3 text-sm mt-4' key={index}>
-                                        <p>{choice}</p>
-                                    </div>
-                                    ))
-                                }
-                                <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
-                                    <p><b>Answer:</b> {question.answer}</p>
-                                </div>
-                                <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
-                                    <p><b>Explanation:</b> {question.answerDescription}</p>
-                                </div>
-                            </div>
-                        ))
-                    }
+                                    </p>
+                                </td>
+                            </tr>
+                            <tr className='border-b border-b-white'>
+                                <td className='py-3'>Date of creation</td>
+                                <td className='py-3'><p className='font-medium'>{quiz?.createdAt
+                                        ? new Date(quiz.startDateTime).toLocaleString('en-GB')
+                                        : "No date"}</p></td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
+                    <div className='mt-6'>
+                    <BtnPrimary onClick={() => generatePDF(targetRef, options )}>Download Quiz</BtnPrimary>
 
+                    </div>
+
+                </div>
+                <div ref={targetRef}>
+                    <div className='mt-8'>
+                        <h3 className='font-semibold text-lg'>Quiz Questions</h3>
+                    </div>
+                    <div className='grid grid-cols-2 gap-6'>
+                        {
+                            questions?.map((question:QuestionsProps, index:number)=>(
+                                <div className='mt-4' key={index}>
+                                    <h3 className='font-semibold text-base'>Question {index+1}</h3>
+                                    <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                        <p>{question.question}</p>
+                                    </div>
+                                    {
+                                        question.choice.map((choice, index:number)=>(
+                                        <div className='border rounded-lg py-2 px-3 text-sm mt-4' key={index}>
+                                            <p>{choice}</p>
+                                        </div>
+                                        ))
+                                    }
+                                    <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                        <p><b>Answer:</b> {question.answer}</p>
+                                    </div>
+                                    <div className='border rounded-lg py-2 px-3 text-sm mt-4'>
+                                        <p><b>Explanation:</b> {question.answerDescription}</p>
+                                    </div>
+                                </div>
+                            ))
+                        }
+
+                    </div>
                 </div>
                 <div className='absolute bottom-3 right-3'>
                         <BtnPrimary className='p-0' onClick={()=> setShowModal({edit:false, add:false, update:false,delete:true})}>{loading?<Loader/> : "Delete Quiz"}</BtnPrimary>
@@ -166,18 +199,19 @@ const AddQuestion = (props:Props) =>{
             updatedQuestions[name as keyof QuestionsProps] = value;
         }
           setQuestions(updatedQuestions);
+        console.log({...questions});
     }
+
 
     const handleSubmit = async(e:any) => {
         e.preventDefault()
         setLoading(true)
+        
         try {
             const response  = await addQuestion({...questions, quiz: id})
-
             if(response.success) {
+                toast.success('Question added successfully')
                 setLoading(false)
-                hide()
-                location.reload();
             }
         } catch (error:any) {
             console.log(error);
@@ -194,7 +228,7 @@ const AddQuestion = (props:Props) =>{
       >
         <form className='mb-12' onSubmit={handleSubmit}>
             <div>
-                <InputField placeholder={`Question 1`} name='question' change={handleChange} required/>
+                <InputField placeholder={`Question`} name='question' type='textarea' change={handleChange} required/>
                 {questions.choice.map((choice:string, choiceIndex:number) => (
                 <InputField
                     key={choiceIndex}
@@ -205,8 +239,15 @@ const AddQuestion = (props:Props) =>{
                     required
                 />
                 ))}
-                <InputField placeholder='Answer' name='answer' change={handleChange} required/>
-                <InputField placeholder="Answer Explanation" name='answerDescrption' change={handleChange} required/>
+                <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' name="answer" onChange={handleChange} required>
+                    <option>Answers</option>
+                    {
+                        questions.choice.map((choice, index) => (
+                            <option key={index}>{choice}</option>
+                        ))
+                    }
+                </select>
+                <InputField placeholder="Answer Explanation" type='textarea' rows={4} name='answerDescrption' change={handleChange} required/>
             </div>
             
               <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit" >

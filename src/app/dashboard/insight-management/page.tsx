@@ -10,6 +10,7 @@ import Modal from '@/components/Modal'
 import { deleteInsights, fetchInsights } from '@/services/insights'
 import { InsightProps } from '@/types'
 import EmptyState from '@/components/emptyState'
+import { toast } from 'react-toastify'
 
 
 const InsightManagement = () => {
@@ -57,6 +58,7 @@ const InsightManagement = () => {
         setShowModal(true)
         const result = await deleteInsights(id)
         if (result.success){
+          toast.success("Insight deleted successfully")
           setShowModal(false)
           location.reload()
         }
