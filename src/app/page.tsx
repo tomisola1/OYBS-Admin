@@ -32,8 +32,9 @@ export default function Home() {
       const response = await adminLogin(loginData)
       if(typeof window !== 'undefined'){
         // now access your localStorage
-        localStorage.setItem('token', response.result.access_token)      
+        localStorage.setItem('token', response.result.refresh_token)      
       }
+      console.log(response.result.access_token);
       
       if (response.success === true) {
         setLoading(false)

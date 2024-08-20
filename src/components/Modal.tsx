@@ -26,8 +26,8 @@ const Modal = (props:ModalProps) => {
                             </div>
                         </div>
                         <div className='text-center text-[#222222 px-5'>
-                            <p className={`text-3xl font-semibold mb-2 ${className}`}>{heading}</p>
-                            <span className={`text-base font-normal leading-7 ${className}`}>{sub}</span>
+                            <p className={`text-3xl font-semibold mb-2`}>{heading}</p>
+                            <span className={`text-base font-normal leading-7 mb-4`}>{sub}</span>
                         </div>
                         <div className="flex flex-col mt-6 px-5">
                             {children}   

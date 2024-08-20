@@ -7,9 +7,10 @@ interface FileProps {
     name: string;
     preview: string;
     required?: boolean;
+    error?: string;
 }
 
-const ImageInput = ({ onImageSelect, defaultVal, name, preview, required=false }: FileProps) => {
+const ImageInput = ({ onImageSelect, defaultVal, name, preview, required=false, error }: FileProps) => {
     const [previewImage, setPreviewImage] = useState<any>(defaultVal);
 	const fileRef = useRef<any>(null);
 
@@ -46,6 +47,7 @@ const ImageInput = ({ onImageSelect, defaultVal, name, preview, required=false }
             className='hidden  w-1 h-1'
             required={required}
         />
+        <p className='text-red-600 text-xs font-light pt-4'>{error}</p>
   
     </div>
   )

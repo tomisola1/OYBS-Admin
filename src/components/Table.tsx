@@ -7,6 +7,7 @@ import Modal from './Modal';
 import InputField from './Inputfield';
 import { fetchUsers, suspendUsers } from '@/services/userService';
 import { SkeletonLoader } from './Loaders';
+import Image from 'next/image';
 // import './index.scss'
 interface TableProps {
    head?: React.ReactNode[];
@@ -18,7 +19,7 @@ interface TableProps {
    handlePreviousPage?: () => void
    totalPages?: number
    isLoading?: boolean;
-   currentPageNumber?: number
+   currentPageNumber?: number;
 }
 function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = true, handleNextPage, handlePreviousPage, totalPages, isLoading, currentPageNumber }: TableProps) {
 
@@ -71,13 +72,13 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
             {
                currentPageData &&
                <tbody className=' text-black text-xs font-normal'>
-                  {
+                  {     
                      currentPageData?.map((item: any, idx: number) => (
                         <Fragment key={idx}>
                            {item}
                         </Fragment>
 
-                     ))
+                        ))
                   }
                </tbody>
             }

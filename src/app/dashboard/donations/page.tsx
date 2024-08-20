@@ -2,19 +2,21 @@
 
 import Head from '@/components/Head'
 import Table from '@/components/Table'
-import React, { useEffect, useState } from 'react'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
 import { DonationsProps } from '@/types'
 import EmptyState from '@/components/emptyState'
 import { fetchDonations } from '@/services/dashboard'
 import Image from 'next/image'
 import Pill from '@/components/Pill'
+import { BtnPrimary } from '@/components/Buttons'
+import generatePDF, { Margin } from 'react-to-pdf'
 
 
 const Donations = () => {
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
 
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)  
 
     useEffect(() =>{
         const fetchAllDonations = async() =>{
@@ -46,8 +48,8 @@ const Donations = () => {
 
   return (
     <div>
-        <Head title='Insight Management'/>
-        <div className='w-full mt-10'>
+        <Head title='Donations'/>
+        <div className='w-full mt-4'>
           {
             responseData?.result?.length === 0 ? 
             <EmptyState text='No Donations'/>:

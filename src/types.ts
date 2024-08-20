@@ -47,6 +47,7 @@ export interface PrayerProps {
   updatedAt: string;
 }
 
+
 export interface QuizProps {
   _id?: string;
   title?: string;
@@ -59,7 +60,9 @@ export interface QuizProps {
   canReview?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  author?: AdminProps;
   questions?:[QuestionsProps]
+  status: 'PENDING' | 'COMPLETED' | 'LIVE'
 }
 
 export interface InsightProps {
@@ -95,6 +98,7 @@ export interface DonationsProps {
 }
 
 export interface QuestionsProps {
+  _id?: string;
   quiz?: string;
   question: string;
   answer: string;
@@ -108,6 +112,8 @@ export interface AdminProps {
   lastName: string;
   email: string;
   userType: string;
+  password: string;
+  picture: string;
   createdAt: string;
 }
 

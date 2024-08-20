@@ -107,7 +107,7 @@ const Head = ({title, navigate}:props) => {
         </div>
         {
             showdropdown && 
-            <div className='absolute bg-background rounded-[10px] right-3 top-14 py-5 px-4 text-gray-700 text-sm'>
+            <div className='absolute bg-background rounded-[10px] right-3 top-12 py-5 px-4 text-gray-700 text-sm shadow-md shadow-gray-300'>
                 <p className='flex gap-3 items-center py-2 px-4 hover:bg-gradient-to-r from-[#ffffff] to-[#ffffff1e] rounded-[10px] mb-4 font-medium' onClick={() => setShowModal(true)}>
                     <LockClosedIcon className="h-5 w-5 flex-shrink-0 text-primary" aria-hidden='true'/>
                     <span>Change Password</span></p>

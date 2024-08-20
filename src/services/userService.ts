@@ -1,28 +1,31 @@
+import { instance } from "@/utils/apiFetcher";
 import { params } from "@/utils/utils";
 import axios from "axios";
-const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
-let headerToken: string | null;
-if(typeof window !== 'undefined'){
-  // now access your localStorage
-   headerToken = localStorage.getItem('token');
- 
-}
 
 
-export const fetchUsers = (params:params) => {
-    const request = axios.get(
-      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailOrName ? `&emailOrName=${params.emailOrName}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.streak ? `&streak=${params.streak}`: ""}${params.insightsShared ? `&insightsShared=${params.insightsShared}`: ""}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
-    ).then((response)=>
-     response.data
-    )
-    return request
+export const fetchUsers = ({ pageSize, pageNumber, emailOrName, dateJoined, streak, insightsShared }: params) => {
+  const queryParams = [
+      `pageSize=${pageSize}`,
+      `pageNumber=${pageNumber}`,
+      emailOrName ? `emailOrName=${emailOrName}` : "",
+      dateJoined ? `dateJoined=${dateJoined}` : "",
+      streak ? `&streak=${streak}` : "",
+      insightsShared ? `insightsShared=${insightsShared}` : ""
+  ].filter(Boolean).join('&');
+
+  return instance.get(
+      `/admin/users/all/?${queryParams}`,
+  )
+  .then(response => response.data)
+  .catch(error => {
+      console.error('Error fetching users:', error);
+      throw error;
+  });
 };
 
+
 export const fetchUsersWithHighStreaks = (params:params) => {
-    const request = axios.get(
-      baseUrl + `/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.streak ? `&streak=${params.streak}`: ""}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/users/all/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.streak ? `&streak=${params.streak}`: ""}`
     ).then((response)=>
      response.data
     )
@@ -30,9 +33,7 @@ export const fetchUsersWithHighStreaks = (params:params) => {
 };
 
 export const fetchSingleUser = (userId:string | null) => {
-    const request = axios.get(
-      baseUrl + `/admin/users/${userId}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/users/${userId}`,
     ).then((response)=>
      response.data
     )
@@ -40,9 +41,7 @@ export const fetchSingleUser = (userId:string | null) => {
 };
 
 export const getAdminUser = () => {
-  const request = axios.get(
-    baseUrl + `/admin/me`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/me`
   ).then((response)=>
    response.data
   )
@@ -50,9 +49,7 @@ export const getAdminUser = () => {
 };
 
 export const fetchAdminUsers = (params:params) => {
-  const request = axios.get(
-    baseUrl + `/admin/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailAddress ? `&emailAddress=${params.emailAddress}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.role ? `&role=${params.role}`: ""}`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}${params.emailAddress ? `&emailAddress=${params.emailAddress}`: ""}${params.dateJoined ? `&dateJoined=${params.dateJoined}`: ""}${params.role ? `&role=${params.role}`: ""}`
   ).then((response)=>
    response.data
   )
@@ -60,10 +57,8 @@ export const fetchAdminUsers = (params:params) => {
 };
 
 export const suspendUsers = (data:any) => {
-  const request = axios.post(
-    baseUrl + `/admin/users/suspend`,
+  const request = instance.post(`/admin/users/suspend`,
     data,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
   ).then((response)=>
    response.data
   )
@@ -71,10 +66,8 @@ export const suspendUsers = (data:any) => {
 };
 
 export const unsuspendUsers = (data:any) => {
-  const request = axios.post(
-    baseUrl + `/admin/users/unsuspend`,
+  const request = instance.post(`/admin/users/unsuspend`,
     data,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
   ).then((response)=>
    response.data
   )
@@ -82,10 +75,9 @@ export const unsuspendUsers = (data:any) => {
 };
 
 export const createUser = (data:any) => {
-  const request = axios.post(
-    baseUrl + `/admin`,
+  const request = instance.post(`/admin`,
     data,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+    {headers: {'Content-Type': 'multipart/form-data'}}
   ).then((response)=>
    response.data
   )
@@ -93,10 +85,9 @@ export const createUser = (data:any) => {
 };
 
 export const editUser = (data:any, id:String| undefined) => {
-  const request = axios.patch(
-    baseUrl + `/admin/${id}`,
+  const request = instance.patch(`/admin/${id}`,
     data,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+    {headers: {'Content-Type': 'multipart/form-data'}}
   ).then((response)=>
    response.data
   )
@@ -104,9 +95,7 @@ export const editUser = (data:any, id:String| undefined) => {
 };
 
 export const deleteUser = (id:String |  undefined) => {
-  const request = axios.delete(
-    baseUrl + `/admin/${id}`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.delete(`/admin/${id}`,
   ).then((response)=>
    response.data
   )

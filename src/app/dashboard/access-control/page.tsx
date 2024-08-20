@@ -15,6 +15,7 @@ import { Roles } from '@/utils/utils'
 import { AdminProps } from '@/types'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
 import { toast } from 'react-toastify'
+import UserImageInput from '@/components/UserImageInput'
 
 const AccessControl = () => {
     const router = useRouter()
@@ -23,11 +24,16 @@ const AccessControl = () => {
     const [pageNumber, setPageNumber] = useState(1)
     const [user, setUser] = useState<AdminProps>()
     const [loading, setLoading] = useState(false)
+    const [previewImage, setPreviewImage] = useState<any>();
+    const [error, setError] = useState("")
+    const [image, setImage] = useState<File | null>();
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
-        userType: ""
+        userType: "",
+        picture: {},
+        password: "",
     })
 
 
@@ -75,19 +81,37 @@ const AccessControl = () => {
     
  }
 
+ const handleImageSelect = (e: any) => {
+    const file = e.target.files?.[0]; // Get the first selected file
+    if (file) {
+      setImage(file);
+      console.log('Selected file:', file);
+    }
+    if (file?.size > 4194304){
+        setError("Image size must be less than 4MB")
+    }else{
+        setError("")
+    }
+    const reader = new FileReader();
+		reader.onload = function (event) {
+			setPreviewImage(event?.target?.result);
+		};
+		reader.readAsDataURL(file);
+   };
+
     const handleSubmit = async(e:any) => {
         e.preventDefault();
         setLoading(true);
         try {
-            const result = await createUser(formData)
+            const result = await createUser({...formData, picture: image})
             if(result.success) {
                 setLoading(false);
                 setShowModal({form:false, delete:false, edit:false})
                 location.reload();
             }
-        } catch (error) {
+        } catch (error:any) {
             setLoading(false)
-            toast.error("Something went wrong")
+            toast.error(error.response.data.result)
             console.log(error);
             
         }
@@ -142,12 +166,14 @@ const AccessControl = () => {
         heading="Add User"
         sub="An email will be sent to the added user with their
         credentials"
+        className='!h-4/5'
       >
         <form className='mb-12'> 
+            <UserImageInput name='picture' onImageSelect={handleImageSelect} preview={previewImage} error={error} required/>
             <InputField placeholder='First Name' name='firstName' change={handleChange}/>
             <InputField placeholder='Last Name' name='lastName' change={handleChange}/>
             <InputField placeholder='Email' name='email' change={handleChange }/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm' name='userType' value={formData.userType}
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm mb-4' name='userType' value={formData.userType}
             onChange={handleChange}>
             <option>Select Role</option>
                 {Roles.map((option, index) => {
@@ -158,6 +184,7 @@ const AccessControl = () => {
                     );
                 })}
             </select>
+            <InputField placeholder='Password' name='password' type='password' change={handleChange } />
           <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>
           {loading ? <Loader/>: "Add user"}
           </BtnPrimary>
@@ -222,11 +249,16 @@ const UpdateUser = (props: Props) => {
     const router = useRouter()
     const { show, hide, data, id} = props;
     const [loading, setLoading] = useState(false)
+    const [previewImage, setPreviewImage] = useState<any>();
+    const [image, setImage] = useState<File | null>();
+    const [error, setError] = useState("")
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
-        userType: ""
+        userType: "",
+        picture:{},
+        password: "",
     })
 
     const handleChange = (e:any) => {
@@ -234,16 +266,39 @@ const UpdateUser = (props: Props) => {
         setFormData((prevState)=> ({...prevState, [name]: value}))
     }
 
+    const handleImageSelect = (event: any) => {
+		const file = event.target.files?.[0]; 
+        
+		if (!file) {
+			return;
+		}
+        if (file) {
+            setImage(file);
+        }
+        if (file?.size > 4194304){
+            setError("Image size must be less than 4MB")
+        }else{
+            setError("")
+        }
+		const reader = new FileReader();
+		reader.onload = function (event) {
+			setPreviewImage(event?.target?.result);
+		};
+		reader.readAsDataURL(file);
+	};
+
      const handleSubmit = async(e:any) => {
         e.preventDefault();
         setLoading(true)
         try {
-            const {firstName, lastName, email, userType}=formData
+            const {firstName, lastName, email, userType, password}=formData
             const payload = {
                 firstName: firstName ? firstName : data?.firstName,
                 lastName: lastName ? lastName : data?.lastName,
                 email: email ? email : data?.email,
-                userType: userType ? userType : data?.userType
+                userType: userType ? userType : data?.userType,
+                password: password ? password : data?.password,
+                picture: image ? image : data?.picture
             }
             const response = await editUser(payload, id)
 
@@ -264,12 +319,14 @@ const UpdateUser = (props: Props) => {
         hide={hide}
         heading="Edit User"
         sub="This will be updated on the OYBS mobile app"
+        className='!h-4/5'
       >
         <form className='mb-12'> 
+            <UserImageInput name='picture' onImageSelect={handleImageSelect} preview={previewImage} error={error} required/>
             <InputField placeholder='First Name' name='firstName' change={handleChange} defaultValue={data?.firstName}/>
             <InputField placeholder='Last Name' name='lastName' change={handleChange} defaultValue={data?.lastName}/>
             <InputField placeholder='Email' name='email' change={handleChange } defaultValue={data?.email}/>
-            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm' name='userType' value={formData.userType}
+            <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full font-light text-sm mb-4' name='userType' value={formData.userType}
             onChange={handleChange} defaultValue={data?.userType}>
             <option>{data?.userType}</option>
                 {Roles.map((option, index) => {
@@ -280,6 +337,7 @@ const UpdateUser = (props: Props) => {
                     );
                 })}
             </select>
+            <InputField placeholder='Password' name='password' change={handleChange }  />
           <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit" onClick={handleSubmit}>
             {loading ? <Loader/> : "Edit User"}
           </BtnPrimary>

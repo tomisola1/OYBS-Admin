@@ -1,3 +1,4 @@
+import { instance } from "@/utils/apiFetcher";
 import { params } from "@/utils/utils";
 import axios from "axios";
 const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
@@ -10,9 +11,7 @@ if(typeof window !== 'undefined'){
 
 
 export const fetchNotifications = (params:params) => {
-    const request = axios.get(
-      baseUrl + `/admin/push-notifications?limit=${params.pageSize}&page=${params.pageNumber}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/push-notifications?limit=${params.pageSize}&page=${params.pageNumber}`
     ).then((response)=>
      response.data
     )
@@ -20,10 +19,9 @@ export const fetchNotifications = (params:params) => {
 };
 
 export const createNotifications = (data:any) => {
-    const request = axios.post(
+    const request = instance.post(
       baseUrl + `/admin/push-notifications/send`,
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+      data
     ).then((response)=>
      response.data
     )
@@ -31,10 +29,9 @@ export const createNotifications = (data:any) => {
 };
 
 export const resendNotifications = (data:any, id:string|undefined) => {
-    const request = axios.post(
+    const request = instance.post(
       baseUrl + `/admin/push-notifications/resend/${id}`,
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+      data
     ).then((response)=>
      response.data
     )

@@ -115,12 +115,6 @@ const Sidebar = ({close}:{close:()=>void}) => {
 						</Link>
 					</li>
 				</ul>
-				<div className=" transition-colors duration-700 ease-in-out hover:bg-gradient-to-r from-[#ffffff] to-[#ffffff1e] mt-[30px] pt-3.5 pb-4 rounded-xl pl-3.5 ml-8">
-					<button className={"flex gap-3 items-center"} onClick={handleLogout}>
-                        <PowerIcon className="h-5 w-5 flex-shrink-0" aria-hidden='true'/>
-						<span className='text-[#515266] font-medium text-sm'>Logout</span>
-					</button>
-				</div>
 			</div>
     </>
   )

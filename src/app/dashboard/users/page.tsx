@@ -6,6 +6,7 @@ import Table from '@/components/Table'
 import { fetchUsers } from '@/services/userService'
 import { UserProps } from '@/types'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import { log } from 'console'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
@@ -19,19 +20,57 @@ const Users = () => {
     const [streak, setStreak] = useState('')
     const [insightsShared, setInsightsShared] = useState('')
 
-    useEffect(() =>{
-        const fetchAllUsers = async() =>{
-            setLoading(true)
-            try {
-                const response = await fetchUsers({pageNumber: pageNumber, pageSize: 8, emailOrName: searchText, dateJoined: dateJoined, streak: streak, insightsShared: insightsShared})
-                setResponseData(response.result)
-                setLoading(false)
-            } catch (error) {
-                console.log(error);    
-            }
-        }
-        fetchAllUsers()
-    },[searchText, pageNumber, dateJoined, streak, insightsShared])
+// ===================================
+// I prefect my functions this way 
+// =============================================
+    // const fetchAllUsers = async () => {
+    //     setLoading(true);
+    //     try {
+    //       const response = await fetchUsers({
+    //         pageNumber,
+    //         pageSize: 8,
+    //         emailOrName: searchText,
+    //         dateJoined,
+    //         streak,
+    //         insightsShared,
+    //       });
+    //       setResponseData(response.result);
+    //       setLoading(false);
+    //       console.log(response.result);
+    //     } catch (error) {
+    //       console.log(error);
+    //       setLoading(false);
+    //     }
+    //   };
+    
+    //   useEffect(() => {
+    //     fetchAllUsers();
+    //   }, [searchText, pageNumber, dateJoined, streak, insightsShared]);
+    
+
+    useEffect(() => {
+        const fetchAllUsers = async () => {
+          setLoading(true);
+          try {
+            const response = await fetchUsers({
+              pageNumber,
+              pageSize: 8,
+              emailOrName: searchText,
+              dateJoined,
+              streak,
+              insightsShared,
+            });
+            setResponseData(response.result);
+            setLoading(false);
+            console.log(response.result);
+          } catch (error) {
+            console.log(error);
+            setLoading(false);
+          }
+        };
+    
+        fetchAllUsers();
+      }, [searchText, pageNumber, dateJoined, streak, insightsShared]);
     
     
    // Handle previous page
@@ -50,20 +89,24 @@ const Users = () => {
     setSearchText(e.target.value)
     setPageNumber(1)
   }
-
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
     const [type, order] = value.split('-');
 
     if (type === 'dateJoined') {
       setDateJoined(order);
+      setStreak('');
+      setInsightsShared('');
     } else if (type === 'streak') {
       setStreak(order);
+      setDateJoined('');
+      setInsightsShared('');
     } else if (type === 'insightsShared') {
       setInsightsShared(order);
+      setDateJoined('');
+      setStreak('');
     }
-    setPageNumber(1); // Reset to first page when filter changes
-  };
+  }
 
   const filters = [
     { name: 'Date joined(asc)', value: 'dateJoined-ASC' },
@@ -73,6 +116,12 @@ const Users = () => {
     { name: 'Streak(asc)', value: 'streak-ASC' },
     { name: 'Streak(desc)', value: 'streak-DESC' },
   ];
+
+  const refreshPage = () => {
+    console.log("hi");
+    location.reload()
+    
+  }
 
 
   return (

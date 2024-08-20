@@ -32,6 +32,7 @@ const Prayer = () => {
     const [loading, setLoading] = useState(false)
     const [prayer, setPrayer] = useState<PrayerProps>()
     const [previewImage, setPreviewImage] = useState<any>();
+    const [error, setError] = useState("")
     const [formData, setFormData] = useState({
         text:'',
         meetingLink:'',
@@ -78,6 +79,11 @@ const Prayer = () => {
     if (file) {
       setImage(file);
       console.log('Selected file:', file);
+    }
+    if (file?.size > 4194304){
+        setError("Image size must be less than 4MB")
+    }else{
+        setError("")
     }
     const reader = new FileReader();
 		reader.onload = function (event) {
@@ -129,6 +135,35 @@ const Prayer = () => {
             toast.error(error.response.data.result[0])     
         }
     }
+
+    const displayTime = (date:any) => {
+        const now = dayjs();
+        const prayerDate = dayjs(date)
+        const differenceInHour = prayerDate.diff(now, 'h');
+        const differenceInDays = prayerDate.diff(now, 'day');
+        const differenceInWeeks = prayerDate.diff(now, 'w');
+        const differenceInMonths = prayerDate.diff(now, 'M');
+        
+        
+        let timeDifference;
+        if((differenceInDays === 0) && (differenceInHour > 0)){
+            timeDifference = "Happening Soon"
+        }else if((differenceInDays < 0) || (differenceInHour < 0)){
+            timeDifference = "Has passed"
+        }else if(differenceInHour === 0){
+            timeDifference = "In Progress"
+        }
+        else if(differenceInDays < 8) {
+        timeDifference = `In ${differenceInDays} day(s)`;
+        } else if(differenceInWeeks < 4){
+             timeDifference = `In ${differenceInWeeks} week(s)`
+        }
+        else  {
+            timeDifference = `In ${differenceInMonths} month(s)`
+        }
+        return timeDifference;
+
+    }
    
   return (
     <div>
@@ -151,7 +186,9 @@ const Prayer = () => {
                             {prayer.text} 
                             </td>
                             <td className='p-4 font-light'>{prayer.meetingLink}</td>
-                            <td className='pl-4'><Pill text={dayjs(prayer.startDate).diff(dayjs(), 'd')}/></td>
+                            <td className='pl-4'>
+                                <Pill text={displayTime(prayer.startDate)}/>
+                            </td>
 
                             <td className='p-4 font-light'>
                                 <p>{new Date(prayer.startDate).toLocaleTimeString('en-US')}</p>
@@ -189,7 +226,7 @@ const Prayer = () => {
             <InputField placeholder="Meeting Link" name='meetingLink' change={handleChange} required/>
             <InputField placeholder="Time of Prayer Session" name='time' type='time' change={handleChange} required/>
             <InputField placeholder="Date of Prayer Session" name='startDate' type='date' change={handleChange} required/>
-            <ImageInput name='picture' onImageSelect={handleImageSelect} preview={previewImage} required/>
+            <ImageInput name='picture' onImageSelect={handleImageSelect} preview={previewImage} error={error} required/>
           <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">
             {loading ? <Loader/> : "Add Prayer Session"}
           </BtnPrimary>
@@ -253,6 +290,7 @@ const UpdatePrayer = (props: Props) => {
     const router = useRouter()
     const { show, hide, data} = props;
     const [image, setImage] = useState<File | null>();
+    const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const [previewImage, setPreviewImage] = useState<any>();
     const [formData, setFormData] = useState({
@@ -278,7 +316,13 @@ const UpdatePrayer = (props: Props) => {
         if (file) {
             setImage(file);
         }
-
+       
+        if (file?.size > 4194304){
+            setError("Image size must be less than 4MB")
+        }else{
+            setError("")
+        }
+        
 		const reader = new FileReader();
 		reader.onload = function (event) {
 			setPreviewImage(event?.target?.result);
@@ -339,7 +383,7 @@ const UpdatePrayer = (props: Props) => {
             <InputField placeholder="Meeting Link" name='meetingLink' defaultValue={data?.meetingLink} value={formData.meetingLink} change={handleChange}/>
             <InputField placeholder="Time of Prayer Session" name='time' type='time' value={formData.time} change={handleChange}/>
             <InputField placeholder="Date of Prayer Session" name='startDate' value={formData.startDate} type='date' change={handleChange}/>
-            <ImageInput name='picture' onImageSelect={handleImageSelect} defaultVal={data?.picture} preview={previewImage} />
+            <ImageInput name='picture' onImageSelect={handleImageSelect} defaultVal={data?.picture} preview={previewImage} error={error} />
           <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">{loading ? <Loader/> : "Edit Prayer Session"}</BtnPrimary>
          </form>
       </Modal>

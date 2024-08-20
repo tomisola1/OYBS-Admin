@@ -5,20 +5,22 @@ import Table from '@/components/Table'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import { Btn, BtnPrimary } from '@/components/Buttons'
-import Modal from '@/components/Modal'
+import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { createQuizzes, fetchQuizzes, updateQuiz } from '@/services/quizService'
+import { EndQuiz, QuizLive, createQuizzes, deleteQuiz, fetchQuizzes, updateQuiz } from '@/services/quizService'
 import { QuizProps } from '@/types'
 import { toDate } from 'date-fns'
 import { Loader } from '@/components/Loaders'
 import { toast } from 'react-toastify'
+import Image from 'next/image'
 
 const Quiz = () => {
     const router = useRouter()
-    const [showModal, setShowModal] = useState(false)
+    const [showModal, setShowModal] = useState({create:false, delete:false})
     const [responseData, setResponseData] = useState<any>()
     const [pageNumber, setPageNumber] = useState(1)
-    const [quiz, setQuiz] = useState<QuizProps>()
+    const [quiz, setQuiz] = useState<string | undefined>('')
+    const [showActions, setShowActions] = useState<number | null>(null)
     const [quizType, setQuizType] = useState(false)
     const [loading, setLoading] = useState(false)
     const [quizData, setQuizData] = useState({
@@ -27,7 +29,8 @@ const Quiz = () => {
         startDate: '',
         startTime: '',
         endDate: '',
-        endTime: ''
+        endTime: '',
+        duration: 0
     })
 
 
@@ -85,7 +88,7 @@ const Quiz = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const { title, description, startDate, startTime, endDate, endTime } = quizData;
+            const { title, description, startDate, startTime, endDate, endTime, duration } = quizData;
 
            const combinedStartDate = combineDate(startDate, startTime);
            const combinedEndDate = combineDate(endDate, endTime);
@@ -93,15 +96,16 @@ const Quiz = () => {
               title, description, 
               startDateTime: combinedStartDate, 
               endDateTime: combinedEndDate,
-              monthlyQuiz: quizType
+              monthlyQuiz: quizType,
+              duration: duration
             }
             
             const response = await createQuizzes(payload)
 
             if(response.success) {
                 setLoading(false)
-                setShowModal(false);
-                location.reload();
+                setShowModal({create:false, delete:false});
+                location.reload()
             }
         } catch (error:any) {
             setLoading(false)
@@ -110,35 +114,99 @@ const Quiz = () => {
         }
     }
 
+    const handleGoLive = async(id:string|undefined) => {
+        try {
+            const response = await QuizLive(id) 
+            if(response.success) {
+                setLoading(false)
+                toast.success("Quiz is successfully Live.") 
+                location.reload() 
+            }
+        } catch (error:any) {
+            setLoading(false)
+            console.log(error);
+            toast.error(error.response.data.result)  
+        }
+    }
+
+    const endQuiz = async(id:string|undefined) => {
+        try {
+            const response = await EndQuiz(id) 
+            if(response.success) {
+                setLoading(false)
+                toast.success("Ended quiz successfully.")  
+                location.reload()
+            }
+        } catch (error:any) {
+            setLoading(false)
+            console.log(error);
+            toast.error(error.response.data.result)  
+        }
+    }
+
+    const handleActions = (id: number) => {
+        setShowActions(id === showActions ? null : id);
+      };
+
+      const setQuizId = (id:string|undefined) => {
+        setShowModal({create:false, delete:true})
+        setQuiz(id);
+      }
+
     const quizTypes = ['Weekly quiz', 'Monthly quiz']
 
   return (
     <div>
         <Head title='Quiz'/>
         <div className='mt-8'>
-            <BtnPrimary onClick={()=>setShowModal(true)}>Create Quiz</BtnPrimary>
+            <BtnPrimary onClick={()=>setShowModal({create:true, delete:false})}>Create Quiz</BtnPrimary>
         </div>
         <div className='w-full'>
             {
                 responseData?.total === 0 ? 
                 <h3 className='text-center text-2xl font-semibold mt-20'>No Quiz Available</h3>:
                 <Table
-                head={['Quiz Title', 'Type', 'Number of Questions', 'Quiz Date', 'Action']}
+                head={['Quiz Title', 'Type', 'Questions', 'Created by', 'Status', 'Quiz Date', 'Action']}
                 body={responseData?.quizzes.map((quiz:QuizProps, index: number) =>
                     <>
-                        <tr className='border border-white' key={index}>
-                            <td className='p-4 font-normal tracking-wide'>
+                        <tr className='border border-white relative ' key={index}>
+                            <td className='p-4 pl-5 font-normal tracking-wide'>
                             {quiz.title}
                             </td>
-                            <td className='p-4 font-light'>{quiz.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</td>
-                            <td className='p-4 font-light'>{quiz.questionCount}</td>
-                            <td className='p-4 font-light'>
+                            <td className='p-4 pl-5 font-light'>{quiz.monthlyQuiz ? "Monthly Quiz" : "Weekly Quiz"}</td>
+                            <td className='p-4 pl-5 font-light'>{quiz.questionCount}</td>
+                            <td className='p-4 pl-5 font-light'>
+                                <p>{quiz.author?.firstName} {quiz.author?.lastName}</p>
+                                <p>{quiz.author?.email}</p>
+                            </td>
+                            {
+                                quiz.status === "LIVE"?
+                            <td className='p-4 pl-5 text-primary font-bold capitalize'>
+                                {quiz.status?.toLowerCase()}
+                            </td>: quiz.status === "COMPLETED"?
+                            <td className='p-4 pl-5 text-[#108A00] font-bold capitalize'>
+                                {quiz.status?.toLowerCase()}
+                            </td>:
+                            <td className='p-4 pl-5 text-[#7C7C7C] font-bold capitalize'>
+                            {quiz.status?.toLowerCase()}
+                        </td>
+                            }
+                            <td className='p-4 pl-5 font-light'>
                                 <p>{new Date(quiz.startDateTime).toLocaleString('en-GB')}</p>
                                 <p>{new Date(quiz.endDateTime).toLocaleString('en-GB')}</p>
+                            </td>                   
+                            <td className='p-4 pl-5'>
+                                <Image src={"/assets/menu-dots.svg"} alt={"menu"} width={30} height={30} onClick={()=>handleActions(index)}/>
                             </td>
-                            <td className='pl-4 font-light flex gap-2 items-center h-14'>
-                                <BtnPrimary className={"!h-10 font-medium text-sm"} onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>Open</BtnPrimary>
-                            </td>
+                            {
+                            showActions === index && (
+                            <td className='flex flex-col absolute z-10 bg-white rounded-[10px] right-3 top-14 py-5 px-2 text-xs w-36 shadow-md'>
+                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleGoLive(quiz._id)}>Go Live</span>
+                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>View Info</span>
+                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>endQuiz(quiz._id)}>End Quiz</span>
+                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer text-red-600' onClick={() => setQuizId(quiz._id) }>Delete Quiz</span>
+                            </td>)
+                            }
                         </tr>
                     </>
                     )}
@@ -151,10 +219,11 @@ const Quiz = () => {
                 currentPageNumber={pageNumber}
                 />
             }
+            
         </div>       
         <Modal
-        show={showModal}
-        hide={() => setShowModal(false)}
+        show={showModal.create}
+        hide={() => setShowModal({create:false, delete:false})}
         heading="Create Quiz"
         sub="This will be updated on the OYBS mobile app"
         className='h-4/5'
@@ -184,15 +253,56 @@ const Quiz = () => {
             <InputField type='time' name='endTime' change={handleChange}/>
 
             </div>
+            <InputField type='number' placeholder='Quiz Duration' name='duration' change={handleChange}/>
           <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">
             {loading ? <Loader/> : "Create Quiz"}
           </BtnPrimary>
          </form>
       </Modal>  
-            
+      <DeleteQuiz
+         show={showModal.delete}
+         hide={() => setShowModal({create:false, delete:false})}
+         id={quiz}
+      />     
     </div>
   )
 }
 
 export default Quiz
 
+interface Props extends ModalProps {
+    id: string | undefined;
+    data?: QuizProps;
+  }
+
+const DeleteQuiz = (props: Props) => {
+    const router = useRouter()
+    const { id, show, hide} = props;
+    console.log(id);
+    
+    const handleDelete = async() => {
+        try {
+            const response = await deleteQuiz(id)
+            
+            if(response.success){
+                hide()
+                location.reload()
+            }
+        } catch (error) {
+            console.log(error)        
+        }
+    }
+    return (
+        <Modal
+        show={show}
+        hide={hide}
+        heading="Delete Quiz"
+        sub="Are you sure you want to delete this Quiz?"
+      >
+        <div className='flex justify-center gap-6'>
+            <Btn className="px-10 text-sm" onClick={hide}>No, Cancel</Btn>
+            <Btn className="px-10 text-sm" onClick={handleDelete}>Yes, Confirm</Btn>
+        </div>
+      </Modal>
+    )
+}

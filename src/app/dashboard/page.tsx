@@ -92,8 +92,6 @@ const Dashboard = () => {
          bibleTracking()
     },[])
 
-    console.log(totals);
-
     const totalUsersTakingQuiz = quizTakers?.map((takers:any) =>{
         return takers?.totalUsers
     })
@@ -175,7 +173,7 @@ const Dashboard = () => {
                             <tbody>
                                 {
                                     totals.prayers.length === 0 ?
-                                    <p className='text-center my-4'>No prayers Available</p>:
+                                    <tr className='text-center my-4'><td>No prayers Available</td></tr>:
                                     totals.prayers.map((prayer:PrayerProps, index:number) => (
                                     <tr key={index}>
                                         <td className='text-sm py-5'>{prayer.text}</td>
@@ -210,11 +208,11 @@ const Dashboard = () => {
                                 <span className='text-sm font-medium'>{user.streak}</span>
                             </div>
                         ))}
-                        <BtnPrimary className="w-full">
                             <Link href={"/dashboard/users"}>
+                        <BtnPrimary className="w-full">
                             View All Users
-                            </Link>    
                         </BtnPrimary>
+                            </Link>    
                     </div>
                 </div>
             </div>

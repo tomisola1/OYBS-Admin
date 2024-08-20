@@ -1,18 +1,9 @@
+import { instance } from "@/utils/apiFetcher";
 import { params } from "@/utils/utils";
-import axios from "axios";
-const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
-let headerToken: string | null;
-if(typeof window !== 'undefined'){
-  // now access your localStorage
-   headerToken = localStorage.getItem('token');
- 
-}
 
 
 export const fetchScriptures = (params:params) => {
-    const request = axios.get(
-      baseUrl + `/admin/sotd?limit=${params.pageSize}&page=${params.pageNumber}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/sotd?limit=${params.pageSize}&page=${params.pageNumber}`
     ).then((response)=>
      response.data
     )
@@ -20,9 +11,7 @@ export const fetchScriptures = (params:params) => {
 };
 
 export const fetchOldTestamentBooks = () => {
-    const request = axios.get(
-      baseUrl + `/admin/sotd/get-old-books`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/sotd/get-old-books`
     ).then((response)=>
      response.data
     )
@@ -30,9 +19,7 @@ export const fetchOldTestamentBooks = () => {
 };
 
 export const fetchNewTestamentBooks = () => {
-    const request = axios.get(
-      baseUrl + `/admin/sotd/get-new-books`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/sotd/get-new-books`
     ).then((response)=>
      response.data
     )
@@ -40,9 +27,7 @@ export const fetchNewTestamentBooks = () => {
 };
 
 export const getBookInfo = (id:String|undefined) => {
-  const request = axios.get(
-    baseUrl + `/admin/sotd/get-book-info/${id}`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/sotd/get-book-info/${id}`
   ).then((response)=>
     response.data
   )
@@ -50,10 +35,8 @@ export const getBookInfo = (id:String|undefined) => {
 };
 
 export const createScripture = (data:any) => {
-    const request = axios.post(
-      baseUrl + `/admin/sotd`,
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.post(`/admin/sotd`,
+      data
     ).then((response)=>
      response.data
     )
@@ -61,10 +44,8 @@ export const createScripture = (data:any) => {
 };
 
 export const updateScripture = (data:any, id: String | undefined) => {
-    const request = axios.put(
-      baseUrl + `/admin/sotd`,
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.put(`/admin/sotd`,
+      data
     ).then((response)=>
      response.data
     )

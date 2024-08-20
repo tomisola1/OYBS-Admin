@@ -1,18 +1,9 @@
+import { instance } from "@/utils/apiFetcher";
 import { params } from "@/utils/utils";
-import axios from "axios";
-const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
-let headerToken: string | null;
-if(typeof window !== 'undefined'){
-  // now access your localStorage
-   headerToken = localStorage.getItem('token');
- 
-}
 
 
 export const fetchTotalUsers = () => {
-    const request = axios.get(
-      baseUrl + `/admin/stats/total-users`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get( `/admin/stats/total-users`
     ).then((response)=>
      response.data
     )
@@ -20,9 +11,7 @@ export const fetchTotalUsers = () => {
 };
 
 export const fetchTotalInsights = () => {
-  const request = axios.get(
-    baseUrl + `/admin/stats/total-insights`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/stats/total-insights`
   ).then((response)=>
    response.data
   )
@@ -30,9 +19,7 @@ export const fetchTotalInsights = () => {
 };
 
 export const fetchTotalDonations = () => {
-  const request = axios.get(
-    baseUrl + `/admin/stats/total-donations`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/stats/total-donations`
   ).then((response)=>
    response.data
   )
@@ -40,9 +27,7 @@ export const fetchTotalDonations = () => {
 };
 
 export const fetchDonations = (params:params) => {
-  const request = axios.get(
-    baseUrl + `/admin/stats/get-donations?limit=${params.pageSize}&page=${params.pageNumber}`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/stats/get-donations?limit=${params.pageSize}&page=${params.pageNumber}`
   ).then((response)=>
    response.data
   )
@@ -50,9 +35,7 @@ export const fetchDonations = (params:params) => {
 };
 
 export const fetchUpcomingPrayers = (params:params) => {
-  const request = axios.get(
-    baseUrl + `/admin/stats/upcoming-prayers?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/stats/upcoming-prayers?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`
   ).then((response)=>
    response.data
   )
@@ -60,9 +43,7 @@ export const fetchUpcomingPrayers = (params:params) => {
 };
 
 export const fetchQuizTakers = () => {
-  const request = axios.get(
-    baseUrl + `/admin/stats/monthly-quiz-takers`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/stats/monthly-quiz-takers`
   ).then((response)=>
    response.data
   )
@@ -70,9 +51,7 @@ export const fetchQuizTakers = () => {
 };
 
 export const fetchBibleTracker= () => {
-  const request = axios.get(
-    baseUrl + `/admin/stats/oybs-progress`,
-    {headers: {"Authorization":`Bearer ${headerToken}`}}
+  const request = instance.get(`/admin/stats/oybs-progress`
   ).then((response)=>
    response.data
   )

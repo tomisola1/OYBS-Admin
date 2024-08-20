@@ -8,6 +8,12 @@ const nextConfig = {
             port: '',
             pathname: '/media/**',
           },
+          {
+            protocol: 'https',
+            hostname: 'oybs-bucket-2.s3.amazonaws.com',
+            port: '',
+            pathname: '/media/**',
+          },
         ],
       },
 };

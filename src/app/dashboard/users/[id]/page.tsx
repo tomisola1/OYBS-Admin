@@ -7,12 +7,14 @@ import { Loader } from '@/components/Loaders'
 import Modal from '@/components/Modal'
 import { fetchSingleUser, suspendUsers, unsuspendUsers } from '@/services/userService'
 import { UserDetailProps } from '@/types'
-import React, { useEffect, useState } from 'react'
+import React, { RefObject, useEffect, useRef, useState } from 'react'
+import generatePDF, { Margin } from 'react-to-pdf'
 import { toast } from 'react-toastify'
 
 
 
 const SingleUser = ({ params }: { params: { id: string } }) => {
+    const targetRef: RefObject<HTMLDivElement> = useRef(null);
     const [user, setUser] = useState<UserDetailProps>()
     const [showModal, setShowModal] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -21,6 +23,17 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
        reason:'',
        daysSuspended:0
     })
+
+    const options = {
+        page: {
+            margin: Margin.MEDIUM,
+            format: 'letter',
+         },
+         canvas: {
+            qualityRatio: 1
+         },
+         filename: `User ${params.id}.pdf`
+    }
     
     useEffect(() =>{
         const fetchAllUsers = async() =>{
@@ -80,77 +93,83 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
   return (
     <div>  
         <Head title='User Details' navigate={true}/>
-        <div className='flex gap-5 mt-8 relative'>
-            <div className='bg-background w-2/5 p-6 rounded-xl'>
-                <h3 className='font-semibold text-base mb-5'>Profile Information</h3>
-                <table className='w-full'>
-                 <tbody className='font-normal text-sm'>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Name</td>
-                        <td className='py-3'>{user?.firstName} {user?.lastName}</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Email</td>
-                        <td className='py-3'>{user?.email}</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Birth Date</td>
-                        {user && 
-                        <td className='py-3'>{new Date(user.birthDate).toLocaleDateString() ? new Date(user.birthDate).toLocaleDateString():"None"}</td>
-                        }
-                 
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Phone Number</td>
-                        <td className='py-3'>{user?.phoneNumber ? user?.phoneNumber : "None"}</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Gender</td>
-                        <td className='py-3'>{user?.gender ? user?.gender : "None"}</td>
-                    </tr>
-                 </tbody>
-                </table>
-            </div>
-            <div className='bg-background w-2/5 p-6 rounded-xl'>
-                <h3 className='font-semibold text-base mb-5'>Bible Activity</h3>
-                <table className='w-full'>
-                 <tbody className='font-normal text-sm'>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3 w-40'>Current Streak</td>
-                        <td className='py-3'>{user?.streak}</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Quiz Taken</td>
-                        <td className='py-3'>{user?.quizzesTaken}</td>
-                    </tr>
-                    <tr className='border-b border-b-white'>
-                        <td className='py-3'>Insights Shared</td>
-                        <td className='py-3'>{user?.insightsShared}</td>
-                    </tr>
-                    <tr>
-                        <td className='py-3'>Donations</td>
-                        <td className='py-3'>{user?.donations}</td>
-                    </tr>
-                    {
-                    user?.userSuspension !== null && 
-                    <tr>
-                        <td className='py-3'>Days of Suspension</td>
-                        <td className='py-3'>{user?.userSuspension.daysSuspended}</td>
-                    </tr>
+        <div ref={targetRef}>
+            <div className='flex md:flex-row flex-col gap-5 mt-8 relative'>
+                <div className='bg-background w-2/5 p-6 rounded-xl'>
+                    <h3 className='font-semibold text-base mb-5'>Profile Information</h3>
+                    <table className='w-full'>
+                    <tbody className='font-normal text-sm'>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Name</td>
+                            <td className='py-3'>{user?.firstName} {user?.lastName}</td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Email</td>
+                            <td className='py-3'>{user?.email}</td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Birth Date</td>
+                            {user && 
+                            <td className='py-3'>{new Date(user.birthDate).toLocaleDateString() ? new Date(user.birthDate).toLocaleDateString():"None"}</td>
+                            }
+                    
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Phone Number</td>
+                            <td className='py-3'>{user?.phoneNumber ? user?.phoneNumber : "None"}</td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Gender</td>
+                            <td className='py-3'>{user?.gender ? user?.gender : "None"}</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <div className='bg-background w-2/5 p-6 rounded-xl'>
+                    <h3 className='font-semibold text-base mb-5'>Bible Activity</h3>
+                    <table className='w-full'>
+                    <tbody className='font-normal text-sm'>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3 w-40'>Current Streak</td>
+                            <td className='py-3'>{user?.streak}</td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Quiz Taken</td>
+                            <td className='py-3'>{user?.quizzesTaken}</td>
+                        </tr>
+                        <tr className='border-b border-b-white'>
+                            <td className='py-3'>Insights Shared</td>
+                            <td className='py-3'>{user?.insightsShared}</td>
+                        </tr>
+                        <tr>
+                            <td className='py-3'>Donations</td>
+                            <td className='py-3'>{user?.donations}</td>
+                        </tr>
+                        {
+                        user?.userSuspension !== null && 
+                        <tr>
+                            <td className='py-3'>Days of Suspension</td>
+                            <td className='py-3'>{user?.userSuspension.daysSuspended}</td>
+                        </tr>
 
-                    }
-                 </tbody>
-                </table>
-            </div>
-        </div>
-            {
-                user?.userSuspension !== null && 
-                <div className='bg-background w-3/5 p-6 rounded-xl mt-5'>
-                    <h3 className='font-semibold text-base mb-5'>Reason For Suspension</h3>
-                    {user?.userSuspension.reason}
+                        }
+                    </tbody>
+                    </table>
                 </div>
 
-            }
+                <div className=''>
+                    <BtnPrimary onClick={() => generatePDF(targetRef, options )}>Download User Details</BtnPrimary>
+                </div>
+            </div>
+                {
+                    user?.userSuspension !== null && 
+                    <div className='bg-background w-3/5 p-6 rounded-xl mt-5'>
+                        <h3 className='font-semibold text-base mb-5'>Reason For Suspension</h3>
+                        {user?.userSuspension.reason}
+                    </div>
+
+                }
+        </div>
             {
                user?.userSuspension !== null ?
                <div className='absolute bottom-3 right-3'>

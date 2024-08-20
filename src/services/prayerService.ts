@@ -1,18 +1,9 @@
+import { instance } from "@/utils/apiFetcher";
 import { params } from "@/utils/utils";
-import axios from "axios";
-const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
-let headerToken: string | null;
-if(typeof window !== 'undefined'){
-  // now access your localStorage
-   headerToken = localStorage.getItem('token');
- 
-}
 
 
 export const fetchPrayers = (params:params) => {
-    const request = axios.get(
-      baseUrl + `/admin/prayers?limit=${params.pageSize}&page=${params.pageNumber}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.get(`/admin/prayers?limit=${params.pageSize}&page=${params.pageNumber}`
     ).then((response)=>
      response.data
     )
@@ -20,10 +11,9 @@ export const fetchPrayers = (params:params) => {
 };
 
 export const createPrayer = (data:any) => {
-    const request = axios.post(
-      baseUrl + `/admin/prayers`,
+    const request = instance.post(`/admin/prayers`,
       data,
-      {headers: {"Authorization":`Bearer ${headerToken}`,'Content-Type': 'multipart/form-data'}}
+      {headers: {'Content-Type': 'multipart/form-data'}}
     ).then((response)=>
      response.data
     )
@@ -31,10 +21,9 @@ export const createPrayer = (data:any) => {
 };
 
 export const updatePrayer = (data:any, id:string | undefined) => {
-    const request = axios.patch(
-      baseUrl + `/admin/prayers/${id}`,
+    const request = instance.patch(`/admin/prayers/${id}`,
       data,
-      {headers: {"Authorization":`Bearer ${headerToken}`, 'Content-Type': 'multipart/form-data'}}
+      {headers: {'Content-Type': 'multipart/form-data'}}
     ).then((response)=>
      response.data
     )
@@ -42,9 +31,7 @@ export const updatePrayer = (data:any, id:string | undefined) => {
 };
 
 export const deletePrayer = (id:string | undefined) => {
-    const request = axios.delete(
-      baseUrl + `/admin/prayers/${id}`,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.delete(`/admin/prayers/${id}`
     ).then((response)=>
      response.data
     )

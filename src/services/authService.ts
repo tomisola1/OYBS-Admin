@@ -1,3 +1,4 @@
+import { instance } from "@/utils/apiFetcher";
 import axios from "axios";
 const baseUrl = 'https://oybs-backend.onrender.com/api/v1'
 let headerToken: string | null;
@@ -9,8 +10,7 @@ if(typeof window !== 'undefined'){
 
 
 export const adminLogin = (data:any) => {
-    const request = axios.post(
-      baseUrl + "/auth/admin/signin",
+    const request = instance.post("/auth/admin/signin",
       data
     ).then((response)=>
      response.data
@@ -19,10 +19,8 @@ export const adminLogin = (data:any) => {
 };
 
 export const resetPasssword = (data:any) => {
-    const request = axios.post(
-      baseUrl + "/auth/reset/password",
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.post("/auth/reset/password",
+      data
     ).then((response)=>
      response.data
     )
@@ -30,10 +28,8 @@ export const resetPasssword = (data:any) => {
 };
 
 export const otpRequest = (data:any) => {  
-    const request = axios.post(
-      baseUrl + "/auth/request/reset/password",
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.post("/auth/request/reset/password",
+      data
     ).then((response)=>
      response.data
     )
@@ -41,10 +37,8 @@ export const otpRequest = (data:any) => {
 };
 
 export const resendOtpRequest = (data:any) => {
-    const request = axios.post(
-      baseUrl + "/auth/resend/verify/reset/password",
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.post("/auth/resend/verify/reset/password",
+      data
     ).then((response)=>
      response.data
     )
@@ -52,10 +46,8 @@ export const resendOtpRequest = (data:any) => {
 };
 
 export const otpVerification = (data:any) => {
-    const request = axios.post(
-      baseUrl + "/auth/verify/reset/password",
-      data,
-      {headers: {"Authorization":`Bearer ${headerToken}`}}
+    const request = instance.post("/auth/verify/reset/password",
+      data
     ).then((response)=>
      response.data
     )
