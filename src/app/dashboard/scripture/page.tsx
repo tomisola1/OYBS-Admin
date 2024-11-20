@@ -12,9 +12,12 @@ import { BookInfoProps, BooksProps, ScheduleProps, ScriptureProps } from '@/type
 import { getDayOfYear } from 'date-fns'
 import EditScripture from './EditScripture'
 import { Loader } from '@/components/Loaders'
+import dayjs from 'dayjs'
+import dayOfYear from 'dayjs/plugin/dayOfYear'
 import { toast } from 'react-toastify'
 
 const Scripture = () => {
+    dayjs.extend(dayOfYear)
     const [showModal, setShowModal] = useState({create: false, edit: false})
     const [pageNumber, setPageNumber] = useState(1)
     const [loading, setLoading] = useState(false)
@@ -204,6 +207,15 @@ const Scripture = () => {
         setScripture(data)
     }
 
+    const getDateFromDayOfYear = (data: string) => {
+        // Create a date object for the current year and set the day of the year
+        const day = Number(data)
+        const date = dayjs().startOf('year').dayOfYear(day);
+        return date.format('MMMM D, YYYY');
+      };
+      console.log(dayjs());
+      
+
   return (
     <div>
         <Head title='Scripture of the Day'/>
@@ -212,17 +224,17 @@ const Scripture = () => {
         </div>
         <div className='w-full'>
             <Table
-            head={['Old Testatment', 'New Testament', 'Date', 'Action']}
+            head={[ 'Date', 'Old Testatment', 'New Testament', 'Action']}
             body={responseData?.schedules.map((schedule:ScriptureProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
+                        <td className='p-4 font-light uppercase'>
+                            <p>{getDateFromDayOfYear(schedule.day)}</p>
+                        </td>
                         <td className='p-4 font-normal tracking-wide uppercase'>
                         {schedule?.oldTestament?.title}
                         </td>
                         <td className='p-4 font-light uppercase'>{schedule?.newTestament.title}</td>
-                        <td className='p-4 font-light'>
-                            <p>{new Date(schedule?.createdAt).toLocaleDateString()}</p>
-                        </td>
                         <td className='pl-4 font-light flex gap-2 items-center h-14'>
                             <div onClick={()=>setScriptureAndModal(schedule)}>
                                 <EditIcon />

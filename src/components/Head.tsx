@@ -34,7 +34,7 @@ const Head = ({title, navigate}:props) => {
             try {
                 const response = await getAdminUser()
                 
-                setAdmin(response.result)
+                setAdmin(response?.result)
             } catch (error) {
                 console.log(error);
                 

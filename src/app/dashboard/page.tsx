@@ -51,11 +51,11 @@ const Dashboard = () => {
                 const prayers = await fetchUpcomingPrayers({pageNumber: 1, pageSize:3})
                 if(users && insights && prayers && userStreaks) {
                     setTotals({
-                        users: users.result?.totalUsers ?? 0,
-                        insights: insights.result?.totalInsights ?? 0,
-                        activeUsers: users.result?.totalActiveUsers ?? 0,
-                        prayers: prayers.result?.prayers ?? [],
-                        userStreak: userStreaks.result?.users ?? []
+                        users: users?.result?.totalUsers ?? 0,
+                        insights: insights?.result?.totalInsights ?? 0,
+                        activeUsers: users?.result?.totalActiveUsers ?? 0,
+                        prayers: prayers?.result?.prayers ?? [],
+                        userStreak: userStreaks?.result?.users ?? []
                     })
                 }else {
                     console.log('One or more responses are null');
@@ -65,7 +65,7 @@ const Dashboard = () => {
                 
             } catch (error:any) {
                 console.log(error);
-                toast.error(error.response.data.result)
+                toast.error(error.response?.data?.result)
             }
         }
         fetchTotals()

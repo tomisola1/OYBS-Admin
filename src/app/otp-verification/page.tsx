@@ -25,7 +25,9 @@ export default function OtpVerification() {
 if(typeof window !== 'undefined'){
   // now access your localStorage
   const mail = localStorage.getItem('email');
- setEmail(mail)
+  if(mail){
+    setEmail(mail)
+  }
 }
 
   function handleChange(value:string, index:number) {
@@ -148,7 +150,7 @@ if(typeof window !== 'undefined'){
                   seconds > 0 || minutes > 0 ? (
                     <p className="text-[#75788D] text-xs mt-4 text-center">Didn’t received the code? <b className="text-primary">{seconds} Secs</b> </p>
                   ): (
-                    <p className="text-[#75788D] text-xs mt-4 text-center cursor-pointer">Didn’t received the code? <b className="text-primary"onClick={resendOTP} >Resend Code</b> </p>
+                    <p className="text-[#75788D] text-xs mt-4 text-center cursor-pointer">Didn’t received the code? <b className="text-primary"onClick={()=>resendOTP} >Resend Code</b> </p>
 
                   )
                 }

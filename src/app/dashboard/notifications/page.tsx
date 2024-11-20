@@ -30,7 +30,7 @@ const Notifications = () => {
             setLoading(true)
             try {
                 const response = await fetchNotifications({pageNumber: pageNumber, pageSize: 8})
-                setResponseData(response.result)
+                setResponseData(response?.result)
                 setLoading(false)
             } catch (error) {
                 console.log(error);    
@@ -72,7 +72,7 @@ const Notifications = () => {
                 setLoading(false)
                 toast.success(result)
                 setShowModal({create: false, resend: false})
-                location.reload()
+                location.reload() 
             }
         } catch (error) {
             setLoading(false)
@@ -152,6 +152,7 @@ interface Props extends ModalProps {
   }
 
 const ResendNotification = (props: Props) => {
+    const router = useRouter()
     const [showModal, setShowModal] = useState(false)
     const { show, hide, data} = props;
     const [loading, setLoading] = useState(false)
@@ -176,9 +177,10 @@ const ResendNotification = (props: Props) => {
                 const result = await resendNotifications(payload, data?._id)
                 if (result.success){
                     setLoading(false)
-                    toast.success(result)
-                    setShowModal(false)
-                    location.reload()
+                    toast.success(result.result)
+                    hide()
+                    router.refresh()
+                    // location.reload()
                 }
             } catch (error) {
                 setLoading(false)
