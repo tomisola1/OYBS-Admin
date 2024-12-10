@@ -32,6 +32,7 @@ const Scripture = () => {
         chapter: 0,
         startVerse: '',
         endVerse: '',
+        // verseCount: 0,
     }])
     const [newSchedules, setNewSchedules] = useState<ScheduleProps[] | any>([{
         bookId: '',
@@ -158,6 +159,19 @@ const Scripture = () => {
         setOldSchedules(updatedSchedules);
         
         extractBookId(oldSchedules)
+        // if (name === 'chapter'){
+            
+        //     const selectedChapter = value;
+        //     console.log(bookInfo);
+        //     const selectedBookInfo = bookInfo?.find(
+        //             (info:any) => info.chapter === Number(selectedChapter)
+        //         );
+        //         console.log(selectedBookInfo);
+        //         updatedSchedules[index].verseCount = selectedBookInfo?.verses ?? 0
+        //         setOldSchedules(updatedSchedules); 
+        //         console.log(oldSchedules);
+                
+        // }
         // setNewID(oldSchedule)
     }
     if(title === 'newTestament'){
@@ -212,8 +226,19 @@ const Scripture = () => {
         const day = Number(data)
         const date = dayjs().startOf('year').dayOfYear(day);
         return date.format('MMMM D, YYYY');
-      };
-      console.log(dayjs());
+    };
+    
+    // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     const query = e.target.value;
+    //     setSearchQuery(query);
+    
+    //     // Filter schedules based on the search query
+    //     const filtered = responseData?.schedules.filter((schedule: ScriptureProps) =>
+    //       dayjs(schedule.day).format('MMMM').includes(query)
+    //     );
+    //     setFilteredSchedules(filtered)
+    //   };
+    
       
 
   return (
@@ -222,19 +247,31 @@ const Scripture = () => {
         <div className='mt-8'>
             <BtnPrimary onClick={()=>setShowModal({create:true, edit:false})}>Add the scripture of the day</BtnPrimary>
         </div>
+        {/* <div className="mt-4">
+            <input
+            type="text"
+            placeholder="Search by month (e.g., November)"
+            value={searchQuery}
+            onChange={handleSearch}
+            className='pr-3.5 pl-10 py-2.5 rounded-lg placeholder:text-gray-500 placeholder:text-sm w-80 focus:outline-none focus:border-orange-200 bg-[#F5F6FC]'
+            />
+        </div> */}
+
         <div className='w-full'>
             <Table
             head={[ 'Date', 'Old Testatment', 'New Testament', 'Action']}
-            body={responseData?.schedules.map((schedule:ScriptureProps, index: number) =>
-                <>
-                    <tr className='border border-white' key={index}>
+            body={responseData?.schedules?.map((schedule:ScriptureProps, index: number) => {
+                const isToday = schedule.day === dayjs().format('MMMM D, YYYY');
+                return (
+                <>   
+                    <tr className={`border border-white ${isToday ? '!text-primary' : ''}`} key={index}>
                         <td className='p-4 font-light uppercase'>
                             <p>{getDateFromDayOfYear(schedule.day)}</p>
                         </td>
-                        <td className='p-4 font-normal tracking-wide uppercase'>
+                        <td className={`p-4 font-normal tracking-wide uppercase ${isToday ? '!text-primary' : ''}`}>
                         {schedule?.oldTestament?.title}
                         </td>
-                        <td className='p-4 font-light uppercase'>{schedule?.newTestament.title}</td>
+                        <td className={`p-4 font-light uppercase ${isToday ? '!text-primary' : ''}`}>{schedule?.newTestament.title}</td>
                         <td className='pl-4 font-light flex gap-2 items-center h-14'>
                             <div onClick={()=>setScriptureAndModal(schedule)}>
                                 <EditIcon />
@@ -242,7 +279,8 @@ const Scripture = () => {
                         </td>
                     </tr>
                 </>
-                )}
+                )
+            })}
             itemsPerPage={8}
             showFilter={false}
             handleNextPage={handleNextPage}
@@ -282,7 +320,7 @@ const Scripture = () => {
                     <div className='flex justify-between gap-2'>  
                         <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')} required>
                         <option>Chapters</option>
-                            {bookInfo && bookInfo?.map((chapter:string, index:number) => {
+                            {bookInfo && bookInfo?.map((chapter:any, index:number) => {
                                 return (
                                     <option key={index} value={chapter}>
                                         {`Chapter ${chapter}`}
@@ -290,6 +328,21 @@ const Scripture = () => {
                                 );
                             })}
                         </select>
+                        {/* <select
+                            className="border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7] placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm"
+                            name="startVerse"
+                            value={schedule.startVerse}
+                            onChange={(e: any) => handleSchedulesChange(e, index, "oldTestament")}
+                            required
+                            >
+                            <option>Start Verse</option>
+                            {Array.from({ length: Number(oldSchedules.verseCount) }, (_, i) => i + 1).map((verse, index) => (
+                                <option key={index} value={verse}>
+                                    <p>{oldSchedules.verseCount}</p>
+                                {`Verse ${verse}` }
+                                </option>
+                            ))}
+                        </select> */}
                         <InputField placeholder='start verse' type='number' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
                         <InputField placeholder='end verse' type='number' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
                     </div>

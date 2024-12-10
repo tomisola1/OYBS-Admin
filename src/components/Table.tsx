@@ -55,7 +55,7 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
  
    return (
       <div className='w-full overflow-auto'>
-
+         {isLoading ? <SkeletonLoader /> :
          <table className='w-full overflow-x-auto mt-8 bg-[#F5F6FC] rounded-xl'>
             {
                head &&
@@ -83,7 +83,7 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
                </tbody>
             }
          </table>
-         {isLoading && <SkeletonLoader />}
+         }
          {/* Pagination */}
          <div className='flex gap-7 justify-end my-8'>
           <div>

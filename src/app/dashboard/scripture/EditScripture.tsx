@@ -5,6 +5,7 @@ import Modal, { ModalProps } from '@/components/Modal';
 import { fetchNewTestamentBooks, fetchOldTestamentBooks, getBookInfo, updateScripture } from '@/services/scriptureService';
 import { BookInfoProps, BooksProps, ScheduleProps, ScriptureProps } from '@/types';
 import { getDayOfYear } from 'date-fns';
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
 
@@ -75,13 +76,13 @@ const EditScripture = (props:Props) => {
                 setLoading(true);
                 if(bookId){
                     const response = await getBookInfo(bookId)
-                    setBookInfo(response.result.verses)
+                    
+                    setBookInfo(response.result.chapters)
                     setLoading(false)
                 }
                
             } catch (error) {
-                console.log(error);
-                
+                console.log(error);    
             }
         }
         fetchBooksInfo()
@@ -131,6 +132,7 @@ const EditScripture = (props:Props) => {
         updatedSchedules[index][name as keyof ScheduleProps] = value;
     
         setNewSchedules(updatedSchedules);
+        extractBookId(newSchedules)
     }
     
   };
@@ -140,6 +142,7 @@ const EditScripture = (props:Props) => {
         try{
             setLoading(true)
             const dayOfYear = getDayOfYear(new Date(formData.day))
+          console.log(oldSchedules);
           
             const payload = {
                 day: dayOfYear ? dayOfYear : data?.day,
@@ -162,10 +165,13 @@ const EditScripture = (props:Props) => {
 
         } catch(error:any){
             console.log(error); 
-            toast.error(error.response.data.result)          
-        }
-       
+            toast.error(error.response.data.result)  
+            setLoading(false)        
+        }  
     }
+    console.log(bookInfo);
+    
+
   return (
     <Modal
     show={show}
@@ -174,7 +180,7 @@ const EditScripture = (props:Props) => {
     className='overflow-auto h-3/4'
   >
     <form className='mb-12' onSubmit={handleSubmit}> 
-        <InputField placeholder='Title' name='title' value={formData.oldTestament.title} change={(e: any) => handleChange(e, 'oldTestament')} />
+        <InputField placeholder='Title' name='title' change={(e: any) => handleChange(e, 'oldTestament')} defaultValue={data?.oldTestament.title} />
         {
             oldSchedules.map((schedule:ScheduleProps, index:number)=>(
             <>
@@ -191,10 +197,10 @@ const EditScripture = (props:Props) => {
                 <div className='flex justify-between gap-2'>  
                     <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')} required>
                     <option>Chapters</option>
-                        {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
+                        {bookInfo && bookInfo?.map((info:any, index:number) => {
                             return (
-                                <option key={index} value={info.chapter}>
-                                    {`Chapter ${info.chapter} - ${info.verses} Verses`}
+                                <option key={index} value={info}>
+                                    {`Chapter ${info}`}
                                 </option>
                             );
                         })}
@@ -207,7 +213,7 @@ const EditScripture = (props:Props) => {
             ))
         }
         <p className='text-primary font-semibold text-xs capitalize mb-3 cursor-pointer' onClick={()=>addSchedules("oldTestament")}>Add More books from the Old Testament</p>
-        <InputField placeholder='Title' name='title' value={formData.newTestament.title} change={(e: any) => handleChange(e, 'newTestament')}/>
+        <InputField placeholder='Title' name='title' change={(e: any) => handleChange(e, 'newTestament')} defaultValue={data?.newTestament.title}/>
         {
             newSchedules.map((schedule:ScheduleProps, index:number)=>(
                 <>
@@ -225,13 +231,13 @@ const EditScripture = (props:Props) => {
                    
                         <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'newTestament')} required>
                         <option>Chapters</option>
-                            {bookInfo && bookInfo?.map((info:BookInfoProps, index:number) => {
-                                return (
-                                    <option key={index} value={info.chapter}>
-                                        {`${info.chapter} - ${info.verses} Verser`}
-                                    </option>
-                                );
-                            })}
+                        {bookInfo && bookInfo?.map((info:any, index:number) => {
+                            return (
+                                <option key={index} value={info}>
+                                    {`Chapter ${info}`}
+                                </option>
+                            );
+                        })}
                         </select>
                         <InputField placeholder='Verses' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
                         <InputField placeholder='Verses' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
@@ -241,7 +247,7 @@ const EditScripture = (props:Props) => {
             ))
         }
         <p className='text-primary font-semibold text-xs capitalize mb-3 cursor-pointer' onClick={()=>addSchedules("newTestament")}>Add More books from the New Testament</p>
-        <InputField type='date' name='day' change={(e: any) => handleChange(e)}/>
+        <InputField type='date' name='day' change={(e: any) => handleChange(e)} value={dayjs(`2024-01-01`).dayOfYear(data?+data.day:0).format('YYYY-MM-DD')}/>
       <BtnPrimary className="font-semibold text-base mt-6 tracking-wide w-full" type="submit">{loading ? <Loader/> :"Update SOD"}</BtnPrimary>
      </form>
   </Modal>     
