@@ -39,6 +39,13 @@ export const addQuestion = (data: any) => {
   return request;
 };
 
+export const revealAnswers = (id: string | undefined) => {
+  const request = instance
+   .post(`/admin/quizzes/reveal-answers/${id}`,{},)
+    .then((response) => response.data);
+  return request;
+};
+
 export const updateQuestion = (data: any, id: string | undefined) => {
   const request = instance
     .patch(`/admin/quizzes/questions/${id}`, data)

@@ -12,6 +12,7 @@ import { NotificationProps } from '@/types'
 import EmptyState from '@/components/emptyState'
 import { toast } from 'react-toastify'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
+import { TrashIcon } from '@heroicons/react/24/outline'
 
 const Notifications = () => {
     const router = useRouter()
@@ -20,6 +21,8 @@ const Notifications = () => {
     const [loading, setLoading] = useState(false)
     const [responseData, setResponseData] = useState<any>()
     const [notification, setNotification] = useState<NotificationProps>()
+    const [notifications, setNotifications] = useState<NotificationProps[]>()
+    const [deletedIds, setDeletedIds] = useState(['']);
     const [formData, setFormData] = useState({
         title: '',
         body:''
@@ -31,6 +34,7 @@ const Notifications = () => {
             try {
                 const response = await fetchNotifications({pageNumber: pageNumber, pageSize: 8})
                 setResponseData(response?.result)
+                setNotifications(responseData?.notifications)
                 setLoading(false)
             } catch (error) {
                 console.log(error);    
@@ -58,10 +62,9 @@ const Notifications = () => {
    }
 
    const handleChange = (e:any) => {
-    const {name, value} = e.target
-    setFormData((prevState)=> ({...prevState, [name]: value}))
-    
- }
+        const {name, value} = e.target
+        setFormData((prevState)=> ({...prevState, [name]: value}))
+    }
 
     const handleSubmit = async(e:any) => {
         e.preventDefault()
@@ -79,6 +82,15 @@ const Notifications = () => {
             console.log(error);   
         }
     }
+ 
+    // const handleDelete = (id: string) => {
+    //     console.log('hi', id);
+    //     setDeletedIds((prev) => [...prev, id]);
+        
+    //     // Filter out the notification to delete
+    //     const updatedNotifications = responseData?.notifications?.filter((notification:NotificationProps) => notification._id !== id);
+    //     setNotifications(updatedNotifications);
+    //   };
 
 
   return (
@@ -89,11 +101,11 @@ const Notifications = () => {
         </div>
         <div className='w-full mt-10'>
         {
-            responseData?.result?.length === 0 ? 
+            responseData?.totalNotifications === 0 ? 
             <EmptyState text='No Notifications Created'/>:
             <Table
             head={['Header', 'Body', 'Date Sent', '']}
-            body={responseData?.notifications.map((notification:NotificationProps, index: number) =>
+            body={responseData?.notifications?.map((notification:NotificationProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
                         <td className='p-4 font-normal tracking-wide pl-6'>
@@ -108,9 +120,12 @@ const Notifications = () => {
                             {loading ? <Loader/> : "Resend"}
                            </BtnPrimary>
                         </td>
+                        {/* <td>
+                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>handleDelete(notification._id)} />
+                        </td> */}
                     </tr>
                 </>
-                )}
+            )}
             itemsPerPage={8}
             showFilter={false}
             handleNextPage={handleNextPage}

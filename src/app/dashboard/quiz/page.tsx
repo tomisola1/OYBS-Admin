@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { EndQuiz, QuizLive, createQuizzes, deleteQuiz, fetchQuizzes, updateQuiz } from '@/services/quizService'
+import { EndQuiz, QuizLive, createQuizzes, deleteQuiz, fetchQuizzes, revealAnswers, updateQuiz } from '@/services/quizService'
 import { QuizProps } from '@/types'
 import { toDate } from 'date-fns'
 import { Loader } from '@/components/Loaders'
@@ -48,6 +48,7 @@ const Quiz = () => {
         fetchAllQuizzes()
     },[pageNumber])
     
+    console.log(responseData);
     
    // Handle previous page
    const handlePreviousPage = () => {
@@ -120,6 +121,21 @@ const Quiz = () => {
             if(response.success) {
                 setLoading(false)
                 toast.success("Quiz is successfully Live.") 
+                location.reload() 
+            }
+        } catch (error:any) {
+            setLoading(false)
+            console.log(error);
+            toast.error(error.response.data.result)  
+        }
+    }
+
+    const handleRevealAnswer = async(id:string|undefined) => {
+        try {
+            const response = await revealAnswers(id) 
+            if(response.success) {
+                setLoading(false)
+                toast.success("Users can view answers.") 
                 location.reload() 
             }
         } catch (error:any) {
@@ -204,6 +220,10 @@ const Quiz = () => {
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleGoLive(quiz._id)}>Go Live</span>
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>View Info</span>
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>endQuiz(quiz._id)}>End Quiz</span>
+                                {
+                                    !quiz.canReview &&
+                                    <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleRevealAnswer(quiz._id)}>Reveal Answers</span>
+                                }
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer text-red-600' onClick={() => setQuizId(quiz._id) }>Delete Quiz</span>
                             </td>)
                             }

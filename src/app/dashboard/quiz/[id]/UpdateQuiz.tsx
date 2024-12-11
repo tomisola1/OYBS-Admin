@@ -5,6 +5,7 @@ import Modal, { ModalProps } from "@/components/Modal";
 import { updateQuiz } from "@/services/quizService";
 import { QuizProps } from "@/types";
 import { toDate } from "date-fns";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -97,7 +98,7 @@ const UpdateQuiz = (props:Props) =>{
         className='h-4/5'
       >
         <form className='' onSubmit={handleSubmit}>
-            <InputField name='title' placeholder="Quiz Title" change={handleChange} defaultValue={data?.title} value={quizData.title}/>   
+            <InputField name='title' placeholder="Quiz Title" change={handleChange} defaultValue={data?.title}/>   
             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' onChange={handleSelectChange} >
             <option>{data?.monthlyQuiz?"Monthly Quiz":"Weekly Quiz"}</option>
                 {quizTypes.map((option, index) => {
@@ -111,14 +112,14 @@ const UpdateQuiz = (props:Props) =>{
             <InputField type='textarea' name='description' placeholder='Description' change={handleChange} defaultValue={data?.description}/>
             <div>
             Quiz Starting Date
-            <InputField type='date' name='startDate' change={handleChange}/>
-            <InputField type='time' name='startTime' change={handleChange}/>
+            <InputField type='date' name='startDate' change={handleChange} value={dayjs(data ? data.startDateTime : '').format('YYYY-MM-DD')}/>
+            <InputField type='time' name='startTime' change={handleChange} value={dayjs(data ? data.startDateTime : '').format('HH:mm')}/>
 
             </div>
             <div>
             Quiz Ending Date
-            <InputField type='date' name='endDate' change={handleChange}/>
-            <InputField type='time' name='endTime' change={handleChange}/>
+            <InputField type='date' name='endDate' change={handleChange} value={dayjs(data ? data.endDateTime : '').format('YYYY-MM-DD')}/>
+            <InputField type='time' name='endTime' change={handleChange} value={dayjs(data ? data.endDateTime : '').format('HH:mm')}/>
 
             </div>
           <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">

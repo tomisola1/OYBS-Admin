@@ -169,8 +169,7 @@ const EditScripture = (props:Props) => {
             setLoading(false)        
         }  
     }
-    console.log(bookInfo);
-    
+
 
   return (
     <Modal

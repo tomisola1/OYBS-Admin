@@ -2,12 +2,9 @@
 
 import { Btn, BtnPrimary } from '@/components/Buttons'
 import Head from '@/components/Head'
-import InputField from '@/components/Inputfield'
-import { Loader } from '@/components/Loaders'
 import Modal, { ModalProps } from '@/components/Modal'
 import {  deleteQuiz, getQuizInfo } from '@/services/quizService'
 import { QuestionsProps, QuizProps } from '@/types'
-import { useRouter } from 'next/navigation'
 import React, { RefObject, useEffect, useRef, useState } from 'react'
 import generatePDF, { Margin } from 'react-to-pdf'
 import AddQuestion from './AddQuestions'
@@ -70,7 +67,7 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
                             <ul className='font-normal text-sm w-1/2'>
                                 <li className='border-b border-b-white flex'>
                                     <span className='py-3 w-[40%]'>Quiz Title</span>
-                                    <span className='py-3 text-left w-[60%]'><p className='font-medium'>{quiz?.title}</p></span>
+                                    <span className='py-3 text-left w-[60%]'><p className='font-medium'>{quiz ? quiz?.title : "N/A"}</p></span>
                                 </li>
                                 <li className='border-b border-b-white flex'>
                                     <span className='py-3 w-[40%]'>Type</span>
@@ -78,7 +75,7 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
                                 </li>
                                 <li className='border-b border-b-white flex'>
                                     <span className='py-3 w-[40%]'>No of Questions</span>
-                                    <span className='py-3 w-[60%]'><p className='font-medium'>{quiz?.questionCount}</p></span>
+                                    <span className='py-3 w-[60%]'><p className='font-medium'>{quiz? quiz?.questionCount : "N/A"}</p></span>
                                 </li>
                                 <li className='border-b border-b-white flex'>
                                     <span className='py-3 w-[40%]'>Quiz Date</span>
@@ -106,16 +103,13 @@ const SingleQuiz = ({ params }: { params: { id: string } }) => {
                                 <li className='border-b border-b-white flex'>
                                     <span className='py-3 w-[40%]'>Status</span>
                                     {
-                                            quiz?.status === "LIVE"?
-                                            <span className='py-3 w-[60%]'><p className='font-medium text-primary capitalize'>{quiz?.status?.toLowerCase()}</p></span>
-                                        : quiz?.status === "COMPLETED"?
-                                        <span className='py-3 w-[60%]'><p className='font-medium text-[#108A00] capitalize'>{quiz?.status?.toLowerCase()}</p></span>:
-                                        <span className='py-3 w-[60%]'><p className='font-medium text-[#7C7C7C] capitalize'>{quiz?.status?.toLowerCase()}</p></span>
+                                           !quiz ? <span className='py-3 w-[60%]'>N/A</span>  :
+                                            <span className='py-3 w-[60%]'><p className={`font-medium ${quiz?.status === "COMPLETED" && "!text-[#108A00]" } ${quiz?.status === "LIVE" && "text-primary"}  text-[#7C7C7C] capitalize`}>{quiz?.status?.toLowerCase()}</p></span>
                                     }
                                 </li> 
                                 <li className='border-b border-b-white flex'>
                                     <span className='py-3 w-[40%]'>Created by</span>
-                                    <span className='py-3 w-[60%]'><p className='font-medium'>Olabowale Popoola popoolapoet@gmail.com</p></span>
+                                    <span className='py-3 w-[60%]'><p className='font-medium'>{quiz?.author?.firstName ?? "N/A"}{' '}{quiz?.author?.lastName ?? "N/A"}{' '}{quiz?.author?.email ?? "N/A"}</p></span>
                                 </li> 
                             </ul>
                         </div>
