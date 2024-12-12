@@ -51,6 +51,7 @@ const UpdateQuiz = (props:Props) =>{
         setLoading(true);
         try {
             const { title, description, startDate, startTime, endDate, endTime } = quizData;
+            
             if ((startDate && !startTime) || (!startDate && startTime)) {
                 setLoading(false);
                 toast.error("Please provide a valid date and time.");
@@ -112,14 +113,14 @@ const UpdateQuiz = (props:Props) =>{
             <InputField type='textarea' name='description' placeholder='Description' change={handleChange} defaultValue={data?.description}/>
             <div>
             Quiz Starting Date
-            <InputField type='date' name='startDate' change={handleChange} value={dayjs(data ? data.startDateTime : '').format('YYYY-MM-DD')}/>
-            <InputField type='time' name='startTime' change={handleChange} value={dayjs(data ? data.startDateTime : '').format('HH:mm')}/>
+            <InputField type='date' name='startDate' change={handleChange} defaultValue={dayjs(data ? data.startDateTime : '').format('YYYY-MM-DD')}/>
+            <InputField type='time' name='startTime' change={handleChange} defaultValue={dayjs(data ? data.startDateTime : '').format('HH:mm')}/>
 
             </div>
             <div>
             Quiz Ending Date
-            <InputField type='date' name='endDate' change={handleChange} value={dayjs(data ? data.endDateTime : '').format('YYYY-MM-DD')}/>
-            <InputField type='time' name='endTime' change={handleChange} value={dayjs(data ? data.endDateTime : '').format('HH:mm')}/>
+            <InputField type='date' name='endDate' change={handleChange} defaultValue={dayjs(data ? data.endDateTime : '').format('YYYY-MM-DD')}/>
+            <InputField type='time' name='endTime' change={handleChange} defaultValue={dayjs(data ? data.endDateTime : '').format('HH:mm')}/>
 
             </div>
           <BtnPrimary className="font-semibold text-base my-6 tracking-wide w-full" type="submit">

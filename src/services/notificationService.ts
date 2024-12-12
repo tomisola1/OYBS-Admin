@@ -37,3 +37,12 @@ export const resendNotifications = (data:any, id:string|undefined) => {
     )
     return request
 };
+
+export const deleteNotifications = (id:string|undefined) => {
+    const request = instance.delete(
+      baseUrl + `/admin/push-notifications/${id}`
+    ).then((response)=>
+     response.data
+    )
+    return request
+};

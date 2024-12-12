@@ -317,7 +317,7 @@ const Scripture = () => {
                             );
                         })}
                     </select>
-                    <div className='flex justify-between gap-2'>  
+                    <div className='flex max-sm:flex-col justify-between sm:items-end gap-2'>  
                         <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')} required>
                         <option>Chapters</option>
                             {bookInfo && bookInfo?.map((chapter:any, index:number) => {
@@ -343,8 +343,8 @@ const Scripture = () => {
                                 </option>
                             ))}
                         </select> */}
-                        <InputField placeholder='start verse' type='number' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
-                        <InputField placeholder='end verse' type='number' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
+                        <InputField placeholder='start verse' type='number' name='startVerse' label='(optional)' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
+                        <InputField placeholder='end verse' type='number' name='endVerse' label='(optional)' change={(e:any)=>handleSchedulesChange(e, index, 'oldTestament')}/>
                     </div>
                 </>
                 
@@ -365,7 +365,7 @@ const Scripture = () => {
                                 );
                             })}
                         </select>
-                        <div className='flex gap-3'>
+                        <div className='flex max-sm:flex-col justify-between sm:items-end gap-2'>
                        
                             <select className='border-solid border-[1px] border-[#EFEFEF] rounded-lg p-3.5 text-[#75838db7]  placeholder-opacity-50 focus:outline-none focus:border-orange-200 focus:shadow w-full mb-4 font-light text-sm' key={index} name="chapter" value={schedule.chapter} onChange={(e:any)=>handleSchedulesChange(e, index, 'newTestament')} required>
                             <option>Chapters</option>
@@ -377,8 +377,8 @@ const Scripture = () => {
                                     );
                                 })}
                             </select>
-                            <InputField placeholder='start verse' type='number' name='startVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
-                            <InputField placeholder='end verse' type='number' name='endVerse' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
+                            <InputField placeholder='start verse' type='number' name='startVerse' label='(optional)' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
+                            <InputField placeholder='end verse' type='number' name='endVerse' label='(optional)' change={(e:any)=>handleSchedulesChange(e, index, 'newTestament')}/>
                         </div>
                     </>
 

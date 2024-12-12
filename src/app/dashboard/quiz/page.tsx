@@ -196,16 +196,16 @@ const Quiz = () => {
                                 <p>{quiz.author?.email}</p>
                             </td>
                             {
-                                quiz.status === "LIVE"?
-                            <td className='p-4 pl-5 text-primary font-bold capitalize'>
+                                    quiz.status === "LIVE"?
+                                <td className='p-4 pl-5 text-primary font-bold capitalize'>
+                                    {quiz.status?.toLowerCase()}
+                                </td>: quiz.status === "COMPLETED"?
+                                <td className='p-4 pl-5 text-[#108A00] font-bold capitalize'>
+                                    {quiz.status?.toLowerCase()}
+                                </td>:
+                                <td className='p-4 pl-5 text-[#7C7C7C] font-bold capitalize'>
                                 {quiz.status?.toLowerCase()}
-                            </td>: quiz.status === "COMPLETED"?
-                            <td className='p-4 pl-5 text-[#108A00] font-bold capitalize'>
-                                {quiz.status?.toLowerCase()}
-                            </td>:
-                            <td className='p-4 pl-5 text-[#7C7C7C] font-bold capitalize'>
-                            {quiz.status?.toLowerCase()}
-                        </td>
+                                </td>
                             }
                             <td className='p-4 pl-5 font-light'>
                                 <p>{new Date(quiz.startDateTime).toLocaleString('en-GB')}</p>
@@ -221,7 +221,7 @@ const Quiz = () => {
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>View Info</span>
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>endQuiz(quiz._id)}>End Quiz</span>
                                 {
-                                    !quiz.canReview &&
+                                    (!quiz.canReview && quiz.status === "COMPLETED")&&
                                     <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleRevealAnswer(quiz._id)}>Reveal Answers</span>
                                 }
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer text-red-600' onClick={() => setQuizId(quiz._id) }>Delete Quiz</span>

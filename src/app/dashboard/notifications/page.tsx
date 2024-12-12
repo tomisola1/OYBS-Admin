@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { Btn, BtnPrimary} from '@/components/Buttons'
 import Modal, { ModalProps } from '@/components/Modal'
 import InputField from '@/components/Inputfield'
-import { createNotifications, fetchNotifications, resendNotifications } from '@/services/notificationService'
+import { createNotifications, deleteNotifications, fetchNotifications, resendNotifications } from '@/services/notificationService'
 import { NotificationProps } from '@/types'
 import EmptyState from '@/components/emptyState'
 import { toast } from 'react-toastify'
@@ -83,14 +83,19 @@ const Notifications = () => {
         }
     }
  
-    // const handleDelete = (id: string) => {
-    //     console.log('hi', id);
-    //     setDeletedIds((prev) => [...prev, id]);
-        
-    //     // Filter out the notification to delete
-    //     const updatedNotifications = responseData?.notifications?.filter((notification:NotificationProps) => notification._id !== id);
-    //     setNotifications(updatedNotifications);
-    //   };
+    const handleDelete = async(id: string) => {
+        try {
+            const result = await deleteNotifications(id)
+            if (result.success){
+                setLoading(false)
+                toast.success("Notification deleted successfully")
+                location.reload() 
+            }
+        } catch (error) {
+            setLoading(false)
+            console.log(error);   
+        }
+    };
 
 
   return (
@@ -120,9 +125,9 @@ const Notifications = () => {
                             {loading ? <Loader/> : "Resend"}
                            </BtnPrimary>
                         </td>
-                        {/* <td>
-                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-1" aria-hidden="true" onClick={()=>handleDelete(notification._id)} />
-                        </td> */}
+                        <td>
+                            <TrashIcon className="h-5 w-5 flex-shrink-0 text-gray-400 mr-3" aria-hidden="true" onClick={()=>handleDelete(notification._id)} />
+                        </td>
                     </tr>
                 </>
             )}
@@ -195,7 +200,7 @@ const ResendNotification = (props: Props) => {
                     toast.success(result.result)
                     hide()
                     router.refresh()
-                    // location.reload()
+                    location.reload()
                 }
             } catch (error) {
                 setLoading(false)
