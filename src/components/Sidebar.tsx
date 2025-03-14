@@ -71,7 +71,7 @@ const Sidebar = ({close}:{close:()=>void}) => {
 							href={'/dashboard/scripture'}
 							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/scripture/gi) ? 'active-link' : ''}`}>
 							<ReminderIcon/>
-							<span className='font-medium text-sm'>Scripture of the day</span>
+							<span className='font-medium text-sm'>Scriptures of the Day</span>
 						</Link>
 					</li>
 					<li className="transition-colors duration-700 ease-in-out">

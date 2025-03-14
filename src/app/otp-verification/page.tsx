@@ -22,14 +22,6 @@ export default function OtpVerification() {
   const [email, setEmail] = useState<String | null>('')
   
 
-if(typeof window !== 'undefined'){
-  // now access your localStorage
-  const mail = localStorage.getItem('email');
-  if(mail){
-    setEmail(mail)
-  }
-}
-
   function handleChange(value:string, index:number) {
     let newArr = [...otp];
     newArr[index] = value;
@@ -47,7 +39,7 @@ if(typeof window !== 'undefined'){
 
   function handleBackspaceAndEnter(e:any, index:number) {
     if(e.key === "Backspace" && !e.target?.value && index > 0){
-    //   otpBoxReference.current[index - 1].focus()
+      otpBoxReference.current[index - 1].focus()
     const otpBoxArray = otpBoxReference.current as HTMLInputElement[];
         const prevInput = otpBoxArray[index - 1];
         if (prevInput) {
@@ -55,7 +47,7 @@ if(typeof window !== 'undefined'){
         }
     }
     if(e.key === "Enter" && e.target?.value && index < 4-1){
-    //   otpBoxReference.current[index + 1].focus()
+      otpBoxReference.current[index + 1].focus()
     const otpBoxArray = otpBoxReference.current as HTMLInputElement[];
         const prevInput = otpBoxArray[index + 1];
         if (prevInput) {
@@ -65,6 +57,10 @@ if(typeof window !== 'undefined'){
   }
   
   useEffect(() => {
+    const mail = localStorage.getItem('email');
+      if(mail){
+        setEmail(mail)
+      }
     const interval = setInterval(() => {
       if (seconds > 0) {
         setSeconds(seconds - 1);

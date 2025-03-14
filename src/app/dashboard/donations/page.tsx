@@ -54,7 +54,7 @@ const Donations = () => {
             responseData?.result?.length === 0 ? 
             <EmptyState text='No Donations'/>:
             <Table
-            head={['Picture', 'Name', 'Amonunt', 'Currency', 'Status']}
+            head={['Picture', 'Name', 'Amount', 'Currency','Date', 'Status']}
             body={responseData?.donations.map((donation:DonationsProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
@@ -65,9 +65,10 @@ const Donations = () => {
                           <Image src={"/assets/defaultImage.svg"} alt="user image" width={40} height={40} className='rounded-full' />
                         }
                         </td>
-                        <td className='p-4 font-light w-1/3'>{donation.userId.firstName}{' '}{donation.userId.lastName}</td>
+                        <td className='p-4 font-light '>{donation.userId.firstName}{' '}{donation.userId.lastName}</td>
                         <td className='p-4 font-light'>{donation.amount.toLocaleString('en-US')}</td>
                         <td className='p-4 font-light'>{donation.currency}</td>
+                        <td>{new Date(donation.createdAt).toLocaleDateString()}</td>
                        <td><Pill text={donation.transactionStatus}/></td>
                     </tr>
                 </>

@@ -89,7 +89,7 @@ function Table({ head, body, type = 'normal', itemsPerPage = 8, showFilter = tru
           <div>
             {currentPageNumber}{' '}
             of{' '}
-            {totalPages}
+            {totalPages || 0}
           </div>
          {
              currentPageData?.length <= itemsPerPage &&

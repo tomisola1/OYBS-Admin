@@ -243,7 +243,7 @@ const Scripture = () => {
 
   return (
     <div>
-        <Head title='Scripture of the Day'/>
+        <Head title='Scriptures of the Day'/>
         <div className='mt-8'>
             <BtnPrimary onClick={()=>setShowModal({create:true, edit:false})}>Add the scripture of the day</BtnPrimary>
         </div>
