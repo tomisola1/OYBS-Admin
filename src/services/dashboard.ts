@@ -34,6 +34,14 @@ export const fetchDonations = (params:params) => {
   return request
 };
 
+export const exportDonations = (params:params) => {
+  const request = instance.get(`/admin/export-donation?limit=${params.pageSize}&page=${params.pageNumber}${params.exportData? `&exportData=${params.exportData}`: ""}${params.startDate? `&startDate=${params.startDate}`: ""}${params.endDate? `&endDate=${params.endDate}`: ""}&exportType=csv`
+  ).then((response)=>
+   response.data
+  )
+  return request
+};
+
 export const fetchUpcomingPrayers = (params:params) => {
   const request = instance.get(`/admin/stats/upcoming-prayers?pageSize=${params.pageSize}&pageNumber=${params.pageNumber}`
   ).then((response)=>

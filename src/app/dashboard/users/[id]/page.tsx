@@ -1,6 +1,7 @@
 "use client"
 
 import { Btn, BtnPrimary, BtnSec } from '@/components/Buttons'
+import DownloadModal from '@/components/DownloadModal'
 import Head from '@/components/Head'
 import InputField from '@/components/Inputfield'
 import { Loader } from '@/components/Loaders'
@@ -16,7 +17,7 @@ import { toast } from 'react-toastify'
 const SingleUser = ({ params }: { params: { id: string } }) => {
     const targetRef: RefObject<HTMLDivElement> = useRef(null);
     const [user, setUser] = useState<UserDetailProps>()
-    const [showModal, setShowModal] = useState(false)
+    const [showModal, setShowModal] = useState({suspend:false, download:false})
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
        email:'',
@@ -78,7 +79,7 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
             }
             const response = await suspendUsers({...formData, email: user?.email})
             if(response.success){
-               setShowModal(false)
+               setShowModal({suspend:false, download: false})
                setLoading(false)
                location.reload()
             }
@@ -93,7 +94,8 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
   return (
     <div>  
         <Head title='User Details' navigate={true}/>
-        <div ref={targetRef}>
+        <DownloadModal open={showModal.download} onClose={() => setShowModal({ suspend:false, download:false})} name='User Info' id={params.id}/>
+        <div>
             <div className='flex md:flex-row flex-col gap-5 mt-8 relative'>
                 <div className='bg-background w-2/5 p-6 rounded-xl'>
                     <h3 className='font-semibold text-base mb-5'>Profile Information</h3>
@@ -158,7 +160,7 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
                 </div>
 
                 <div className=''>
-                    <BtnPrimary onClick={() => generatePDF(targetRef, options )}>Download User Details</BtnPrimary>
+                    <BtnPrimary onClick={()=>setShowModal({suspend:false, download: true})}>Download User Details</BtnPrimary>
                 </div>
             </div>
                 {
@@ -176,12 +178,12 @@ const SingleUser = ({ params }: { params: { id: string } }) => {
                  <Btn className='p-0' onClick={handleUnsuspendUser}>{loading?<Loader/> : "Unsuspend User"}</Btn>
               </div>:
                 <div className='absolute bottom-3 right-3'>
-                    <BtnPrimary className='p-0' onClick={()=>setShowModal(true)}>{loading?<Loader/> : "Suspend User"}</BtnPrimary>
+                    <BtnPrimary className='p-0' onClick={()=>setShowModal({suspend:true, download: false})}>{loading?<Loader/> : "Suspend User"}</BtnPrimary>
                 </div>
             }
         <Modal
-        show={showModal}
-        hide={() => setShowModal(false)}
+        show={showModal.suspend}
+        hide={() => setShowModal({suspend: false, download: false})}
         heading="Suspend User"
         sub="The user will no longer have access to OYBS for the 
         duration of the suspension "

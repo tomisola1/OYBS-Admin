@@ -11,6 +11,11 @@ export interface params {
     insightsShared?: string
     dateJoined?: string
     role?: string
+    isHide?: boolean
+    exportData?: boolean
+    startDate?: string
+    endDate?: string
+    exportType?: string
 }
 
 export function transformPhoneNumber(phoneNumber:string) {

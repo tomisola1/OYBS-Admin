@@ -46,3 +46,11 @@ export const deleteNotifications = (id:string|undefined) => {
     )
     return request
 };
+
+export const exportNotifications = (params:params) => {
+  const request = instance.get(`/admin/export-notifications?limit=${params.pageSize}&page=${params.pageNumber}${params.exportData? `&exportData=${params.exportData}`: ""}${params.startDate? `&startDate=${params.startDate}`: ""}${params.endDate? `&endDate=${params.endDate}`: ""}&exportType=csv`
+  ).then((response)=>
+   response.data
+  )
+  return request
+};

@@ -20,7 +20,7 @@ function DashboardLayout({
     return (
     <section>
         <div className="lg:flex h-auto min-h-screen">
-            <div className={`w-[282px] min-h-screen bg-background overflow-auto pb-10 lg:sticky fixed top-0 z-10 left-0 ${isOpen ? "block" : "hidden"}`}>            
+            <div className={`w-[282px] min-h-screen bg-background overflow-auto pb-10 lg:sticky fixed top-0 z-50 left-0 ${isOpen ? "block" : "hidden"} transition-all duration-700 ease-in-out`}>            
                 <Sidebar close={()=>setIsOpen(false)}/>
             </div>
             <div className={`h-screen lg:w-[90%] py-6 px-5 overflow-auto ${isOpen ? "" : "w-screen"}`}>

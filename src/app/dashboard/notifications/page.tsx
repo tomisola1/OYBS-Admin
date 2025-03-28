@@ -13,10 +13,11 @@ import EmptyState from '@/components/emptyState'
 import { toast } from 'react-toastify'
 import { Loader, SkeletonLoader } from '@/components/Loaders'
 import { TrashIcon } from '@heroicons/react/24/outline'
+import DownloadModal from '@/components/DownloadModal'
 
 const Notifications = () => {
     const router = useRouter()
-    const [showModal, setShowModal] = useState({create: false, resend: false})
+    const [showModal, setShowModal] = useState({create: false, resend: false, download: false})
     const [pageNumber, setPageNumber] = useState(1)
     const [loading, setLoading] = useState(false)
     const [responseData, setResponseData] = useState<any>()
@@ -58,7 +59,7 @@ const Notifications = () => {
 
    const setIdandModal = (data:NotificationProps) => {
       setNotification(data)
-       setShowModal({create: false, resend: true})
+       setShowModal({create: false, resend: true, download: false})
    }
 
    const handleChange = (e:any) => {
@@ -74,7 +75,7 @@ const Notifications = () => {
             if (result.success){
                 setLoading(false)
                 toast.success(result)
-                setShowModal({create: false, resend: false})
+                setShowModal({create: false, resend: false, download: false})
                 location.reload() 
             }
         } catch (error) {
@@ -101,8 +102,15 @@ const Notifications = () => {
   return (
     <div>
         <Head title='Notifications'/>
-        <div className='mt-8'>
-            <BtnPrimary onClick={()=>setShowModal({create: true, resend:false})}>Send a push notification</BtnPrimary>
+        <DownloadModal open={showModal.download} onClose={() => setShowModal({create: false, resend:false, download:false})} name='Notifications' />
+        <div className='mt-8 flex justify-between'>
+            <BtnPrimary onClick={()=>setShowModal({create: true, resend:false, download:false})}>Send a push notification</BtnPrimary>
+            <BtnPrimary onClick={() => setShowModal({create: false, resend:false, download:true})} className={'flex gap-1'}>
+                <span>Export{" "}</span>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 13V14.2C19 15.8802 19 16.7202 18.673 17.362C18.3854 17.9265 17.9265 18.3854 17.362 18.673C16.7202 19 15.8802 19 14.2 19H5.8C4.11984 19 3.27976 19 2.63803 18.673C2.07354 18.3854 1.6146 17.9265 1.32698 17.362C1 16.7202 1 15.8802 1 14.2V13M15 8L10 13M10 13L5 8M10 13V1" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </BtnPrimary>
         </div>
         <div className='w-full mt-10'>
         {
@@ -143,12 +151,12 @@ const Notifications = () => {
         </div>
         <ResendNotification 
          show={showModal.resend}
-         hide={() => setShowModal({create: false, resend: false})}
+         hide={() => setShowModal({create: false, resend: false, download: false})}
          data={notification}
       />
         <Modal
         show={showModal.create}
-        hide={() => setShowModal({create: false, resend: false})}
+        hide={() => setShowModal({create: false, resend: false, download: false})}
         heading="Notifications"
         sub="Send out an app push notification"
       >
