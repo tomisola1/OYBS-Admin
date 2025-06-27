@@ -13,6 +13,7 @@ import { toDate } from 'date-fns'
 import { Loader } from '@/components/Loaders'
 import { toast } from 'react-toastify'
 import Image from 'next/image'
+import dayjs from 'dayjs'
 
 const Quiz = () => {
     const router = useRouter()
@@ -208,22 +209,22 @@ const Quiz = () => {
                                 </td>
                             }
                             <td className='p-4 pl-5 font-light'>
-                                <p>{new Date(quiz.startDateTime).toLocaleString('en-GB')}</p>
-                                <p>{new Date(quiz.endDateTime).toLocaleString('en-GB')}</p>
+                                <p>{dayjs(quiz.startDateTime).format('DD/MM/YYYY HH:mm:ss')}</p>
+                                <p>{dayjs(quiz.endDateTime).format('DD/MM/YYYY HH:mm:ss')}</p>
                             </td>                   
                             <td className='p-4 pl-5'>
                                 <Image src={"/assets/menu-dots.svg"} alt={"menu"} width={30} height={30} onClick={()=>handleActions(index)}/>
                             </td>
                             {
                             showActions === index && (
-                            <td className='flex flex-col absolute z-10 bg-white rounded-[10px] right-3 top-14 py-5 px-2 text-xs w-36 shadow-md'>
-                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleGoLive(quiz._id)}>Go Live</span>
+                            <td className='flex flex-col absolute z-10 bg-white rounded-[10px] right-3 top-14 py-5 px-2 text-xs w-36 shadow-md '>
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>router.push(`/dashboard/quiz/${quiz._id}`)}>View Info</span>
-                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>endQuiz(quiz._id)}>End Quiz</span>
+                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleGoLive(quiz._id)}>Go Live</span>
                                 {
-                                    (!quiz.canReview && quiz.status === "COMPLETED")&&
+                                    (dayjs(quiz.endDateTime).format('DD/MM/YYYY HH:mm:ss') < dayjs().format('DD/MM/YYYY HH:mm:ss')) &&
                                     <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>handleRevealAnswer(quiz._id)}>Reveal Answers</span>
                                 }
+                                <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer' onClick={()=>endQuiz(quiz._id)}>End Quiz</span>
                                 <span className='py-2 px-4 hover:bg-[#fe7200] hover:bg-opacity-10 transition-colors duration-700 rounded-[10px] cursor-pointer text-red-600' onClick={() => setQuizId(quiz._id) }>Delete Quiz</span>
                             </td>)
                             }

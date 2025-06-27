@@ -1,24 +1,29 @@
 "use client"
 
 import Head from '@/components/Head'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import TabMenu from '@/components/Tab'
 import VisibleInsights from './visibleInsights'
 import HiddenInsights from './hiddenInsights'
-
+import ReportedInsights from './reportedInsights'
 
 const InsightManagement = () => {
    const tabs = [
     {
-      id: 'reported_insights',
-      label: 'Reported Insights',
+      id: 'all_insights',
+      label: 'All Insights',
       component : <VisibleInsights />
    },
    {
       id: 'hidden_insights',
       label: 'Hidden Insights',
       component : <HiddenInsights />
-   }
+   },
+   {
+      id: 'reported_insights',
+      label: 'Reported Insights',
+      component : <ReportedInsights />
+   },
    ]
 
   return (

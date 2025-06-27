@@ -90,6 +90,14 @@ const Sidebar = ({close}:{close:()=>void}) => {
 							<span className='font-medium text-sm'>Insight Management</span>
 						</Link>
 					</li>
+					{/* <li className="transition-colors duration-700 ease-in-out">
+						<Link
+							href={'/dashboard/certifications'}
+							className={`flex gap-3 items-center text-[#515266] pl-3.5 pt-3.5 pb-4 ${pathname.match(/certifications/gi) ? 'active-link' : ''}`}>
+							<ChartIcon />
+							<span className='font-medium text-sm'>Certifications</span>
+						</Link>
+					</li> */}
 					<li className="transition-colors duration-700 ease-in-out">
 						<Link
 							href={'/dashboard/donations'}

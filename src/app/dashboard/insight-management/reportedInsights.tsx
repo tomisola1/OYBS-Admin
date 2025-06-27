@@ -7,12 +7,12 @@ import React, { useEffect, useState } from 'react'
 import { TrashIcon } from '@heroicons/react/24/outline'
 import { Btn} from '@/components/Buttons'
 import Modal from '@/components/Modal'
-import { fetchInsights, hideInsights } from '@/services/insights'
+import { hideInsights, reportedInsights } from '@/services/insights'
 import { InsightProps } from '@/types'
 import EmptyState from '@/components/emptyState'
 import { toast } from 'react-toastify'
 
-const VisibleInsights = () => {
+const ReportedInsights = () => {
     const router = useRouter()
     const [showModal, setShowModal] = useState(false)
     const [responseData, setResponseData] = useState<any>()
@@ -21,17 +21,17 @@ const VisibleInsights = () => {
     const [loading, setLoading] = useState(false)
 
     useEffect(() =>{
-        const fetchAllInsights = async() =>{
+        const fetchReportedInsights = async() =>{
              setLoading(true)
             try {
-                const response = await fetchInsights({pageNumber: pageNumber, pageSize: 8})
+                const response = await reportedInsights({pageNumber: pageNumber, pageSize: 8, isHide: false})
                 setResponseData(response)
                 setLoading(false)
             } catch (error) {
                 console.log(error);    
             }
         }
-        fetchAllInsights()
+        fetchReportedInsights()
     },[pageNumber])
     console.log(responseData);
     
@@ -75,7 +75,7 @@ const VisibleInsights = () => {
             <EmptyState text='No insignts reported'/>:
             <Table
             head={['UserName', 'Insight Reported', 'Likes', 'Date Reported', 'Action']}
-            body={responseData?.result?.map((insight: InsightProps, index: number) =>
+            body={responseData?.data?.map((insight: InsightProps, index: number) =>
                 <>
                     <tr className='border border-white' key={index}>
                         <td className='p-4 font-normal tracking-wide pl-6'>
@@ -120,4 +120,4 @@ const VisibleInsights = () => {
   )
 }
 
-export default VisibleInsights
+export default ReportedInsights
